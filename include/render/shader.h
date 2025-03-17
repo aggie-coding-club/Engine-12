@@ -14,7 +14,7 @@ protected:
 
 public:
 	Shader();
-	~Shader();
+	virtual ~Shader();
 
     virtual void UpdateData();
 	void SetShadersFileName(const std::string &vFileName, const std::string &sFileName);

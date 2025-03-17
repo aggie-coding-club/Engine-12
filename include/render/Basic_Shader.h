@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cmath>
+
 #include "render/tiny_obj_loader.h"
 
 #include "render/Shader.h"
@@ -39,7 +41,7 @@ struct BVHNode
     alignas(4) int triangleCount;
 };
 
-class Basic_Shader : public Shader
+class Basic_Shader final : public Shader
 {
 
     std::shared_ptr<Camera> camera;
@@ -47,43 +49,24 @@ class Basic_Shader : public Shader
     std::vector<int> triIndexs;
     std::vector<ModelInfo> models;
     std::unordered_map<std::string, std::pair<unsigned int, unsigned int>> loadedMeshOffset;
-    std::unordered_map<std::string, bool> modelsLoaded;
+    std::unordered_map<std::string, int> modelsLoaded;
     std::vector<BVHNode> bvhNodes;
 
-    void BuildBVH(unsigned int triStartIndex, unsigned int triCount)
+    static float NodeCost(const glm::vec3 size,const int triNum)
     {
-        BVHNode root{glm::vec3(std::numeric_limits<float>::infinity()),
-                     glm::vec3(-std::numeric_limits<float>::infinity()),
-                     -1, -1};
-
-        for(size_t i = 0; i < triCount; i++)
-        {
-            root.boundsMin = glm::min(root.boundsMin, (triangles)[triStartIndex + i].posA);
-            root.boundsMin = glm::min(root.boundsMin, triangles[triStartIndex + i].posB);
-            root.boundsMin = glm::min(root.boundsMin, triangles[triStartIndex + i].posC);
-            root.boundsMax = glm::max(root.boundsMax, triangles[triStartIndex + i].posA);
-            root.boundsMax = glm::max(root.boundsMax, triangles[triStartIndex + i].posB);
-            root.boundsMax = glm::max(root.boundsMax, triangles[triStartIndex + i].posC);
-        }
-        bvhNodes.push_back(root);
-        Split(bvhNodes.size() - 1, triStartIndex, triCount);
-    }
-
-    float NodeCost(glm::vec3 size, int triNum)
-    {
-        float area = size.x * size.y + size.x * size.z + size.y * size.z;
-        return area * triNum;
+        const float area = size.x * size.y + size.x * size.z + size.y * size.z;
+        return area * static_cast<float>(triNum);
     }
 
     struct BoundingBox
     {
-        glm::vec3 Min;
-        glm::vec3 Max;
+        glm::vec3 Min{};
+        glm::vec3 Max{};
         [[nodiscard]] glm::vec3 Center() const { return (Min + Max) / 2.f; }
         [[nodiscard]] glm::vec3 Size() const { return Max - Min; }
         bool hasPoint = false;
 
-        void GrowToInclude(Triangle tri)
+        void GrowToInclude(const Triangle &tri)
         {
             if (hasPoint)
             {
@@ -99,14 +82,14 @@ class Basic_Shader : public Shader
         }
     };
 
-    float SurfaceArea(const BoundingBox& box)
+    static float SurfaceArea(const BoundingBox& box)
     {
         glm::vec3 size = box.Size();
         return 2.0f * (size.x * size.y + size.x * size.z + size.y * size.z);
     }
 
 
-    glm::vec3 GetTriCenter(Triangle tri)
+    static glm::vec3 GetTriCenter(Triangle &tri)
     {
         glm::vec3 center = tri.posA + tri.posB + tri.posC;
         return center / 3.f;
@@ -120,15 +103,14 @@ class Basic_Shader : public Shader
 
         for (int i = triStartIndex; i < triStartIndex + triCount; ++i)
         {
-            const Triangle* tri = &triangles[triIndexs[i]];
-            if (GetTriCenter(*tri)[splitAxis] < splitPos)
+            if (GetTriCenter(triangles[triIndexs[i]])[splitAxis] < splitPos)
             {
-                boundsLeft.GrowToInclude(*tri);
+                boundsLeft.GrowToInclude(triangles[triIndexs[i]]);
                 ++numOnLeft;
             }
             else
             {
-                boundsRight.GrowToInclude(*tri);
+                boundsRight.GrowToInclude(triangles[triIndexs[i]]);
                 ++numOnRight;
             }
         }
@@ -138,14 +120,14 @@ class Basic_Shader : public Shader
             return std::numeric_limits<float>::infinity(); // Avoid empty splits
         }
 
-        float SA_P = SurfaceArea(BoundingBox{boundsLeft.Min, boundsRight.Max}); // Parent surface area
-        float SA_L = SurfaceArea(boundsLeft);
-        float SA_R = SurfaceArea(boundsRight);
+        const float SA_P = SurfaceArea(BoundingBox{boundsLeft.Min, boundsRight.Max}); // Parent surface area
+        const float SA_L = SurfaceArea(boundsLeft);
+        const float SA_R = SurfaceArea(boundsRight);
 
-        const float C_T = 1.0f; // Traversal cost
-        const float C_I = 1.0f; // Intersection cost
+        constexpr float C_T = 1.0f; // Traversal cost
+        constexpr float C_I = 1.0f; // Intersection cost
 
-        float cost = C_T + ((SA_L / SA_P) * numOnLeft * C_I) + ((SA_R / SA_P) * numOnRight * C_I);
+        const float cost = C_T + ((SA_L / SA_P) * static_cast<float>(numOnLeft) * C_I) + ((SA_R / SA_P) * static_cast<float>(numOnRight) * C_I);
         return cost;
     }
 
@@ -174,9 +156,9 @@ class Basic_Shader : public Shader
         {
             for (int i = 0; i < numSplitTests; ++i)
             {
-                float splitT = ((float)i + 1.f) / (numSplitTests + 1.f);
-                float splitPos = node.boundsMin[axis] + ((node.boundsMax[axis] - node.boundsMin[axis]) * splitT);
-                float cost = EvaluateSplit(axis, splitPos, triStartPos, triCount);
+                const float splitT = (static_cast<float>(i) + 1.f) / (numSplitTests + 1.f);
+                const float splitPos = node.boundsMin[axis] + ((node.boundsMax[axis] - node.boundsMin[axis]) * splitT);
+                const float cost = EvaluateSplit(axis, splitPos, triStartPos, triCount);
 
                 if (cost < bestCost)
                 {
@@ -192,33 +174,32 @@ class Basic_Shader : public Shader
 
     void Split(int parentIndex, int triStartIndex, int triCount, int depth = 0)
     {
-        const int MaxDepth = 64;
+        constexpr int MaxDepth = 64;
         BVHNode parent = bvhNodes[parentIndex];
         glm::vec3 size = parent.boundsMax - parent.boundsMin;
         float parentCost = NodeCost(size, triCount);
 
-        SplitCalc result = ChooseSplit(parent, triStartIndex, triCount);
+        auto [axis, pos, cost] = ChooseSplit(parent, triStartIndex, triCount);
 
-        if (depth < MaxDepth && result.cost < parentCost)
+        if (depth < MaxDepth && cost < parentCost)
         {
             BoundingBox boundsLeft, boundsRight;
             int numOnLeft = 0;
 
             for (int i = triStartIndex; i < triStartIndex + triCount; ++i)
             {
-                Triangle* tri = &triangles[triIndexs[i]];
-                if(GetTriCenter(*tri)[result.axis] < result.pos)
+                if(GetTriCenter(triangles[triIndexs[i]])[axis] < pos)
                 {
                     int temp = triIndexs[i];
                     triIndexs[i] = triIndexs[triStartIndex + numOnLeft];
                     triIndexs[triStartIndex + numOnLeft] = temp;
 
-                    boundsLeft.GrowToInclude(*tri);
+                    boundsLeft.GrowToInclude(triangles[triIndexs[i]]);
                     ++numOnLeft;
                 }
                 else
                 {
-                    boundsRight.GrowToInclude(*tri);
+                    boundsRight.GrowToInclude(triangles[triIndexs[i]]);
                 }
             }
 
@@ -244,6 +225,25 @@ class Basic_Shader : public Shader
             parent.triangleCount = triCount;
             bvhNodes[parentIndex] = parent;
         }
+    }
+
+    void BuildBVH(int triStartIndex, int triCount)
+    {
+        BVHNode root{glm::vec3(std::numeric_limits<float>::infinity()),
+                     glm::vec3(-std::numeric_limits<float>::infinity()),
+                     -1, -1};
+
+        for(size_t i = 0; i < triCount; i++)
+        {
+            root.boundsMin = glm::min(root.boundsMin, triangles[triStartIndex + i].posA);
+            root.boundsMin = glm::min(root.boundsMin, triangles[triStartIndex + i].posB);
+            root.boundsMin = glm::min(root.boundsMin, triangles[triStartIndex + i].posC);
+            root.boundsMax = glm::max(root.boundsMax, triangles[triStartIndex + i].posA);
+            root.boundsMax = glm::max(root.boundsMax, triangles[triStartIndex + i].posB);
+            root.boundsMax = glm::max(root.boundsMax, triangles[triStartIndex + i].posC);
+        }
+        bvhNodes.push_back(root);
+        Split(static_cast<int>(bvhNodes.size()) - 1, triStartIndex, triCount);
     }
 
     // Function to generate a normal for a face (using the cross product of two edges)
@@ -397,12 +397,12 @@ class Basic_Shader : public Shader
 
 public:
 
-    void PrintVec3(glm::vec3 print)
+    static void PrintVec3(glm::vec3 print)
     {
         std::cout << "(" << print[0] << ", " << print[1] << ", " << print[2] << ")" << std::endl;
     }
 
-    void UpdateData() {
+    void UpdateData() override {
         camera = scene->GetCurrCamera();
         if (!camera) // Check for a null camera
         {
@@ -423,7 +423,7 @@ public:
         float focusDist = camera->GetFocusDist();
         float aspect = camera->GetAspect();
 
-        float planeHeight = focusDist * tan(glm::radians(fovy) * 0.5f) * 2.0f;
+        float planeHeight = focusDist * std::tan(glm::radians(fovy) * 0.5f) * 2.0f;
         float planeWidth = planeHeight * aspect;
 
         int useSun = 1;
@@ -450,12 +450,11 @@ public:
                     BuildBVH(offset, triangles.size() - offset);
                 }
 
-                glm::mat4 modelMatrix(1.0f);
-                modelMatrix = glm::translate(glm::mat4(1.0f), objTransform->position)
-                              * glm::rotate(glm::mat4(1.0f), glm::radians(objTransform->rotation[0]), glm::vec3(1.0f, 0.0f, 0.0f))
-                              * glm::rotate(glm::mat4(1.0f), glm::radians(objTransform->rotation[1]), glm::vec3(0.0f, 1.0f, 0.0f))
-                              * glm::rotate(glm::mat4(1.0f), glm::radians(objTransform->rotation[2]), glm::vec3(0.0f, 0.0f, 1.0f))
-                              * glm::scale(glm::mat4(1.0f), objTransform->scale);
+                glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), objTransform->position)
+                      * glm::rotate(glm::mat4(1.0f), glm::radians(objTransform->rotation[0]), glm::vec3(1.0f, 0.0f, 0.0f))
+                      * glm::rotate(glm::mat4(1.0f), glm::radians(objTransform->rotation[1]), glm::vec3(0.0f, 1.0f, 0.0f))
+                      * glm::rotate(glm::mat4(1.0f), glm::radians(objTransform->rotation[2]), glm::vec3(0.0f, 0.0f, 1.0f))
+                      * glm::scale(glm::mat4(1.0f), objTransform->scale);
 
                 ModelInfo currentModel{};
                 currentModel.triOffset = loadedMeshOffset[modelPath].first;
@@ -463,26 +462,47 @@ public:
                 currentModel.worldToLocalMatrix = glm::inverse(modelMatrix);
                 currentModel.material = objMaterial->getMaterial();
 
-                models.push_back(currentModel);
+                modelsLoaded[model->name] = models.size();
 
-                modelsLoaded[model->name] = true;
+                models.push_back(currentModel);
             }
-// Handle lights
-//            const auto& lights = scene->GetLights();
-//            for (size_t i = 0; i < lights.size(); i++) {
-//                const auto& light = lights[i];
-//                const auto lightTransform = std::dynamic_pointer_cast<Transform>(light->components[TRANSFORM]);
-//                const auto lightComponent = std::dynamic_pointer_cast<Light>(light->components[LIGHT]);
-//
-//                std::string name = fmt::format("lights[{}]", i);
-//                this->SendUniformData(lightTransform->position, (name + ".position").c_str());
-//                this->SendUniformData(lightComponent->color, (name+".color").c_str());
-//            }
+            else
+            {
+                const auto& objTransform = std::dynamic_pointer_cast<Transform>( model->components[TRANSFORM]);
+                const auto& objMaterial = std::dynamic_pointer_cast<Material>( model->components[MATERIAL]);
+                const auto& objModel = std::dynamic_pointer_cast<Model>(model->components[MODEL]);
+
+                glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), objTransform->position)
+                      * glm::rotate(glm::mat4(1.0f), glm::radians(objTransform->rotation[0]), glm::vec3(1.0f, 0.0f, 0.0f))
+                      * glm::rotate(glm::mat4(1.0f), glm::radians(objTransform->rotation[1]), glm::vec3(0.0f, 1.0f, 0.0f))
+                      * glm::rotate(glm::mat4(1.0f), glm::radians(objTransform->rotation[2]), glm::vec3(0.0f, 0.0f, 1.0f))
+                      * glm::scale(glm::mat4(1.0f), objTransform->scale);
+
+                ModelInfo currentModel{};
+                currentModel.triOffset = loadedMeshOffset[objModel->modelPath].first;
+                currentModel.localToWorldMatrix = modelMatrix;
+                currentModel.worldToLocalMatrix = glm::inverse(modelMatrix);
+                currentModel.material = objMaterial->getMaterial();
+
+                models[modelsLoaded[model->name]] = currentModel;
+            }
+            /* Handle lights
+            const auto& lights = scene->GetLights();
+            for (size_t i = 0; i < lights.size(); i++) {
+                const auto& light = lights[i];
+                const auto lightTransform = std::dynamic_pointer_cast<Transform>(light->components[TRANSFORM]);
+                const auto lightComponent = std::dynamic_pointer_cast<Light>(light->components[LIGHT]);
+
+                std::string name = fmt::format("lights[{}]", i);
+                this->SendUniformData(lightTransform->position, (name + ".position").c_str());
+                this->SendUniformData(lightComponent->color, (name+".color").c_str());
+            } */
         }
+
         // Send viewParams as (width, height, focus distance)
         SendUniformData(glm::vec3(planeWidth, planeHeight, focusDist), "viewParams");
 
-        // Send enviornment params
+        // Send environment params
         SendUniformData(useSun, "useSky");
         SendUniformData(sunFocus, "sunFocus");
         SendUniformData(sunIntensity, "sunIntensity");

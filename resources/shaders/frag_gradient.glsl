@@ -174,8 +174,8 @@ vec3 GetEnvironmentLight(vec3 dir)
 	const vec3 SkyColorHorizon = vec3(1, 1, 1);
 	const vec3 SkyColorZenith = vec3(0.08, 0.37, 0.73);
 
-	float skyGradientT = pow(smoothstep(0, 0.4, dir.y), 0.35);
-	float groundToSkyT = smoothstep(-0.01, 0, dir.y);
+	float skyGradientT = pow(smoothstep(0.f, 0.4f, dir.y), 0.35);
+	float groundToSkyT = smoothstep(-0.01f, 0.f, dir.y);
 	vec3 skyGradient = lerp(SkyColorHorizon, SkyColorZenith, skyGradientT);
 	float sun = pow(max(0, dot(dir, vec3(1,1,1))), sunFocus) * sunIntensity;
 	// Combine ground, sky, and sun
@@ -215,14 +215,19 @@ TriangleHitInfo RayTriangle(Ray ray, Triangle tri) {
 float RayBoundingBoxDst(Ray ray, vec3 boxMin, vec3 boxMax) {
 	vec3 tMin = (boxMin - ray.origin) * ray.invDir;
 	vec3 tMax = (boxMax - ray.origin) * ray.invDir;
+
 	vec3 t1 = min(tMin, tMax);
 	vec3 t2 = max(tMin, tMax);
+
 	float tNear = max(max(t1.x, t1.y), t1.z);
 	float tFar = min(min(t2.x, t2.y), t2.z);
 
-	float hit = step(0.0, tFar - tNear) * step(0.0, tFar);
-	float dst = mix(float(uintBitsToFloat(0x7F800000)), max(0.0, tNear), hit);
-	return dst;
+	if((tFar >= tNear) && (tFar > 0))
+	{
+		return uintBitsToFloat(0x7F800000);
+	}
+
+	return max(0.0, tNear);
 }
 
 TriangleHitInfo RayTriangleBVH(inout Ray ray, float rayLength, int nodeOffset, int triOffset)
@@ -248,12 +253,13 @@ TriangleHitInfo RayTriangleBVH(inout Ray ray, float rayLength, int nodeOffset, i
 		{
 			for(int i = 0; i < node.triangleCount; i++)
 			{
-				TriangleHitInfo triHitInfo = RayTriangle(ray, triangles[triIndex[triOffset + node.startIndex + i]]);
+				Triangle tri = triangles[triIndex[triOffset + node.startIndex + i]];
+				TriangleHitInfo triHitInfo = RayTriangle(ray, tri);
 
 				if (triHitInfo.didHit && triHitInfo.dst < result.dst)
 				{
 					result = triHitInfo;
-					result.triIndex = node.startIndex + i;
+					result.triIndex = triOffset + node.startIndex + i;
 				}
 			}
 		}
@@ -266,6 +272,11 @@ TriangleHitInfo RayTriangleBVH(inout Ray ray, float rayLength, int nodeOffset, i
 
 			float dstA = RayBoundingBoxDst(ray, childA.boundsMin, childA.boundsMax);
 			float dstB = RayBoundingBoxDst(ray, childB.boundsMin, childB.boundsMax);
+
+			if (dstA > result.dst && dstB > result.dst)  // Skip both children
+			{
+				continue;
+			}
 
 			// Look at closeset child node first
 			bool isNearestA = bool(dstA <= dstB);
@@ -307,10 +318,9 @@ ModelHitInfo CalculateRayCollision(Ray worldRay)
 
 		if(hit.dst < result.dst)
 		{
-			result.didHit = true;
+			result.didHit = hit.didHit;
 			result.dst = hit.dst;
-//			result.normal = normalize(transpose(inverse(mat3(model.localToWorldMatrix))) * hit.normal);
-			result.normal = hit.normal;
+			result.normal = normalize(model.localToWorldMatrix * vec4(worldRay.dir, 0)).xyz;
 			result.uv = hit.uv;
 			result.hitPoint = worldRay.origin + worldRay.dir * hit.dst;
 			result.material = model.material;
@@ -333,7 +343,7 @@ vec3 Trace(vec3 rayOrigin, vec3 rayDir)
 		return GetEnvironmentLight(rayDir);
 	}
 
-	return hitInfo.normal;
+	return hitInfo.material.color.rgb;
 }
 
 void main()
@@ -354,21 +364,13 @@ void main()
 	ray.origin = rayOrigin;
 	ray.invDir = 1.f / rayDir;
 
-	Triangle tri;
-	tri.posA = vec3(0.5, -0.5, 0);
-	tri.posB = vec3(0.5, 0.5, 0);
-	tri.posC = vec3(-0.5, 0.5, 0);
-	tri.normalA = vec3(0, 0, 1);
-	tri.normalB = vec3(0, 0, 1);
-	tri.normalC = vec3(0, 0, 1);
-
 	fragColor = vec4(Trace(rayOrigin, rayDir), 1);
 
-//	fragColor = vec4(RayTriangle(ray, triangles[0]).dst);
+//	fragColor = vec4(RayTriangle(ray, triangles[0]).didHit);
 
 //	fragColor = vec4(RayBoundingBoxDst(ray, nodes[0].boundsMin, nodes[0].boundsMax));
 
-//	fragColor = vec4(RayTriangleBVH(ray, uintBitsToFloat(0x7F800000), 0, 0).normal, 1);
+//	fragColor = vec4(RayTriangleBVH(ray, uintBitsToFloat(0x7F800000), 0, 0).didHit);
 
-//	fragColor = vec4(CalculateRayCollision(ray).normal, 1);
+//	fragColor = vec4(CalculateRayCollision(ray).didHit);
 }
