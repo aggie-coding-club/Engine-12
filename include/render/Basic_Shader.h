@@ -244,6 +244,8 @@ class Basic_Shader final : public Shader
         }
         bvhNodes.push_back(root);
         Split(static_cast<int>(bvhNodes.size()) - 1, triStartIndex, triCount);
+
+        std::cout << bvhNodes.size() << std::endl;
     }
 
     // Function to generate a normal for a face (using the cross product of two edges)
@@ -366,7 +368,7 @@ class Basic_Shader final : public Shader
                     }
 
                     triangles.push_back(tri);
-                    triIndexs.push_back(triIndexs.size());
+                    triIndexs.push_back(static_cast<int>(triIndexs.size()));
                 }
             }
         }
@@ -445,9 +447,9 @@ public:
                 if (loadedMeshOffset.find(modelPath) == loadedMeshOffset.end()) {
                     // Load model buffers if they are not already loaded
                     LoadModel(modelPath);
-                    int offset = loadedMeshOffset[modelPath].first;
+                    int offset = static_cast<int>(loadedMeshOffset[modelPath].first);
                     loadedMeshOffset[modelPath].second = bvhNodes.size();
-                    BuildBVH(offset, triangles.size() - offset);
+                    BuildBVH(offset, static_cast<int>(triangles.size()) - offset);
                 }
 
                 glm::mat4 modelMatrix = glm::translate(glm::mat4(1.0f), objTransform->position)
@@ -457,12 +459,13 @@ public:
                       * glm::scale(glm::mat4(1.0f), objTransform->scale);
 
                 ModelInfo currentModel{};
-                currentModel.triOffset = loadedMeshOffset[modelPath].first;
+                currentModel.triOffset = static_cast<int>(loadedMeshOffset[modelPath].first);
+                currentModel.nodeOffset = static_cast<int>(loadedMeshOffset[modelPath].second);
                 currentModel.localToWorldMatrix = modelMatrix;
                 currentModel.worldToLocalMatrix = glm::inverse(modelMatrix);
                 currentModel.material = objMaterial->getMaterial();
 
-                modelsLoaded[model->name] = models.size();
+                modelsLoaded[model->name] = static_cast<int>(models.size());
 
                 models.push_back(currentModel);
             }
@@ -479,7 +482,8 @@ public:
                       * glm::scale(glm::mat4(1.0f), objTransform->scale);
 
                 ModelInfo currentModel{};
-                currentModel.triOffset = loadedMeshOffset[objModel->modelPath].first;
+                currentModel.triOffset = static_cast<int>(loadedMeshOffset[objModel->modelPath].first);
+                currentModel.nodeOffset = static_cast<int>(loadedMeshOffset[objModel->modelPath].second);
                 currentModel.localToWorldMatrix = modelMatrix;
                 currentModel.worldToLocalMatrix = glm::inverse(modelMatrix);
                 currentModel.material = objMaterial->getMaterial();

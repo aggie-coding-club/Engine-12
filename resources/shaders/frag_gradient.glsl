@@ -222,7 +222,7 @@ float RayBoundingBoxDst(Ray ray, vec3 boxMin, vec3 boxMax) {
 	float tNear = max(max(t1.x, t1.y), t1.z);
 	float tFar = min(min(t2.x, t2.y), t2.z);
 
-	if((tFar >= tNear) && (tFar > 0))
+	if((tFar < tNear) && (tFar < 0))
 	{
 		return uintBitsToFloat(0x7F800000);
 	}
@@ -238,16 +238,13 @@ TriangleHitInfo RayTriangleBVH(inout Ray ray, float rayLength, int nodeOffset, i
 
 	int stack[64];
 	int stackIndex = 0;
-	stack[stackIndex] = nodeOffset;
-	++stackIndex;
+	stack[stackIndex++] = nodeOffset;
 
 	while (stackIndex > 0)
 	{
-		--stackIndex;
-		int nodeIndex = stack[stackIndex];
-
+		int nodeIndex = stack[--stackIndex];
 		BVHNode node = nodes[nodeIndex];
-		bool isLeaf = bool(node.triangleCount > 0);
+		bool isLeaf = (node.triangleCount > 0);
 
 		if(isLeaf)
 		{
@@ -265,8 +262,9 @@ TriangleHitInfo RayTriangleBVH(inout Ray ray, float rayLength, int nodeOffset, i
 		}
 		else
 		{
-			int childIndexA = nodeOffset + node.startIndex + 0;
+			int childIndexA = nodeOffset + node.startIndex;
 			int childIndexB = nodeOffset + node.startIndex + 1;
+
 			BVHNode childA = nodes[childIndexA];
 			BVHNode childB = nodes[childIndexB];
 
@@ -279,21 +277,19 @@ TriangleHitInfo RayTriangleBVH(inout Ray ray, float rayLength, int nodeOffset, i
 			}
 
 			// Look at closeset child node first
-			bool isNearestA = bool(dstA <= dstB);
+			bool isNearestA = (dstA < dstB);
 			float dstNear = isNearestA ? dstA : dstB;
 			float dstFar = isNearestA ? dstB : dstA;
 			int childIndexNear = isNearestA ? childIndexA : childIndexB;
 			int childIndexFar = isNearestA ? childIndexB : childIndexA;
 
-			if(dstFar < result.dst)
+			if(dstFar < result.dst && stackIndex < 64)
 			{
-				stack[stackIndex] = childIndexFar;
-				stackIndex++;
+				stack[stackIndex++] = childIndexFar;
 			}
-			if(dstNear < result.dst)
+			if(dstNear < result.dst && stackIndex < 64)
 			{
-				stack[stackIndex] = childIndexNear;
-				stackIndex++;
+				stack[stackIndex++] = childIndexNear;
 			}
 		}
 	}
