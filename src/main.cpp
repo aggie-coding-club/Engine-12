@@ -14,6 +14,7 @@
 #include <GLES2/gl2.h>
 #endif
 #include <memory>
+#include <filesystem>
 #include <GLFW/glfw3.h> // Will drag system OpenGL headers
 
 #include "core/game_engine.h"
@@ -24,6 +25,9 @@
 #include <yaml-cpp/yaml.h> // for tests, remove later
 #include <serial/lights.h>
 #include <serial/models.h>
+#include "core/scene.h"
+#include "scripting/scripting_engine.h"
+#include "serial/scenes.h"
 #include "serial/project.h"
 
 #define WINDOW_WIDTH 1920
@@ -36,6 +40,7 @@ GLFWwindow *window;
 
 std::unique_ptr<GuiEngine> guiEngine;
 std::unique_ptr<RenderEngine> renderEngine;
+std::unique_ptr<ScriptingEngine> scriptingEngine;
 std::unique_ptr<PhysicsEngine> physicsEngine;
 
 GameEngine gameEngine;
@@ -82,9 +87,16 @@ int main(int argc, char *argv[])
 	glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 	glEnable(GL_DEPTH_TEST);
 
+	// Creates the assets folder if it doesn't already exist
+	if (!std::filesystem::exists(std::filesystem::current_path() / "Assets")) {
+		std::filesystem::create_directory(std::filesystem::current_path() / "Assets");
+	}
+
 	guiEngine = std::make_unique<GuiEngine>();
 	renderEngine = std::make_unique<RenderEngine>(window, &gameEngine);
-    physicsEngine = std::make_unique<PhysicsEngine>(&gameEngine, &timeDelta);
+	scriptingEngine = std::make_unique<ScriptingEngine>();
+	scriptingEngine->init();
+  physicsEngine = std::make_unique<PhysicsEngine>(&gameEngine, &timeDelta);
 
 	guiEngine->init(window, &gameEngine);
     physicsEngine->Activate();
@@ -105,6 +117,7 @@ int main(int argc, char *argv[])
         timeDelta = end - start;
         std::cout << timeDelta.count() << std::endl;
 		glfwSwapBuffers(window);
+		scriptingEngine->runScriptUpdate();
 	}
 	guiEngine->cleanup();
 
@@ -119,7 +132,7 @@ int main(int argc, char *argv[])
 	}
 	yamlFile << node;
 	yamlFile.close();
-
+	scriptingEngine->cleanUp();
 
 
 	return 0;
