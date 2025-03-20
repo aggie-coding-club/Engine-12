@@ -8,6 +8,7 @@
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <GLES2/gl2.h>
 #endif
+#include <GLFW/glfw3.h> // Will drag system OpenGL headers
 #include "core/game_engine.h"
 #include "core/camera.h"
 
@@ -17,25 +18,19 @@
 #include "Viewport.h"
 #include "FileHierarchy.h"
 #include "MenuBar.h"
-#include "secondary_menu_bar.h"
-#include "LoadFileWindow.h"
-#include "SaveAsWindow.h"
 
 class GuiEngine
 {
 private:
-     ImGuiIO* io;
-     ImVec4 clearColor = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
-     GLFWwindow* window;
-     GameEngine* gameEngine;
-     ImFont* inter_24;
-     ImFont* icons;
-     bool showDetail = true;
-     bool showHierarchy = true;
-     bool showCameraWindow = false;
-     bool showAddObject = false;
-     bool showLoadFile = false;
-     bool showSaveAs = false;
+    ImGuiIO* io;
+    ImVec4 clearColor = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+    GLFWwindow* window;
+    GameEngine* gameEngine;
+    ImFont* inter_24;
+    bool showDetail = true;
+    bool showHierarchy = true;
+    bool showCameraWindow = false;
+    bool showAddObject = false;
 
     char objectLocation[128];
     char objectName[128];
@@ -46,15 +41,12 @@ private:
     Details details;
     MenuBar menuBar;
     AddObjectWindow addObjectWindow;
-    SecondMenuBar secondMenuBar;
-    LoadFileWindow loadFileWindow;
-    SaveAsWindow saveAsWindow;
 
 public:
-     bool showView = true;
-     GuiEngine() = default;
-     ~GuiEngine() = default;
-     bool init(GLFWwindow *window , GameEngine *_game_engine);
-     void run(unsigned int& texture, unsigned int& rbo);
-     void cleanup();
+    bool showView = true;
+    GuiEngine() = default;
+    ~GuiEngine() = default;
+    bool init(GLFWwindow *window , GameEngine *_game_engine);
+    void run(int width, int height);
+    void cleanup();
 };

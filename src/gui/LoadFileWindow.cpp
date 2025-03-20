@@ -21,7 +21,7 @@ void LoadFileWindow::showLoadFileWindow(GameEngine *engine, bool &showLoadFile) 
     ImGui::BeginChild("FileList", ImVec2(0,200), true);
     for (const auto &file : fileList) {
         if (ImGui::Selectable(file.stem().string().c_str())) {
-            filePath = file;
+            filePath = file.string();
         }
     }
     ImGui::EndChild();

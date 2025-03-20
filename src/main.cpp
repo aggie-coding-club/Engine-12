@@ -137,7 +137,7 @@ int main(int argc, char *argv[])
 
 		guiEngine->run(width,height);
 		if(guiEngine->showView) {
-			renderEngine->Display(framebuffer, width, height);
+			renderEngine->Display();
 		}
         end = std::chrono::steady_clock::now();
         timeDelta = end - start;

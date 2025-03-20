@@ -9,7 +9,7 @@
 
 void MenuBar::ShowMenuBar(GameEngine *engine, bool &ShowDetail, bool &ShowView, bool &ShowHierarchy, bool &ShowLoadFile, bool &ShowSaveAs) {
     if (ImGui::BeginMainMenuBar())
-    {   
+    {
 
         ImGui::Text(engine->getName().c_str());
         ImGui::SameLine();
