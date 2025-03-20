@@ -244,8 +244,6 @@ class Basic_Shader final : public Shader
         }
         bvhNodes.push_back(root);
         Split(static_cast<int>(bvhNodes.size()) - 1, triStartIndex, triCount);
-
-        std::cout << bvhNodes.size() << std::endl;
     }
 
     // Function to generate a normal for a face (using the cross product of two edges)

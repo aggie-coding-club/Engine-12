@@ -1,4 +1,5 @@
 #version 450 core
+#define BVH_STACK_SIZE 64
 
 const float PI = 3.1415;
 
@@ -213,30 +214,24 @@ TriangleHitInfo RayTriangle(Ray ray, Triangle tri) {
 }
 
 float RayBoundingBoxDst(Ray ray, vec3 boxMin, vec3 boxMax) {
-	vec3 tMin = (boxMin - ray.origin) * ray.invDir;
-	vec3 tMax = (boxMax - ray.origin) * ray.invDir;
-
-	vec3 t1 = min(tMin, tMax);
-	vec3 t2 = max(tMin, tMax);
-
-	float tNear = max(max(t1.x, t1.y), t1.z);
-	float tFar = min(min(t2.x, t2.y), t2.z);
-
-	if((tFar < tNear) && (tFar < 0))
+	vec3 t1 = (boxMin - ray.origin) * ray.invDir;
+	vec3 t2 = (boxMax - ray.origin) * ray.invDir;
+	float tmin = max(max(min(t1.x, t2.x), min(t1.y, t2.y)), min(t1.z, t2.z));
+	float tmax = min(min(max(t1.x, t2.x), max(t1.y, t2.y)), max(t1.z, t2.z));
+	if(tmax >= tmin && tmax > 0.0)
 	{
-		return uintBitsToFloat(0x7F800000);
+		return (tmin < 0.0) ? 0.0 : tmin;
 	}
-
-	return max(0.0, tNear);
+	return uintBitsToFloat(0x7F800000);
 }
 
-TriangleHitInfo RayTriangleBVH(inout Ray ray, float rayLength, int nodeOffset, int triOffset)
+TriangleHitInfo RayTriangleBVH(inout Ray ray, float rayLength, int nodeOffset, int triOffset, inout vec2 stats)
 {
 	TriangleHitInfo result;
 	result.dst = rayLength;
 	result.triIndex = -1;
 
-	int stack[64];
+	int stack[BVH_STACK_SIZE];
 	int stackIndex = 0;
 	stack[stackIndex++] = nodeOffset;
 
@@ -252,6 +247,7 @@ TriangleHitInfo RayTriangleBVH(inout Ray ray, float rayLength, int nodeOffset, i
 			{
 				Triangle tri = triangles[triIndex[triOffset + node.startIndex + i]];
 				TriangleHitInfo triHitInfo = RayTriangle(ray, tri);
+				++stats[1];
 
 				if (triHitInfo.didHit && triHitInfo.dst < result.dst)
 				{
@@ -270,11 +266,7 @@ TriangleHitInfo RayTriangleBVH(inout Ray ray, float rayLength, int nodeOffset, i
 
 			float dstA = RayBoundingBoxDst(ray, childA.boundsMin, childA.boundsMax);
 			float dstB = RayBoundingBoxDst(ray, childB.boundsMin, childB.boundsMax);
-
-			if (dstA > result.dst && dstB > result.dst)  // Skip both children
-			{
-				continue;
-			}
+			stats[0] += 2;
 
 			// Look at closeset child node first
 			bool isNearestA = (dstA < dstB);
@@ -283,13 +275,18 @@ TriangleHitInfo RayTriangleBVH(inout Ray ray, float rayLength, int nodeOffset, i
 			int childIndexNear = isNearestA ? childIndexA : childIndexB;
 			int childIndexFar = isNearestA ? childIndexB : childIndexA;
 
-			if(dstFar < result.dst && stackIndex < 64)
+			if(0 <= dstFar && dstFar < result.dst && stackIndex < BVH_STACK_SIZE)
 			{
 				stack[stackIndex++] = childIndexFar;
 			}
-			if(dstNear < result.dst && stackIndex < 64)
+			if(0 <= dstNear && dstNear <= result.dst && stackIndex < BVH_STACK_SIZE)
 			{
 				stack[stackIndex++] = childIndexNear;
+			}
+
+			if (stackIndex >= BVH_STACK_SIZE)
+			{
+				return result;
 			}
 		}
 	}
@@ -297,7 +294,7 @@ TriangleHitInfo RayTriangleBVH(inout Ray ray, float rayLength, int nodeOffset, i
 	return result;
 }
 
-ModelHitInfo CalculateRayCollision(Ray worldRay)
+ModelHitInfo CalculateRayCollision(Ray worldRay, inout vec2 stats)
 {
 	ModelHitInfo result;
 	result.dst = uintBitsToFloat(0x7F800000);
@@ -310,7 +307,7 @@ ModelHitInfo CalculateRayCollision(Ray worldRay)
 		localRay.dir = (model.worldToLocalMatrix * vec4(worldRay.dir, 0)).xyz;
 		localRay.invDir = 1 / localRay.dir;
 
-		TriangleHitInfo hit = RayTriangleBVH(localRay, result.dst, model.nodeOffset, model.triOffset);
+		TriangleHitInfo hit = RayTriangleBVH(localRay, result.dst, model.nodeOffset, model.triOffset, stats);
 
 		if(hit.dst < result.dst)
 		{
@@ -326,20 +323,20 @@ ModelHitInfo CalculateRayCollision(Ray worldRay)
 	return result;
 }
 
-vec3 Trace(vec3 rayOrigin, vec3 rayDir)
+vec3 Trace(vec3 rayOrigin, vec3 rayDir, inout vec2 stats)
 {
 	Ray ray;
 	ray.origin = rayOrigin;
 	ray.dir = rayDir;
 
 	uint rngState = 0;
-	ModelHitInfo hitInfo = CalculateRayCollision(ray);
+	ModelHitInfo hitInfo = CalculateRayCollision(ray, stats);
 	if (!hitInfo.didHit)
 	{
 		return GetEnvironmentLight(rayDir);
 	}
 
-	return hitInfo.material.color.rgb;
+	return hitInfo.normal;
 }
 
 void main()
@@ -359,12 +356,13 @@ void main()
 	ray.dir = rayDir;
 	ray.origin = rayOrigin;
 	ray.invDir = 1.f / rayDir;
+	vec2 stats = vec2(0,0);
 
-	fragColor = vec4(Trace(rayOrigin, rayDir), 1);
+	fragColor = vec4(Trace(rayOrigin, rayDir, stats), 1);
 
 //	fragColor = vec4(RayTriangle(ray, triangles[0]).didHit);
 
-//	fragColor = vec4(RayBoundingBoxDst(ray, nodes[0].boundsMin, nodes[0].boundsMax));
+//	fragColor = vec4(RayBoundingBoxDst(ray, nodes[0].boundsMin, nodes[0].boundsMax)/10);
 
 //	fragColor = vec4(RayTriangleBVH(ray, uintBitsToFloat(0x7F800000), 0, 0).didHit);
 
