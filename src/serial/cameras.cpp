@@ -15,11 +15,7 @@ YAML::Node SerializeCameras(const std::vector<std::shared_ptr<Camera>>& cameras)
         CurrCameraNode["center"] = std::vector<float>{center[0], center[1], center[2]};
 
         glm::vec3 eye = camera->GetPosition();
-        CurrCameraNode["position"] = std::vector<float>{eye[0], eye[1], eye[2]};
-
-        glm::vec3 up = camera->GetUpVec();
-        CurrCameraNode["up"] = std::vector<float>{up[0], up[1], up[2]};
-
+        CurrCameraNode["eye"] = std::vector<float>{eye[0], eye[1], eye[2]};
 
         CamerasNode["Camera" + std::to_string(index++)] = CurrCameraNode;
     }
@@ -34,8 +30,8 @@ void DeserializeCameras(std::vector<std::shared_ptr<Camera>>& cameras, const YAM
 
         camera->SetFovy(glm::degrees(cameraNode["fovy"].as<float>()));
         camera->SetAspect(1920.0 / 1080.0); // hardcoded
-        camera->SetRotation(glm::vec3(cameraNode["rotation"][0].as<float>(), cameraNode["rotation"][1].as<float>(), cameraNode["rotation"][2].as<float>()));
-        camera->SetPosition(glm::vec3(cameraNode["position"][0].as<float>(), cameraNode["position"][1].as<float>(), cameraNode["position"][2].as<float>()));
+        camera->SetRotation(glm::vec3(cameraNode["center"][0].as<float>(), cameraNode["center"][1].as<float>(), cameraNode["center"][2].as<float>()));
+        camera->SetPosition(glm::vec3(cameraNode["eye"][0].as<float>(), cameraNode["eye"][1].as<float>(), cameraNode["eye"][2].as<float>()));
         cameras.push_back(camera);
     }
 }

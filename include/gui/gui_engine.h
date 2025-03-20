@@ -31,6 +31,8 @@ private:
     bool showHierarchy = true;
     bool showCameraWindow = false;
     bool showAddObject = false;
+    bool showLoadFile = false;
+    bool showSaveAs = false;
 
     char objectLocation[128];
     char objectName[128];

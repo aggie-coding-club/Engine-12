@@ -18,7 +18,7 @@ void FileHierarchy::ShowFileHierarchy(std::shared_ptr<Scene> scene, bool &showAd
 
     // Create the window
     ImGui::Begin("Hierarchy",nullptr, window_flags);
-    ImGui::BeginTabBar("Hierarchy", ImGuiTabBarFlags_Reorderable);
+    ImGui::BeginTabBar("Hierarchy");
     ImGui::BeginTabItem("Objects");
     {
         if(ImGui::Button("Add Object")) {
