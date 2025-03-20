@@ -1,9 +1,11 @@
 #pragma once
 
-#include "imgui.h"
+#include <GL/glew.h>
 #include <GLFW/glfw3.h>
+
+#include "imgui.h"
 
 class Viewport{
   public:
-    void ShowViewport(ImVec2 window_Size);
+    void ShowViewport(unsigned int& textureColorbuffer);
 };

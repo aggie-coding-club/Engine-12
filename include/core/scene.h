@@ -29,8 +29,11 @@ private:
     static int randomId;
 public:
     std::shared_ptr<GameObject> selectedGameObj = nullptr;
+    bool mOrL; // Model or Light object
+
     std::shared_ptr<Camera> selectedCamera = nullptr;
-    bool mOrL;
+
+	int current_shader = 1;
 
     Scene() = default;
   	std::vector<std::shared_ptr<GameObject>>& 	GetModels()

@@ -3,12 +3,16 @@
 #include <fstream>
 #include <sstream>
 
-Shader::Shader() : programID(0) {}
+Shader::Shader() : shaderID(0) {}
 
 Shader::~Shader() {
-    if (programID != 0) {
-        glDeleteProgram(programID);
+    if (shaderID != 0) {
+        glDeleteProgram(shaderID);
     }
+}
+
+void Shader::UpdateData() {
+    this->SendUniformData(1.f,"tempcolor");
 }
 
 void Shader::SetShadersFileName(const std::string &vFileName, const std::string &sFileName)
@@ -34,11 +38,15 @@ void Shader::CheckShaderCompileStatus(GLuint shader)
     }
 }
 
-void Shader::Init()
-{
+void Shader::Init(std::shared_ptr<Scene> _Scene){
+
+    scene = _Scene;
+
+    // Step 1: Create shader objects
     GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
     GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
 
+    // Step 2: Load and set shader source
     std::string vstr = ReadShader(vertexShaderFileName);
     std::string fstr = ReadShader(fragmentShaderFileName);
 
@@ -49,38 +57,84 @@ void Shader::Init()
 
     const char* vsText = vstr.c_str();
     glShaderSource(vertShader, 1, &vsText, nullptr);
+
     const char* fsText = fstr.c_str();
     glShaderSource(fragShader, 1, &fsText, nullptr);
 
+    // Step 3: Compile shaders
     glCompileShader(vertShader);
-    std::cout << "Vertex shader compilation: ";
-    CheckShaderCompileStatus(vertShader);
-
-    glCompileShader(fragShader);
-    std::cout << "Fragment shader compilation: ";
-    CheckShaderCompileStatus(fragShader);
-
-    programID = glCreateProgram();
-    glAttachShader(programID, vertShader);
-    glAttachShader(programID, fragShader);
-
-    glLinkProgram(programID);
-    GLint status;
-    glGetProgramiv(programID, GL_LINK_STATUS, &status);
-    if (!status) {
-        GLint logLength;
-        glGetProgramiv(programID, GL_INFO_LOG_LENGTH, &logLength);
-        if (logLength > 0) {
-            std::vector<char> log(logLength);
-            glGetProgramInfoLog(programID, logLength, nullptr, log.data());
-            std::cerr << "Shader Program Linking Error: " << std::endl << log.data() << std::endl;
-        }
+    if (!CheckShaderCompileStatus(vertShader, "Vertex Shader")) {
+        glDeleteShader(vertShader);
         return;
     }
 
-    // Cleanup shaders after linking
+    glCompileShader(fragShader);
+    if (!CheckShaderCompileStatus(fragShader, "Fragment Shader")) {
+        glDeleteShader(vertShader);
+        glDeleteShader(fragShader);
+        return;
+    }
+
+    // Step 4: Link shaders into a program
+    shaderID = glCreateProgram();
+    glAttachShader(shaderID, vertShader);
+    glAttachShader(shaderID, fragShader);
+
+    // Bind attribute locations before linking
+    glBindAttribLocation(shaderID, 0, "aPosition");    // Vertex position
+    glBindAttribLocation(shaderID, 1, "aTexCoord");    // Texture coordinates
+    glBindAttribLocation(shaderID, 2, "aNormal");      // Vertex normal
+
+    glLinkProgram(shaderID);
+    if (!CheckProgramLinkStatus(shaderID)) {
+        glDeleteShader(vertShader);
+        glDeleteShader(fragShader);
+        glDeleteProgram(shaderID);
+        return;
+    }
+
+    // Cleanup shaders after successful linking
     glDeleteShader(vertShader);
     glDeleteShader(fragShader);
+
+    // Step 5: Use the program (optional)
+    glUseProgram(shaderID);
+
+    std::cout << "Shader program initialized successfully!" << std::endl;
+}
+
+// Helper: Check Shader Compilation
+bool Shader::CheckShaderCompileStatus(GLuint shader, const std::string& shaderName) {
+    GLint success;
+    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+    if (!success) {
+        GLint logLength;
+        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &logLength);
+        if (logLength > 0) {
+            std::vector<char> log(logLength);
+            glGetShaderInfoLog(shader, logLength, nullptr, log.data());
+            std::cerr << shaderName << " Compilation Error: " << std::endl << log.data() << std::endl;
+        }
+        return false;
+    }
+    return true;
+}
+
+// Helper: Check Program Linking
+bool Shader::CheckProgramLinkStatus(GLuint program) {
+    GLint success;
+    glGetProgramiv(program, GL_LINK_STATUS, &success);
+    if (!success) {
+        GLint logLength;
+        glGetProgramiv(program, GL_INFO_LOG_LENGTH, &logLength);
+        if (logLength > 0) {
+            std::vector<char> log(logLength);
+            glGetProgramInfoLog(program, logLength, nullptr, log.data());
+            std::cerr << "Shader Program Linking Error: " << std::endl << log.data() << std::endl;
+        }
+        return false;
+    }
+    return true;
 }
 
 std::string Shader::ReadShader(const std::string &name)
@@ -96,7 +150,7 @@ std::string Shader::ReadShader(const std::string &name)
     return ss.str();
 }
 
-void Shader::SendAttributeData(std::vector<float>& buffer, const char* name)
+void Shader::SendBufferData(std::vector<float>& buffer, const char* name)
 {
     if (buffer.empty()) {
         std::cerr << "Empty buffer for attribute: " << name << std::endl;
@@ -116,7 +170,7 @@ void Shader::SendAttributeData(std::vector<float>& buffer, const char* name)
     glBindBuffer(GL_ARRAY_BUFFER, bufferID);  // Bind the buffer
     glBufferData(GL_ARRAY_BUFFER, sizeof(float) * buffer.size(), buffer.data(), GL_STATIC_DRAW);  // Update buffer data
 
-    GLint aLoc = glGetAttribLocation(programID, name);  // Get attribute location
+    GLint aLoc = glGetAttribLocation(shaderID, name);  // Get attribute location
     if (aLoc == -1) {
         std::cerr << "Attribute " << name << " not found in shader program." << std::endl;
         return;
@@ -126,33 +180,34 @@ void Shader::SendAttributeData(std::vector<float>& buffer, const char* name)
     glVertexAttribPointer(aLoc, 3, GL_FLOAT, GL_FALSE, 0, nullptr);  // Set the pointer for vertex attributes
 }
 
-
-
-
-
 void Shader::SendUniformData(int input, const char* name)
 {
-    glUniform1i(glGetUniformLocation(programID, name), input);
+    glUniform1i(glGetUniformLocation(shaderID, name), input);
 }
 
 void Shader::SendUniformData(float input, const char* name)
 {
-    glUniform1f(glGetUniformLocation(programID, name), input);
+    glUniform1f(glGetUniformLocation(shaderID, name), input);
+}
+
+void Shader::SendUniformData(glm::vec2 input, const char* name)
+{
+    glUniform2f(glGetUniformLocation(shaderID, name), input.x, input.y);
 }
 
 void Shader::SendUniformData(glm::vec3 input, const char* name)
 {
-    glUniform3f(glGetUniformLocation(programID, name), input.x, input.y, input.z);
+    glUniform3f(glGetUniformLocation(shaderID, name), input.x, input.y, input.z);
 }
 
 void Shader::SendUniformData(glm::mat4 &input, const char* name)
 {
-    glUniformMatrix4fv(glGetUniformLocation(programID, name), 1, GL_FALSE, &input[0][0]);
+    glUniformMatrix4fv(glGetUniformLocation(shaderID, name), 1, GL_FALSE, &input[0][0]);
 }
 
 void Shader::Bind()
 {
-    glUseProgram(programID);
+    glUseProgram(shaderID);
 }
 
 void Shader::Unbind()

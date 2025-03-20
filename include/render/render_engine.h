@@ -1,23 +1,10 @@
 #pragma once
 
-#include "shader.h"
-#include "core/camera.h"
+#include "render/basic_shader.h"
 #include "core/game_engine.h"
 
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <iostream>
-#include <string>
-#include <vector>
-#include <unordered_map>
-
-#define WINDOW_WIDTH 640
-#define WINDOW_HEIGHT 480
-#define NUM_LIGHTS 2
-#define NUM_MATERIALS 3
-#define NUM_SHADERS 3
 
 class RenderEngine
 {
@@ -25,36 +12,30 @@ class RenderEngine
 	const std::string modelPath = "../resources/models/";
 	const std::string shadersPath = "../resources/shaders/";
 
-	std::string verts[NUM_SHADERS] = {
-	    "phong_vert.glsl",
+	std::string verts[2] = {
+	    "vert_gradient.glsl",
+		"vert_gradient.glsl",
 	};
 
-	std::string frags[NUM_SHADERS] = {
-	    "phong_frag.glsl",
+	std::string frags[2] = {
+	    "frag_gradient.glsl",
+	    "frag_gradient.glsl",
 	};
 
-	Shader program;
-	std::unordered_map<std::string, std::vector<float>> posBuffMap;
-	std::unordered_map<std::string, std::vector<float>> texBuffMap;
-	std::unordered_map<std::string, std::vector<float>> norBuffMap;
-
-	std::vector<float> posBuff;
-	std::vector<float> norBuff;
-	std::vector<float> texBuff;
-
-	struct lightStruct {
-		glm::vec3 position;
-		glm::vec3 color;
-	} lights[NUM_LIGHTS];
-
-	int mat_idx = 0;
-	int shader_idx = 0;
-
-	std::shared_ptr<Camera> camera;
+	Basic_Shader currShader;
 	GameEngine* gameEngine;
 
-	// Helper Function to generate normals when obj doesn't have normals saved in the file
-	glm::vec3 GenerateNormal(const std::vector<glm::vec3>& faceVertices);
+	// Vertex data: positions and texture coordinates for the rectangle
+	GLfloat vertices[30] = {
+		// Positions        // Texture Coordinates
+		-0.5f, -0.5f, 0.0f,  0.0f, 0.0f,  // Bottom-left
+		 0.5f, -0.5f, 0.0f,  1.0f, 0.0f,  // Bottom-right
+		-0.5f,  0.5f, 0.0f,  0.0f, 1.0f,  // Top-left
+		 0.5f, -0.5f, 0.0f,  1.0f, 0.0f,  // Bottom-right
+		 0.5f,  0.5f, 0.0f,  1.0f, 1.0f,  // Top-right
+		-0.5f,  0.5f, 0.0f,  0.0f, 1.0f   // Top-left
+	};
+	GLuint VBO, VAO;
 
 public:
 	RenderEngine(GLFWwindow* _window, GameEngine* _gameEngine)
@@ -68,10 +49,8 @@ public:
 	void Init();
 
 	void ShadersInit();
-	void Display();
+	void Display(unsigned int& framebuffer, int framebufferWidth, int framebufferHeight);
 	void CharacterCallback(GLFWwindow* window, unsigned int key);
 	void FrameBufferSizeCallback(GLFWwindow* lWindow, int width, int height);
-
-	void LoadModel(const std::string &name);
 
 };

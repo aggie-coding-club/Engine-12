@@ -1,9 +1,5 @@
 #pragma once
 
-#include <vector>
-#include <memory>
-#include <unordered_map>
-
 #include "game_object.h"
 #include "components/material.h"
 #include "components/transform.h"

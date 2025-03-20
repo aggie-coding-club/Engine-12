@@ -1,6 +1,8 @@
 // Code for Details window
 
 #include "gui/Details.h"
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 void ShowTransform(std::shared_ptr<Transform> &object_transform){
     if (ImGui::TreeNode("Transform")){
@@ -79,7 +81,7 @@ void DeleteObject(const std::shared_ptr<Scene>& scene) {
 void Details::ShowDetails(const std::shared_ptr<Scene>& scene)
 {
     // Remove Decorations for the window
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_AlwaysVerticalScrollbar | ImGuiWindowFlags_NoResize;
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_AlwaysVerticalScrollbar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar;
 
     ImVec2 DisplaySize = ImGui::GetIO().DisplaySize;
 
@@ -92,81 +94,87 @@ void Details::ShowDetails(const std::shared_ptr<Scene>& scene)
     ImGui::SetNextWindowPos(pos);
 
     ImGui::Begin("Details",nullptr,window_flags);
-    if (scene->selectedCamera) {
-        std::shared_ptr<Camera> camera = scene->GetCurrCamera();
-        glm::vec3 camEye = camera->GetEye();
-
-        ImGui::Text("Camera Eye");
-        ImGui::SameLine();
-        ImGui::DragFloat3("##CamEye", &camEye[0], 0.1f, -100.0f, 100.0f, "%.3f");
-
-        camera->SetEye(camEye);
-
-        glm::vec3 camCenter = camera->GetCenter();
-
-        ImGui::Text("Camera Center");
-        ImGui::SameLine();
-        ImGui::DragFloat3("##CamCenter", &camCenter[0], 0.1f, -100.0f, 100.0f, "%.3f");
-
-        camera->SetCenter(camCenter);
-
-        glm::vec3 camUp = camera->GetUpVec();
-
-        ImGui::Text("Camera Up Vector");
-        ImGui::SameLine();
-        ImGui::DragFloat3("##CamUpVect", &camUp[0], 0.001f, -100.0f, 100.0f, "%.3f");
-
-        if(glm::length(camUp) != 0) {
-            camUp = glm::normalize(camUp);
-
-            camera->SetUpVec(camUp);
-        }
-        
-
-        if(ImGui::Button("Delete")) {
-            DeleteObject(scene);
-        }
-    }
-    else if(scene->selectedGameObj)
+    ImGui::BeginTabBar("Details");
+    if(ImGui::BeginTabItem("Object Details"))
     {
-        std::shared_ptr<GameObject> object = scene->selectedGameObj;
-        if(auto objectName = &object->name)
-        {
-            char nameBuffer[128];
-            strncpy(nameBuffer, objectName->c_str(), sizeof(nameBuffer));
-            nameBuffer[127] = '\0';
-            ImGui::Text("Name");
+        if (scene->selectedCamera) {
+            std::shared_ptr<Camera> camera = scene->GetCurrCamera();
+
+            glm::vec3 position = camera->GetPosition();
+
+            ImGui::Text("Position");
             ImGui::SameLine();
-            if(ImGui::InputText("##Name", nameBuffer, sizeof(nameBuffer))) {
-                object->name = nameBuffer;
+            if(ImGui::DragFloat3("##Position", &position[0], 0.001f,0,0, "%.3f")) {
+                camera->SetPosition(position);
+            }
+
+            glm::vec3 rotation = camera->GetEularRotation();
+
+            ImGui::Text("Rotation");
+            ImGui::SameLine();
+            if(ImGui::DragFloat3("##Rotation", &rotation[0], 0.5f, 0, 0, "%.3f")) {
+                camera->SetRotation(rotation);
+            }
+
+
+            float focusDist = camera->GetFocusDist();
+
+            ImGui::Text("Focus Distance");
+            ImGui::SameLine();
+            if(ImGui::DragFloat("##FocusDst", &focusDist, 0.001f, 0, 0, "%.3f")) {
+                camera->SetFocusDist(focusDist);
+            }
+
+            if(ImGui::Button("Delete")) {
+                DeleteObject(scene);
             }
         }
-
-        for(const auto& objComponent : object->components) {
-
-            // Try to cast component to a transform
-            if(auto objTransform = std::dynamic_pointer_cast<Transform>( objComponent ))
+        else if(scene->selectedGameObj)
+        {
+            std::shared_ptr<GameObject> object = scene->selectedGameObj;
+            if(auto objectName = &object->name)
             {
-                ShowTransform(objTransform);
-            }
-            // Try to cast component to a Material
-            if(auto objMaterial = std::dynamic_pointer_cast<Material>( objComponent ))
-            {
-                ShowMaterial(objMaterial);
-            }
-            if(auto objLight = std::dynamic_pointer_cast<Light>( objComponent )) {
-                ShowLight(objLight);
+                char nameBuffer[128];
+                strncpy(nameBuffer, objectName->c_str(), sizeof(nameBuffer));
+                nameBuffer[127] = '\0';
+                ImGui::Text("Name");
+                ImGui::SameLine();
+                if(ImGui::InputText("##Name", nameBuffer, sizeof(nameBuffer))) {
+                    object->name = nameBuffer;
+                }
             }
 
+            for(const auto& objComponent : object->components) {
 
+                // Try to cast component to a transform
+                if(auto objTransform = std::dynamic_pointer_cast<Transform>( objComponent ))
+                {
+                    ShowTransform(objTransform);
+                }
+                // Try to cast component to a Material
+                if(auto objMaterial = std::dynamic_pointer_cast<Material>( objComponent ))
+                {
+                    ShowMaterial(objMaterial);
+                }
+                if(auto objLight = std::dynamic_pointer_cast<Light>( objComponent )) {
+                    ShowLight(objLight);
+                }
+
+
+            }
+            if(ImGui::Button("Delete")) {
+                DeleteObject(scene);
+            }
         }
-        if(ImGui::Button("Delete")) {
-            DeleteObject(scene);
+        else {
+            ImGui::Text("No Object Selected");
         }
+        ImGui::EndTabItem();
     }
-    else {
-        ImGui::Text("No Object Selected");
+    if(ImGui::BeginTabItem("World Details")) {
+        ImGui::Text("Balls");
+        ImGui::EndTabItem();
     }
-
+    ImGui::EndTabBar();
     ImGui::End();
 }

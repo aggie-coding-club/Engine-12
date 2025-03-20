@@ -8,17 +8,16 @@
 #if defined(IMGUI_IMPL_OPENGL_ES2)
 #include <GLES2/gl2.h>
 #endif
-#include <GLFW/glfw3.h> // Will drag system OpenGL headers
 #include "core/game_engine.h"
 #include "core/camera.h"
 
 // Window classes
 #include "AddObjectWindow.h"
-#include "CameraDebugWindow.h"
 #include "Details.h"
 #include "Viewport.h"
 #include "FileHierarchy.h"
 #include "MenuBar.h"
+#include "secondary_menu_bar.h"
 #include "LoadFileWindow.h"
 #include "SaveAsWindow.h"
 
@@ -30,6 +29,7 @@ private:
      GLFWwindow* window;
      GameEngine* gameEngine;
      ImFont* inter_24;
+     ImFont* icons;
      bool showDetail = true;
      bool showHierarchy = true;
      bool showCameraWindow = false;
@@ -45,8 +45,8 @@ private:
     FileHierarchy fileHierarchy;
     Details details;
     MenuBar menuBar;
-    CameraDebugWindow cameraDebugWindow;
     AddObjectWindow addObjectWindow;
+    SecondMenuBar secondMenuBar;
     LoadFileWindow loadFileWindow;
     SaveAsWindow saveAsWindow;
 
@@ -55,6 +55,6 @@ public:
      GuiEngine() = default;
      ~GuiEngine() = default;
      bool init(GLFWwindow *window , GameEngine *_game_engine);
-     void run(int width, int height);
+     void run(unsigned int& texture, unsigned int& rbo);
      void cleanup();
 };

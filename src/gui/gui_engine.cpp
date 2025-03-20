@@ -1,6 +1,7 @@
 #include "gui/gui_engine.h"
 #include "core/game_engine.h"
 #include "fmt/os.h"
+#include "Fonts/Icons/icons_font_awesome_6.h"
 
 #define WINDOW_WIDTH 1920
 #define WINDOW_HEIGHT 1080
@@ -49,6 +50,18 @@ bool GuiEngine::init(GLFWwindow *_window, GameEngine *_game_engine)
     io->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
 
     inter_24 = io->Fonts->AddFontFromFileTTF("../include/Fonts/Inter-VariableFont_opsz,wght.ttf", 24);
+
+    static constexpr ImWchar icon_ranges[]{ICON_MIN_FA, ICON_MAX_FA, 0};
+
+    ImFontConfig icons_config;
+    icons_config.MergeMode = true;
+    icons_config.PixelSnapH = true;
+    icons_config.OversampleH = 3;
+    icons_config.OversampleV = 3;
+
+    icons = io->Fonts->AddFontFromFileTTF("../include/Fonts/Icons/fa-solid-900.ttf", 27, &icons_config, icon_ranges);
+
+
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
     // Temporarily set the resize grip alpha to 0 to hide it
@@ -92,7 +105,7 @@ bool GuiEngine::init(GLFWwindow *_window, GameEngine *_game_engine)
     return true;
 }
 
-void GuiEngine::run( int width, int height )
+void GuiEngine::run(unsigned int& texture, unsigned int& rbo)
 {
     // Poll and handle events (inputs, window resize, etc.)
     // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
@@ -105,8 +118,12 @@ void GuiEngine::run( int width, int height )
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
+    ImGui::PushFont(inter_24);
     // Game Engine
-    menuBar.ShowMenuBar(gameEngine, showDetail, showView, showHierarchy, showCameraWindow, showLoadFile, showSaveAs);
+    menuBar.ShowMenuBar(gameEngine, showDetail, showView, showHierarchy, showLoadFile, showSaveAs);
+    ImGui::PushFont(icons);
+    secondMenuBar.ShowSecondaryMenuBar();
+    ImGui::PopFont();
     if(showHierarchy) {
 #ifndef _USE_SCENE_
         ShowFileHierarchy(gameEngine ,gameEngine->GetGameObjects());
@@ -115,14 +132,11 @@ void GuiEngine::run( int width, int height )
     }
     if(showView)
     {
-        viewport.ShowViewport(ImVec2(width, height));
+        viewport.ShowViewport(texture);
     }
     if(showDetail)
     {
         details.ShowDetails(gameEngine->GetCurrScene());
-    }
-    if(showCameraWindow){
-        cameraDebugWindow.ShowCameraDebugWindow(gameEngine->GetCurrScene()->GetCurrCamera());
     }
     if(showAddObject) {
         addObjectWindow.showAddObjectWindow(gameEngine, showAddObject);
@@ -130,18 +144,17 @@ void GuiEngine::run( int width, int height )
         details.ShowDetails(gameEngine->selectedGameObj);
 #endif
     }
+    ImGui::PopFont();
     if(showLoadFile) {
         loadFileWindow.showLoadFileWindow(gameEngine, showLoadFile);
     }
     if(showSaveAs) {
         saveAsWindow.showSaveAsWindow(gameEngine, showSaveAs);
     }
-
     // Rendering
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
-
 
 void GuiEngine::cleanup()
 {
