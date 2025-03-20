@@ -8,6 +8,7 @@
 #include "core/components/transform.h"
 #include "core/components/model.h"
 #include "core/components/material.h"
+#include "core/components/rigidbody.h"
 
 #include <vector>
 
@@ -94,11 +95,14 @@ public:
         const auto bunnyTransform = std::make_shared<Transform>(pos);
         const auto bunnyMaterial = std::make_shared<Material>();
   	    const auto bunnyModel = std::make_shared<Model>();
+        const auto bunnyRigid = std::make_shared<RigidBody>();
 
         bunnyObj->name = bunnyName;
         bunnyObj->components[TRANSFORM] = bunnyTransform;
         bunnyObj->components[MATERIAL] = bunnyMaterial;
   	    bunnyObj->components[MODEL] = bunnyModel;
+  	    bunnyObj->components[RIGID_BODY] = bunnyRigid;
+        
 
   	    std::cout << std::dynamic_pointer_cast<Model>(bunnyObj->components[MODEL])->modelPath << std::endl;
 

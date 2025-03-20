@@ -18,7 +18,7 @@ message(STATUS "Including ${CMAKE_SOURCE_DIR}/include")
 include_directories(${CMAKE_SOURCE_DIR}/include)
 ADD_EXECUTABLE(${CMAKE_PROJECT_NAME} ${SOURCES} ${HEADERS} ${GLSL})
 
-# Use FetchContent to download and build GLM, GLFW, and Vulkan SDK
+# Use FetchContent to download and build GLM, GLFW, and AngelScript
 
 include(FetchContent)
 
@@ -50,6 +50,44 @@ FetchContent_Declare(
         GIT_REPOSITORY https://github.com/Perlmint/glew-cmake.git
         GIT_TAG glew-cmake-2.2.0  # Specify the version you want to use (e.g., "glew-2.2.0")
 )
+
+if(POLICY CMP0135)
+    cmake_policy(SET CMP0135 NEW)
+    set(CMAKE_POLICY_DEFAULT_CMP0135 NEW)
+endif()
+
+# Fetch AngelScript
+FetchContent_Declare(
+        angelscript
+        URL https://www.angelcode.com/angelscript/sdk/files/angelscript_2.37.0.zip
+        URL_HASH MD5=175fb468bd9d115082f6143291e47301
+)
+FetchContent_MakeAvailable(angelscript)
+set(ANGELSCRIPT_INCLUDE_DIRS ${angelscript_SOURCE_DIR})
+
+# Dynamically collect all AngelScript core source files
+file(GLOB ANGELSCRIPT_SRC "${angelscript_SOURCE_DIR}/angelscript/source/*.cpp")
+
+# Dynamically collect all add-on source files (excluding sample folders if necessary)
+file(GLOB ADDON_SRC "${angelscript_SOURCE_DIR}/add_on/scriptfile/*.cpp"
+        "${angelscript_SOURCE_DIR}/add_on/scriptstdstring/*.cpp"
+        "${angelscript_SOURCE_DIR}/add_on/scriptbuilder/*.cpp"
+        "${angelscript_SOURCE_DIR}/add_on/scriptarray/*.cpp"
+        "${angelscript_SOURCE_DIR}/add_on/datetime/*.cpp"
+        "${angelscript_SOURCE_DIR}/add_on/serializer/*.cpp"
+)
+
+# Create a static library for AngelScript (including add-ons)
+add_library(angelscript_static STATIC ${ANGELSCRIPT_SRC} ${ADDON_SRC})
+
+message(STATUS "AngelScript include directory: ${ANGELSCRIPT_INCLUDE_DIRS}/angelscript/include")
+
+# Set include directories for AngelScript and add-ons
+include_directories(angelscript_static
+        ${angelscript_SOURCE_DIR}/angelscript/include
+        ${angelscript_SOURCE_DIR}/add_on
+)
+target_link_libraries(${CMAKE_PROJECT_NAME} angelscript_static)
 
 FetchContent_GetProperties(glew)
 if(NOT glew_POPULATED)

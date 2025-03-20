@@ -91,6 +91,25 @@ void MenuBar::ShowMenuBar(GameEngine *engine, bool &ShowDetail, bool &ShowView, 
             ImGui::EndMenu();
         }
 
+        // Start of Simulation, probably move out of menu bar
+        if(simulationManager.isRunning()) {
+            if (ImGui::Button("Pause")) {
+                simulationManager.PauseSimulation();
+            }
+        }
+        else {
+            if (ImGui::Button("Start")) {
+                simulationManager.StartSimulation();
+            }
+        }
+        
+        if(!simulationManager.isStopped()) {
+            if (ImGui::Button("Stop")) {
+                simulationManager.StopSimulation();
+            }
+        }
+        // End of Simulation Button
+
         ImGui::EndMainMenuBar();
     }
 }
