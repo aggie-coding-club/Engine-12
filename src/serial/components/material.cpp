@@ -12,3 +12,12 @@ YAML::Node SerializeMaterial(const std::shared_ptr<Material>& material) {
 
     return MaterialNode;
 }
+
+std::shared_ptr<Material> DeserializeMaterial(const YAML::Node& materialNode) {
+    const auto _material = std::make_shared<Material>(
+        glm::vec3(materialNode["ambient"][0].as<float>(), materialNode["ambient"][1].as<float>(), materialNode["ambient"][2].as<float>()),
+        glm::vec3(materialNode["diffuse"][0].as<float>(), materialNode["diffuse"][1].as<float>(), materialNode["diffuse"][2].as<float>()),
+        glm::vec3(materialNode["specular"][0].as<float>(), materialNode["specular"][1].as<float>(), materialNode["specular"][2].as<float>()),
+            materialNode["shininess"].as<float>());
+    return _material;
+}

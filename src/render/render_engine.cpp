@@ -40,47 +40,89 @@ void RenderEngine::Init()
 	ShadersInit();
 }
 
-void RenderEngine::ShadersInit() {
-	int currentShaderIDs = gameEngine->GetCurrScene()->current_shader;
-	currShader.SetShadersFileName(shadersPath + verts[currentShaderIDs],shadersPath + frags[currentShaderIDs]);
-	currShader.Init(gameEngine->GetCurrScene());
-}
+void RenderEngine::Display()
+{
+    int width, height;
+    glfwGetFramebufferSize(window, &width, &height);
 
-void RenderEngine::Display(unsigned int& framebuffer, int framebufferWidth, int framebufferHeight) {
-	// Bind the framebuffer
-	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
+    // Other initialization...
 
-	// Ensure the viewport matches the framebuffer size
-	glViewport(0, 0, framebufferWidth, framebufferHeight);
+    if (gameEngine->HasChangedScene())
+    {
+        // TODO reinitialize shadow maps
+        gameEngine->ChangedSceneAcknowledged();
+    }
+    const auto& scene = gameEngine->GetCurrScene();
+    camera = scene->GetCurrCamera();
+    if (!camera) // Better check for null camera
+    {
+        std::cerr << "No camera available, skipping render." << std::endl;
+        glDrawArrays(GL_POINTS, 0, 0);
+        return;
+    }
 
-	// Clear the framebuffer
-	glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glm::mat4 projectionMatrix = camera->GetProjectionMatrix();
+    glm::mat4 viewMatrix = camera->GetViewMatrix();
 
-	// Verify framebuffer completeness
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-		std::cerr << "ERROR: Framebuffer is not complete!" << std::endl;
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		return;
-	}
+    for (const auto& model : scene->GetModels())
+    {
+        const auto& objTransform = std::dynamic_pointer_cast<Transform>( 
+                model->components[TRANSFORM] );
+        const auto& objMaterial = std::dynamic_pointer_cast<Material>( 
+                model->components[MATERIAL] );
+        const auto& objModel = std::dynamic_pointer_cast<Model>(
+                model->components[MODEL] );
 
-	// Bind the shader program
-	currShader.Bind();
+        std::string& modelPath = objModel->modelPath;
 
-	currShader.SendUniformData(glm::vec2(framebufferWidth,framebufferHeight), "_ScreenParams");
-	// Update uniforms, if necessary (e.g., transformation matrices)
-	currShader.UpdateData();
+        // Check if the position buffer is already loaded
+        if (posBuffMap.find(modelPath) == posBuffMap.end()) {
+            // Load model buffers if they are not already loaded
+            LoadModel(modelPath);
+        }
 
-	// Bind the VAO and draw
-	glBindVertexArray(VAO);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
-	glBindVertexArray(0);
+        glm::mat4 modelMatrix(1.0f);
+        modelMatrix = glm::translate(glm::mat4(1.0f), objTransform->position)
+            * glm::rotate(glm::mat4(1.0f), glm::radians(objTransform->rotation[0]), glm::vec3(1.0f, 0.0f, 0.0f))
+            * glm::rotate(glm::mat4(1.0f), glm::radians(objTransform->rotation[1]), glm::vec3(0.0f, 1.0f, 0.0f))
+            * glm::rotate(glm::mat4(1.0f), glm::radians(objTransform->rotation[2]), glm::vec3(0.0f, 0.0f, 1.0f))
+            * glm::scale(glm::mat4(1.0f), objTransform->scale);
 
-	// Unbind framebuffer
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        glm::mat4 modelInverseTranspose = glm::transpose(glm::inverse(modelMatrix));
+        program.Bind();
 
-	// Unbind shader
-	currShader.Unbind();
+        // Use existing buffers stored in posBuffMap
+        program.SendAttributeData(posBuffMap[modelPath], "vPositionModel");
+        program.SendAttributeData(norBuffMap[modelPath], "vNormalModel");
+        program.SendUniformData(modelMatrix, "model");
+        program.SendUniformData(viewMatrix, "view");
+        program.SendUniformData(projectionMatrix, "projection");
+        program.SendUniformData(modelInverseTranspose, "modelInverseTranspose");
+
+        // Handle materials
+        if (objMaterial) {
+            program.SendUniformData(objMaterial->ambient, "ka");
+            program.SendUniformData(objMaterial->diffuse, "kd");
+            program.SendUniformData(objMaterial->specular, "ks");
+            program.SendUniformData(objMaterial->shininess, "s");
+        }
+
+        // Handle lights
+        const auto& lights = scene->GetLights();
+        for (size_t i = 0; i < lights.size(); i++) {
+            const auto& light = lights[i];
+            const auto lightTransform = std::dynamic_pointer_cast<Transform>(light->components[TRANSFORM]);
+            const auto lightComponent = std::dynamic_pointer_cast<Light>(light->components[LIGHT]);
+
+            std::string name = fmt::format("lights[{}]", i);
+            program.SendUniformData(lightTransform->position, (name + ".position").c_str());
+            program.SendUniformData(lightComponent->color, (name+".color").c_str());
+        }
+
+        glDrawArrays(GL_TRIANGLES, 0, posBuffMap[modelPath].size() / 3);
+
+        program.Unbind();
+    }
 }
 
 

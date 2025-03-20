@@ -4,7 +4,7 @@
 #include "serial/components/model.h"
 #include "serial/components/light.h"
 
-YAML::Node SerializeComponent(const std::array<std::shared_ptr<Component>, Component::GetEnumSize()>& components) {
+YAML::Node SerializeComponents(const std::array<std::shared_ptr<Component>, Component::GetEnumSize()>& components) {
     auto ComponentsNode = YAML::Node();
 
     for(const auto& component: components) {
@@ -44,4 +44,35 @@ YAML::Node SerializeComponent(const std::array<std::shared_ptr<Component>, Compo
     }
 
     return ComponentsNode;
+}
+
+void DeserializeComponents(std::array<std::shared_ptr<Component>, Component::GetEnumSize()>& components, const YAML::Node& componentsNode) {
+
+    for(const auto& componentNode : componentsNode) {
+        std::string componentName = componentNode.first.as<std::string>();
+        if(componentName == "Transform") {
+            const auto& transformNode = componentNode.second;
+            const auto transform = DeserializeTransform(transformNode);
+            
+            components[TRANSFORM] = transform;
+        }
+        else if(componentName == "Material") {
+            const auto& materialNode = componentNode.second;
+            const auto material = DeserializeMaterial(materialNode);
+
+            components[MATERIAL] = material;
+        }
+        else if(componentName == "Model") {
+            const auto& modelNode = componentNode.second;
+            const auto model = DeserializeModel(modelNode);
+
+            components[MODEL] = model;
+        }
+        else if(componentName == "Light") {
+            const auto& lightNode = componentNode.second;
+            const auto light = DeserializeLight(lightNode);
+
+            components[LIGHT] = light;
+        }
+    }
 }

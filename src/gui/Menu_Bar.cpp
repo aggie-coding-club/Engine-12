@@ -3,14 +3,45 @@
 #include <imgui_internal.h>
 
 #include "gui/MenuBar.h"
+#include "serial/project.h"
+#include <yaml-cpp/yaml.h>
+#include <fstream>
 
-void MenuBar::ShowMenuBar(bool &ShowDetail, bool &ShowView, bool &ShowHierarchy){
-    ImGui::BeginMainMenuBar();
-    // File menu
-    if (ImGui::BeginMenu("File"))
-    {
-        if (ImGui::MenuItem("New")) {
-            // Action for New
+void MenuBar::ShowMenuBar(GameEngine *engine, bool &ShowDetail, bool &ShowView, bool &ShowHierarchy, bool &ShowLoadFile, bool &ShowSaveAs) {
+    if (ImGui::BeginMainMenuBar())
+    {   
+
+        ImGui::Text(engine->getName().c_str());
+        ImGui::SameLine();
+        ImGui::Dummy(ImVec2(2.5f, 0.0f));  
+        ImGui::SameLine();
+
+        // File menu
+        if (ImGui::BeginMenu("File"))
+        {
+            if (ImGui::MenuItem("New")) {
+                // Action for New
+            }
+            if (ImGui::MenuItem("Open", "Ctrl+O")) {
+                // Action for Open
+                ShowLoadFile = true;
+            }
+            if (ImGui::MenuItem("Save", "Ctrl+S")) {
+                // Action for Save
+                YAML::Node project = SerializeProject(engine);
+                std::string filename = "../user/" + engine->getName() + ".yaml";
+                std::ofstream fout(filename);
+                fout << project;    
+                fout.close();
+            }
+            if (ImGui::MenuItem("Save as", "Ctrl+Shift+S")) {
+                // Action for Save
+                ShowSaveAs = true;
+            }
+            if (ImGui::MenuItem("Exit", "Alt+F4")) {
+                // Action for Exit
+            }
+            ImGui::EndMenu();
         }
         if (ImGui::MenuItem("Open", "Ctrl+O")) {
             // Action for Open
@@ -63,7 +94,7 @@ void MenuBar::ShowMenuBar(bool &ShowDetail, bool &ShowView, bool &ShowHierarchy)
         ImGui::MenuItem("Temp", nullptr);
         ImGui::EndMenu();
     }
-
+  
     if (ImGui::BeginMenu("Help")) {
         static bool showHelp = true;
         ImGui::MenuItem("About", nullptr);

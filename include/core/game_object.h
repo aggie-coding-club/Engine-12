@@ -6,9 +6,13 @@
 #include <memory>
 
 #include "components/component.h"
+
 class GameObject {
 public:
     std::string name;
+    // Contains all the compenents associated with the game object
+    // If the game object does not have that component, the element where
+    // that component should be is null.
     std::array<std::shared_ptr<Component>, Component::GetEnumSize()> components{};
     std::unordered_set<std::string> tags;
     std::string model_path;

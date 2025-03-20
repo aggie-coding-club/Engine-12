@@ -120,7 +120,7 @@ void GuiEngine::run(unsigned int& texture, unsigned int& rbo)
 
     ImGui::PushFont(inter_24);
     // Game Engine
-    menuBar.ShowMenuBar(showDetail, showView, showHierarchy);
+    menuBar.ShowMenuBar(gameEngine, showDetail, showView, showHierarchy, showLoadFile, showSaveAs);
     ImGui::PushFont(icons);
     secondMenuBar.ShowSecondaryMenuBar();
     ImGui::PopFont();
@@ -145,6 +145,12 @@ void GuiEngine::run(unsigned int& texture, unsigned int& rbo)
 #endif
     }
     ImGui::PopFont();
+    if(showLoadFile) {
+        loadFileWindow.showLoadFileWindow(gameEngine, showLoadFile);
+    }
+    if(showSaveAs) {
+        saveAsWindow.showSaveAsWindow(gameEngine, showSaveAs);
+    }
     // Rendering
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
