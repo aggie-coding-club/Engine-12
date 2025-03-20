@@ -120,7 +120,7 @@ void GuiEngine::run(unsigned int& texture, unsigned int& rbo)
 
     ImGui::PushFont(inter_24);
     // Game Engine
-    menuBar.ShowMenuBar(gameEngine, showDetail, showView, showHierarchy, showLoadFile, showSaveAs);
+    menuBar.ShowMenuBar(showDetail, showView, showHierarchy, showLoadFile, showSaveAs);
     ImGui::PushFont(icons);
     secondMenuBar.ShowSecondaryMenuBar();
     ImGui::PopFont();

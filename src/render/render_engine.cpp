@@ -40,7 +40,7 @@ void RenderEngine::Init()
 	ShadersInit();
 }
 
-void RenderEngine::Display()
+void RenderEngine::Display(unsigned int& framebuffer, int framebufferWidth, int framebufferHeight)
 {
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);
