@@ -165,9 +165,12 @@ void RenderEngine::Display()
 
     for (const auto& model : scene->GetModels())
     {
-        const auto& objTransform = std::dynamic_pointer_cast<Transform>( model->components[TRANSFORM]);
-        const auto& objMaterial = std::dynamic_pointer_cast<Material>( model->components[MATERIAL]);
-        const auto& objModel = std::dynamic_pointer_cast<Model>(model->components[MODEL]);
+        const auto& objTransform = std::dynamic_pointer_cast<Transform>( 
+                model->components[TRANSFORM] );
+        const auto& objMaterial = std::dynamic_pointer_cast<Material>( 
+                model->components[MATERIAL] );
+        const auto& objModel = std::dynamic_pointer_cast<Model>(
+                model->components[MODEL] );
 
         std::string& modelPath = objModel->modelPath;
 
