@@ -1,10 +1,12 @@
 #pragma once
+#include <stddef.h>
 
 enum COMPONENT_TYPE {
     TRANSFORM,
     MATERIAL,
     MODEL,
     LIGHT,
+    RIGID_BODY,
     NUM_ENUM
 };
 

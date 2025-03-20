@@ -65,7 +65,7 @@ command:
 - Camryn Graham
 - Josh Eury
 - Raniv Gupta
-- sppoon_
+- Kate Serem
 - abhilaasya
 - ana_kaur
 - bangzhe
@@ -77,7 +77,7 @@ command:
 - aryav123
 - dillil
 - naomismith3328
-- .funbreak
+- Orlando Haye
 - priyanka_27916
 - daddyvi
 
