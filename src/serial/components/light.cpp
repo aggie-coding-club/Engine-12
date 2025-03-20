@@ -8,3 +8,10 @@ YAML::Node SerializeLight(const std::shared_ptr<Light>& light) {
 
     return LightNode;
 }
+
+std::shared_ptr<Light> DeserializeLight(const YAML::Node& lightNode) {
+    auto _light = std::make_shared<Light>(
+            glm::vec3(lightNode["color"][0].as<float>(), lightNode["color"][1].as<float>(), lightNode["color"][2].as<float>()),
+                lightNode["intensity"].as<float>());
+    return _light;
+}

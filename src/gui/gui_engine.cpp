@@ -106,7 +106,7 @@ void GuiEngine::run( int width, int height )
     ImGui::NewFrame();
 
     // Game Engine
-    menuBar.ShowMenuBar(showDetail, showView, showHierarchy, showCameraWindow);
+    menuBar.ShowMenuBar(gameEngine, showDetail, showView, showHierarchy, showCameraWindow, showLoadFile, showSaveAs);
     if(showHierarchy) {
 #ifndef _USE_SCENE_
         ShowFileHierarchy(gameEngine ,gameEngine->GetGameObjects());
@@ -129,6 +129,12 @@ void GuiEngine::run( int width, int height )
 #ifndef _USE_SCENE_
         details.ShowDetails(gameEngine->selectedGameObj);
 #endif
+    }
+    if(showLoadFile) {
+        loadFileWindow.showLoadFileWindow(gameEngine, showLoadFile);
+    }
+    if(showSaveAs) {
+        saveAsWindow.showSaveAsWindow(gameEngine, showSaveAs);
     }
 
     // Rendering

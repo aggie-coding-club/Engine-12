@@ -19,6 +19,8 @@
 #include "Viewport.h"
 #include "FileHierarchy.h"
 #include "MenuBar.h"
+#include "LoadFileWindow.h"
+#include "SaveAsWindow.h"
 
 class GuiEngine
 {
@@ -32,6 +34,8 @@ private:
      bool showHierarchy = true;
      bool showCameraWindow = false;
      bool showAddObject = false;
+     bool showLoadFile = false;
+     bool showSaveAs = false;
 
     char objectLocation[128];
     char objectName[128];
@@ -43,6 +47,8 @@ private:
     MenuBar menuBar;
     CameraDebugWindow cameraDebugWindow;
     AddObjectWindow addObjectWindow;
+    LoadFileWindow loadFileWindow;
+    SaveAsWindow saveAsWindow;
 
 public:
      bool showView = true;

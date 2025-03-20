@@ -32,6 +32,14 @@ public:
         return glm::perspective(glm::radians(fovy), aspect, 0.1f, 100.0f);
     }
 
+    inline float GetAspect() {
+        return aspect;
+    }
+    
+    inline float GetFovy() {
+        return fovy;
+    }
+
     inline glm::vec3 GetEye() const
     {
         return eye;
@@ -48,6 +56,10 @@ public:
     inline void SetAspect(const int width, const int height)
     {
         aspect = float(width) / float(height);
+    }
+
+    void SetAspect(const float _aspect) {
+        aspect = _aspect;
     }
 
     inline void SetFovy(const float _fovy)

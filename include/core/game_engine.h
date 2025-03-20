@@ -90,13 +90,25 @@ public:
     std::shared_ptr<Scene>& GetCurrScene() { return scenes[currSceneIdx]; }
     GameEngine()
     {
-        TestInit2();
+        //TestInit2();
     }
 
     bool HasChangedScene() const { return changedScene; }
     void ChangedSceneAcknowledged() { changedScene = false; }
     void ChangeScene(const int idx) { currSceneIdx = idx; changedScene = true; }
     void CycleScene() { currSceneIdx = (currSceneIdx+1) % scenes.size(); changedScene = true; }
+
+    std::string& getName() {
+        return name;
+    }
+
+    void SetScenes(std::vector<std::shared_ptr<Scene>> _scenes) {
+        scenes = _scenes;
+    }
+
+    void setName(const std::string _name) {
+        name = _name;
+    }
 };
 
 #ifndef _USE_SCENE_

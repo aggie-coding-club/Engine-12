@@ -55,7 +55,7 @@ void FileHierarchy::ShowFileHierarchy(std::shared_ptr<Scene> scene, bool &showAd
         auto Lights = scene->GetLights();
         // All other objects in the game
         for (const auto& l : Lights) {
-            if(ImGui::Selectable(std::string("Light" + (std::to_string(l->id))).c_str())) {
+            if(ImGui::Selectable(std::string(l->name).c_str())) {
 #ifndef _USE_SCENE_
                 gameEngine->selectedGameObj = obj;
 #endif

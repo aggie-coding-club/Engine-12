@@ -1,10 +1,19 @@
 // Code for menu bar
 
 #include "gui/MenuBar.h"
+#include "serial/project.h"
+#include <yaml-cpp/yaml.h>
+#include <fstream>
 
-void MenuBar::ShowMenuBar(bool &ShowDetail, bool &ShowView, bool &ShowHierarchy, bool &ShowCameraDebug){
+void MenuBar::ShowMenuBar(GameEngine *engine, bool &ShowDetail, bool &ShowView, bool &ShowHierarchy, bool &ShowCameraDebug, bool &ShowLoadFile, bool &ShowSaveAs) {
     if (ImGui::BeginMainMenuBar())
-    {
+    {   
+
+        ImGui::Text(engine->getName().c_str());
+        ImGui::SameLine();
+        ImGui::Dummy(ImVec2(2.5f, 0.0f));  
+        ImGui::SameLine();
+
         // File menu
         if (ImGui::BeginMenu("File"))
         {
@@ -13,9 +22,19 @@ void MenuBar::ShowMenuBar(bool &ShowDetail, bool &ShowView, bool &ShowHierarchy,
             }
             if (ImGui::MenuItem("Open", "Ctrl+O")) {
                 // Action for Open
+                ShowLoadFile = true;
             }
             if (ImGui::MenuItem("Save", "Ctrl+S")) {
                 // Action for Save
+                YAML::Node project = SerializeProject(engine);
+                std::string filename = "../user/" + engine->getName() + ".yaml";
+                std::ofstream fout(filename);
+                fout << project;    
+                fout.close();
+            }
+            if (ImGui::MenuItem("Save as", "Ctrl+Shift+S")) {
+                // Action for Save
+                ShowSaveAs = true;
             }
             if (ImGui::MenuItem("Exit", "Alt+F4")) {
                 // Action for Exit
