@@ -22,6 +22,7 @@
 #include "render/render_engine.h"
 #include "physics/physics_engine.h"
 
+#include "gui/Terminal.h"
 
 #include <yaml-cpp/yaml.h> // for tests, remove later
 #include <serial/lights.h>
@@ -128,8 +129,12 @@ int main(int argc, char *argv[])
     physicsEngine->Activate();
 	while ( glfwWindowShouldClose(window) == 0 )
 	{
-		int width, height;
-		glfwGetWindowSize(window, &width, &height);
+		
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+		unsigned int width = static_cast<unsigned int>(w);
+		unsigned int height = static_cast<unsigned int>(h);
+
 		glfwPollEvents();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         start = end;

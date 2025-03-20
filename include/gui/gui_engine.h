@@ -20,6 +20,7 @@
 #include "secondary_menu_bar.h"
 #include "LoadFileWindow.h"
 #include "SaveAsWindow.h"
+#include "Terminal.h"
 
 class GuiEngine
 {
@@ -49,6 +50,7 @@ private:
     SecondMenuBar secondMenuBar;
     LoadFileWindow loadFileWindow;
     SaveAsWindow saveAsWindow;
+    Terminal terminal;
 
 public:
      bool showView = true;

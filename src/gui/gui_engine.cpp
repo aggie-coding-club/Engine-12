@@ -144,6 +144,10 @@ void GuiEngine::run(unsigned int& texture, unsigned int& rbo)
         details.ShowDetails(gameEngine->selectedGameObj);
 #endif
     }
+
+    // Show terminal window
+    terminal.ShowTerminal(gameEngine->GetCurrScene()); 
+
     ImGui::PopFont();
     if(showLoadFile) {
         loadFileWindow.showLoadFileWindow(gameEngine, showLoadFile);
