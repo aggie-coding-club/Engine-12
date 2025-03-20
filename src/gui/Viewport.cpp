@@ -9,7 +9,7 @@ void Viewport::ShowViewport(ImVec2 window_Size){
     ImVec2 size(DisplaySize.x*3.f/4.f,DisplaySize.y/1.5);
     ImGui::SetNextWindowSize(size);
 
-    ImGui::SetNextWindowPos(ImVec2(0, 29));
+    ImGui::SetNextWindowPos(ImVec2(0, 29+31));
 
     ImVec2 currPos;
     ImVec2 currSize;

@@ -16,8 +16,7 @@ void SecondMenuBar::ShowSecondaryMenuBar(){
 
     ImGui::SetNextWindowPos(ImVec2(0, 30));
 
-    // ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_MenuBar;
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoTitleBar;
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_MenuBar;
     ImGui::Begin("##Second_Menu", nullptr, window_flags);
     ImGui::BeginMenuBar();
 

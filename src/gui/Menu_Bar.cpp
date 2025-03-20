@@ -9,10 +9,10 @@
 
 void MenuBar::ShowMenuBar(GameEngine *engine, bool &ShowDetail, bool &ShowView, bool &ShowHierarchy, bool &ShowLoadFile, bool &ShowSaveAs) {
     if (ImGui::BeginMainMenuBar()) {
-        ImGui::Text(engine->getName().c_str());
-        ImGui::SameLine();
-        ImGui::Dummy(ImVec2(2.5f, 0.0f));  
-        ImGui::SameLine();
+        // ImGui::Text(engine->getName().c_str());
+        // ImGui::SameLine();
+        // ImGui::Dummy(ImVec2(2.5f, 0.0f));
+        // ImGui::SameLine();
 
         // File menu
         if (ImGui::BeginMenu("File"))
@@ -29,7 +29,7 @@ void MenuBar::ShowMenuBar(GameEngine *engine, bool &ShowDetail, bool &ShowView, 
                 YAML::Node project = SerializeProject(engine);
                 std::string filename = "../user/" + engine->getName() + ".yaml";
                 std::ofstream fout(filename);
-                fout << project;    
+                fout << project;
                 fout.close();
             }
             if (ImGui::MenuItem("Save as", "Ctrl+Shift+S")) {
@@ -41,16 +41,6 @@ void MenuBar::ShowMenuBar(GameEngine *engine, bool &ShowDetail, bool &ShowView, 
             }
             ImGui::EndMenu();
         }
-        if (ImGui::MenuItem("Open", "Ctrl+O")) {
-            // Action for Open
-        }
-        if (ImGui::MenuItem("Save", "Ctrl+S")) {
-            // Action for Save
-        }
-        if (ImGui::MenuItem("Exit", "Alt+F4")) {
-            // Action for Exit
-        }
-        ImGui::EndMenu();
 
         // Edit menu
         if (ImGui::BeginMenu("Edit"))
@@ -98,7 +88,6 @@ void MenuBar::ShowMenuBar(GameEngine *engine, bool &ShowDetail, bool &ShowView, 
             ImGui::MenuItem("FAQ", nullptr);
             ImGui::EndMenu();
         }
-
     }
     ImGui::EndMainMenuBar();
 }
