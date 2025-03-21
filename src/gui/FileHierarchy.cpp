@@ -8,7 +8,7 @@ void FileHierarchy::ShowFileHierarchy(std::shared_ptr<Scene> scene, bool &showAd
 
     ImVec2 DisplaySize = ImGui::GetIO().DisplaySize;
 
-    size = ImVec2(DisplaySize.x / 4, DisplaySize.y / 2);
+    size = ImVec2(DisplaySize.x / 4, DisplaySize.y / 2 - 31);
     pos = ImVec2(DisplaySize.x * 3 / 4,29+31);
 
     // Set Window width

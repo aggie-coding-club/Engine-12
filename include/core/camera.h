@@ -16,6 +16,8 @@ private:
     glm::vec3 Position;
     glm::quat Rotation;
     glm::vec3 EularRotation;
+    float zNear;
+    float zFar;
 
 public:
 
@@ -23,7 +25,9 @@ public:
         aspect(static_cast<float>(width)/ static_cast<float>(height)),
         focusDistance(1.0f),
         Position(glm::vec3(0.0f, 0.0f, 4.0f)),
-        Rotation(glm::quat(1.0f, 0.0f, 0.0f, 0.0f)) {}
+        Rotation(glm::quat(1.0f, 0.0f, 0.0f, 0.0f)),
+        zNear(0.1f),
+        zFar(100.f){}
 
     Camera(): Camera(1920, 1080){}
 
@@ -34,11 +38,15 @@ public:
 
     inline glm::mat4 GetProjectionMatrix() const
     {
-        return glm::perspective(glm::radians(fovy), aspect, 0.1f, 100.0f);
+        return glm::perspective(glm::radians(fovy), aspect, zNear, zFar);
     }
     inline float GetFovy() const
     {
         return fovy;
+    }
+
+    inline glm::vec2 GetClippingPlanes() {
+        return glm::vec2(zNear, zFar);
     }
 
     inline float GetAspect() const
@@ -80,6 +88,11 @@ public:
     inline void SetAspect(const int width, const int height)
     {
         aspect = float(width) / float(height);
+    }
+
+    inline void SetClippingPlanes(glm::vec2 clipPlanes) {
+        zNear = clipPlanes.x;
+        zFar = clipPlanes.y;
     }
 
     void SetAspect(const float _aspect) {

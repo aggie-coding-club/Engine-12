@@ -144,6 +144,8 @@ void RenderEngine::Display()
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);
 
+    glEnable(GL_DEPTH_TEST);
+
     // Other initialization...
 
     if (gameEngine->HasChangedScene())

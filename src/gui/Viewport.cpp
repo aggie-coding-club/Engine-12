@@ -20,8 +20,8 @@ void Viewport::ShowViewport(ImVec2 window_Size){
 
     if (ImGui::BeginTabItem("Viewport")) {
         // Get the position and size of the ImGui window content area
-        currPos = ImGui::GetCursorScreenPos();
-        currSize = ImGui::GetContentRegionAvail();
+    currPos = ImGui::GetCursorScreenPos();
+    currSize = ImGui::GetContentRegionAvail();
         ImGui::EndTabItem();
     }
 

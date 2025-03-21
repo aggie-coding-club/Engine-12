@@ -35,7 +35,7 @@ void main()
         vec3 reflectDir = reflect(-lightDir, normal);
 
         // Transform the fragment position to view space
-        vec4 viewPosition = view * vec4(fragPosition, 1.0);
+        vec4 viewPosition = vec4(fragPosition, 1.0) * view;
 
         // Calculate the view vector
         vec3 viewDir = normalize(-viewPosition.xyz); // From camera to fragment
