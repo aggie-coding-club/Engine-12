@@ -52,6 +52,9 @@ public:
     GuiEngine() = default;
     ~GuiEngine() = default;
     bool init(GLFWwindow *window , GameEngine *_game_engine);
-    void run(int width, int height);
+    void run();
+    glm::vec4 SendViewportInfo() {
+        return {viewport.SendCursorPos(),viewport.SendSize()};
+    }
     void cleanup();
 };

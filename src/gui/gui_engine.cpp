@@ -104,7 +104,7 @@ bool GuiEngine::init(GLFWwindow *_window, GameEngine *_game_engine)
     return true;
 }
 
-void GuiEngine::run( int width, int height )
+void GuiEngine::run()
 {
     // Poll and handle events (inputs, window resize, etc.)
     // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
@@ -132,7 +132,7 @@ void GuiEngine::run( int width, int height )
     }
     if(showView)
     {
-        viewport.ShowViewport(ImVec2(width, height));
+        viewport.ShowViewport();
     }
     if(showDetail)
     {
