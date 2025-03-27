@@ -93,23 +93,77 @@ Scenes:
           Model:
             model_path: ../resources/models/bunny.obj
       Lights:
-        "":
-          Transform:
-            position:
-              - 0
-              - 3
-              - 0
-            rotation:
-              - 0
-              - 0
-              - 0
-            scale:
-              - 0
-              - 0
-              - 0
-          Light:
-            color:
-              - 0.2
-              - 0.2
-              - 0.2
-            intensity: 1
+        - brightLight:
+            Transform:
+              position:
+                - 0.1
+                - 0.2
+                - 3.5
+              rotation:
+                - 0
+                - 0
+                - 0
+              scale:
+                - 0
+                - 0
+                - 0
+            Light:
+              color:
+                - 0.9142045
+                - 1
+                - 0.1805054
+              intensity: 1.2
+        - light3:
+            Transform:
+              position:
+                - 0.2
+                - 0.1
+                - -5.5
+              rotation:
+                - 0
+                - 0
+                - 0
+              scale:
+                - 0
+                - 0
+                - 0
+            Light:
+              color:
+                - 0.3
+                - 0
+                - 0.2
+              intensity: 1.1
+      Cameras:
+        Camera0:
+          fovy: 50
+          aspect: 1.7777778
+          center:
+            - -0.0067715226
+            - 0.9765805
+            - -0.006771522
+          eye:
+            - -4.9
+            - 1.8
+            - 9.7
+        Camera1:
+          fovy: 50
+          aspect: 1.7777778
+          center:
+            - 0.05176805
+            - -0.0759613
+            - -0.042134084
+          eye:
+            - -7
+            - 10
+            - 10
+        Camera2:
+          fovy: 50
+          aspect: 1.7777778
+          center:
+            - 0.0056442735
+            - 0.0067766374
+            - 0.005644274
+          eye:
+            - -7
+            - 9
+            - 5

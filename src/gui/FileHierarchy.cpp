@@ -8,7 +8,7 @@ void FileHierarchy::ShowFileHierarchy(std::shared_ptr<Scene> scene, bool &showAd
 
     ImVec2 DisplaySize = ImGui::GetIO().DisplaySize;
 
-    size = ImVec2(DisplaySize.x / 4, DisplaySize.y / 2);
+    size = ImVec2(DisplaySize.x / 4, DisplaySize.y / 2 - 31);
     pos = ImVec2(DisplaySize.x * 3 / 4,29+31);
 
     // Set Window width
@@ -18,7 +18,7 @@ void FileHierarchy::ShowFileHierarchy(std::shared_ptr<Scene> scene, bool &showAd
 
     // Create the window
     ImGui::Begin("Hierarchy",nullptr, window_flags);
-    ImGui::BeginTabBar("Hierarchy", ImGuiTabBarFlags_Reorderable);
+    ImGui::BeginTabBar("Hierarchy");
     ImGui::BeginTabItem("Objects");
     {
         if(ImGui::Button("Add Object")) {

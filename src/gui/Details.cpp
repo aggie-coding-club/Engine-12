@@ -85,7 +85,7 @@ void Details::ShowDetails(const std::shared_ptr<Scene>& scene)
 
     ImVec2 DisplaySize = ImGui::GetIO().DisplaySize;
 
-    size = ImVec2(DisplaySize.x / 4, DisplaySize.y / 2);
+    size = ImVec2(DisplaySize.x / 4, DisplaySize.y / 2 - 29);
     pos = ImVec2(DisplaySize.x - (DisplaySize.x / 4),29 + DisplaySize.y / 2);
 
     // Set Window width
@@ -123,6 +123,14 @@ void Details::ShowDetails(const std::shared_ptr<Scene>& scene)
             ImGui::SameLine();
             if(ImGui::DragFloat("##FocusDst", &focusDist, 0.001f, 0, 0, "%.3f")) {
                 camera->SetFocusDist(focusDist);
+            }
+
+            glm::vec2 clippingPlane = camera->GetClippingPlanes();
+
+            ImGui::Text("Clipping Planes");
+            ImGui::SameLine();
+            if(ImGui::DragFloat2("##ClippingPlanes", &clippingPlane[0], 0.001f, 0, 0, "%.3f")) {
+                camera->SetClippingPlanes(clippingPlane);
             }
 
             if(ImGui::Button("Delete")) {

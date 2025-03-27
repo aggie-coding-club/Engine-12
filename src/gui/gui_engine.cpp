@@ -61,7 +61,6 @@ bool GuiEngine::init(GLFWwindow *_window, GameEngine *_game_engine)
 
     icons = io->Fonts->AddFontFromFileTTF("../include/Fonts/Icons/fa-solid-900.ttf", 27, &icons_config, icon_ranges);
 
-
     // Setup Dear ImGui style
     ImGui::StyleColorsDark();
     // Temporarily set the resize grip alpha to 0 to hide it
@@ -101,11 +100,11 @@ bool GuiEngine::init(GLFWwindow *_window, GameEngine *_game_engine)
 
     details.SetParms(ImVec2(WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2), ImVec2(WINDOW_WIDTH - (WINDOW_WIDTH / 4),29 + WINDOW_HEIGHT / 2));
     fileHierarchy.SetParms(ImVec2(WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2),ImVec2(WINDOW_WIDTH * 3 / 4,29));
-    
+
     return true;
 }
 
-void GuiEngine::run(unsigned int& texture, unsigned int& rbo)
+void GuiEngine::run( int width, int height )
 {
     // Poll and handle events (inputs, window resize, etc.)
     // You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
@@ -118,12 +117,13 @@ void GuiEngine::run(unsigned int& texture, unsigned int& rbo)
     ImGui_ImplGlfw_NewFrame();
     ImGui::NewFrame();
 
-    ImGui::PushFont(inter_24);
     // Game Engine
     menuBar.ShowMenuBar(gameEngine, showDetail, showView, showHierarchy, showLoadFile, showSaveAs);
+
     ImGui::PushFont(icons);
     secondMenuBar.ShowSecondaryMenuBar();
     ImGui::PopFont();
+
     if(showHierarchy) {
 #ifndef _USE_SCENE_
         ShowFileHierarchy(gameEngine ,gameEngine->GetGameObjects());
@@ -132,7 +132,7 @@ void GuiEngine::run(unsigned int& texture, unsigned int& rbo)
     }
     if(showView)
     {
-        viewport.ShowViewport(texture);
+        viewport.ShowViewport(ImVec2(width, height));
     }
     if(showDetail)
     {
@@ -159,6 +159,7 @@ void GuiEngine::run(unsigned int& texture, unsigned int& rbo)
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 }
+
 
 void GuiEngine::cleanup()
 {
