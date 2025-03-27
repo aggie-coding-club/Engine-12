@@ -148,7 +148,6 @@ void GuiEngine::run( int width, int height )
     // Show terminal window
     terminal.ShowTerminal(gameEngine->GetCurrScene()); 
 
-    ImGui::PopFont();
     if(showLoadFile) {
         loadFileWindow.showLoadFileWindow(gameEngine, showLoadFile);
     }
