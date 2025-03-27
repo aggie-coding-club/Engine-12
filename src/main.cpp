@@ -22,8 +22,6 @@
 #include "render/render_engine.h"
 #include "physics/physics_engine.h"
 
-#include "gui/Terminal.h"
-
 #include <yaml-cpp/yaml.h> // for tests, remove later
 #include <serial/lights.h>
 #include <serial/models.h>
