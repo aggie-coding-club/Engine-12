@@ -145,6 +145,15 @@ void GuiEngine::run( int width, int height )
 #endif
     }
 
+    // Show terminal window
+    terminal.ShowTerminal(gameEngine->GetCurrScene()); 
+
+    if(showLoadFile) {
+        loadFileWindow.showLoadFileWindow(gameEngine, showLoadFile);
+    }
+    if(showSaveAs) {
+        saveAsWindow.showSaveAsWindow(gameEngine, showSaveAs);
+    }
     // Rendering
     ImGui::Render();
     ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
