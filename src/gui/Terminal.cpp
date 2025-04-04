@@ -24,14 +24,14 @@ void Terminal::ShowTerminal(const std::shared_ptr<Scene>& scene)
     float boxWidth = TerminalWidth / 3.0f;  // 1/3 of Terminal Width
 
     ImVec2 terminalSize(boxWidth, bottomPanelHeight); 
-    ImVec2 terminalPos(ImVec2(boxWidth, DisplaySize.y - bottomPanelHeight)); 
+    ImVec2 terminalPos(ImVec2(0, DisplaySize.y * 2.89/4));
 
     // Set Windows Width
     ImGui::SetNextWindowSize(terminalSize);
     // Set Windows Position
     ImGui::SetNextWindowPos(terminalPos, ImGuiCond_Always); 
     
-    ImGui::Begin("Terminal", &this->showTerminal, ImGuiWindowFlags_NoResize | ImGuiWindowFlags_AlwaysAutoResize);
+    ImGui::Begin("Terminal", &this->showTerminal);
 
     // button to clear logs
     if (ImGui::Button("Clear Terminal")) {
