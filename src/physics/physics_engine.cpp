@@ -28,6 +28,7 @@ void PhysicsEngine::Update()
         sumOfForces += ApplyGravity(objRigidBody);
 
         glm::vec3 acceleration = CalculateAcceleration(objRigidBody, sumOfForces);
+        
         UpdatePosition(objRigidBody, objTransform, acceleration);
     }
 }
@@ -62,3 +63,6 @@ void PhysicsEngine::UpdatePosition(std::shared_ptr<RigidBody> objRigidBody,
 
     objTransform->position += velocity * timeDelta->count();
 }
+
+
+void PhysicsEngine::Collide(std::shared_ptr<RigidBody> objRigidBody, )
