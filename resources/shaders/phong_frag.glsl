@@ -4,6 +4,9 @@ uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
 uniform mat4 modelInverseTranspose;
+uniform mat4 lightSpaceMatrix;
+
+uniform sampler2D shadowMap;
 
 struct Light
 {
@@ -22,12 +25,30 @@ uniform float s;
 
 in vec3 fragPosition;
 in vec3 fragNormal;
+in vec2 texCoords;
+in vec4 fragPosLightSpace;
 
 out vec4 FragColor;
+
+float ShadowCalculation(vec4 fragPosLightSpace)
+{
+    vec3 projCoords = fragPosLightSpace.xyz / fragPosLightSpace.w;
+
+    projCoords = projCoords * 0.5 + 0.5;
+
+    float closestDepth = texture(shadowMap, projCoords.xy).r;
+
+    float currentDepth = projCoords.z;
+    float shadow = currentDepth > closestDepth ? 1.0 : 0.0;
+
+    return shadow;
+}
 
 void main()
 {
     vec3 color = ka;
+
+    float shadow = ShadowCalculation(fragPosLightSpace);
 
     for (int i = 0; i < NUM_LIGHTS; i++)
     {
@@ -44,7 +65,7 @@ void main()
         vec3 diffuse  = kd * max(0.0, dot(normal, lightDir));
         vec3 spectral = ks * pow(max(0.0, dot(reflectDir, viewDir)), s);
 
-        color += lights[i].color * (diffuse + spectral);
+        color += lights[i].color * (1.0 - shadow) * (diffuse + spectral);
     }
 
     FragColor = vec4(color, 1.0);

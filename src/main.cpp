@@ -158,8 +158,8 @@ int main(int argc, char *argv[])
 
 		guiEngine->run();
 		if(guiEngine->showView) {
-			// renderEngine->MapShadows(depthMap, shadowWidth, shadowHeight);
-			renderEngine->Display(guiEngine->SendViewportInfo());
+			renderEngine->MapShadows(depthMap, shadowWidth, shadowHeight);
+			renderEngine->Display(guiEngine->SendViewportInfo(), depthMap);
 		}
         end = std::chrono::steady_clock::now();
         timeDelta = end - start;

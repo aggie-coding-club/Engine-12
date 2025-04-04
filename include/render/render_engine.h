@@ -80,9 +80,9 @@ public:
 
 	void ShadersInit();
 
-	void MapShadows(GLuint depthMapFBO, GLuint shadowWidth, GLuint shadowHeight);
+	void MapShadows(GLuint depthMapFBO, GLuint shadowWidth = 1024,  GLuint shadowHeight = 1024);
 
-	void Display(glm::vec4 viewportInfo);
+	void Display(glm::vec4 viewportInfo, GLuint depthMap);
 	void CharacterCallback(GLFWwindow* window, unsigned int key);
 	void FrameBufferSizeCallback(GLFWwindow* lWindow, int width, int height);
 

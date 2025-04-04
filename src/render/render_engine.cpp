@@ -140,11 +140,11 @@ void RenderEngine::ShadersInit()
     shadow.Init();
 }
 
-void RenderEngine::MapShadows(GLuint depthMapFBO, GLuint const shadowWidth = 1024,  GLuint const shadowHeight = 1024)
+void RenderEngine::MapShadows(GLuint depthMapFBO, GLuint const shadowWidth,  GLuint const shadowHeight)
 {
     glUseProgram(shadow.GetPID());
-    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
     glViewport(0, 0, shadowWidth, shadowHeight);
+    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
     glClear(GL_DEPTH_BUFFER_BIT);
 
     glm::mat4 lightProjection, lightView;
@@ -158,13 +158,6 @@ void RenderEngine::MapShadows(GLuint depthMapFBO, GLuint const shadowWidth = 102
     shadow.SendUniformData(lightSpaceMatrix, "lightSpaceMatrix");
 
     const auto& scene = gameEngine->GetCurrScene();
-    camera = scene->GetCurrCamera();
-    if (!camera) // Better check for null camera
-    {
-        std::cerr << "No camera available, skipping render." << std::endl;
-        glDrawArrays(GL_POINTS, 0, 0);
-        return;
-    }
 
     for (const auto& model : scene->GetModels())
     {
@@ -188,20 +181,19 @@ void RenderEngine::MapShadows(GLuint depthMapFBO, GLuint const shadowWidth = 102
             * glm::scale(glm::mat4(1.0f), objTransform->scale);
 
         glm::mat4 modelInverseTranspose = glm::transpose(glm::inverse(modelMatrix));
-        shadow.Bind();
 
-        shadow.SendUniformData(modelInverseTranspose, "modelInverseTranspose");
+        program.SendUniformData(modelMatrix, "model");
 
         glDrawArrays(GL_TRIANGLES, 0, posBuffMap[modelPath].size() / 3);
 
-        shadow.Unbind();
     }
 
-    glDrawArrays(GL_TRIANGLES, 0, posBuffMap[modelPath].size() / 3);
+    shadow.Unbind();
+
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void RenderEngine::Display(glm::vec4 viewportInfo)
+void RenderEngine::Display(glm::vec4 viewportInfo, GLuint depthMap)
 {
     int width, height;
     glfwGetWindowSize(window, &width, &height);
@@ -280,6 +272,8 @@ void RenderEngine::Display(glm::vec4 viewportInfo)
             program.SendUniformData(lightTransform->position, (name + ".position").c_str());
             program.SendUniformData(lightComponent->color, (name+".color").c_str());
         }
+
+        glBindTexture(GL_TEXTURE_2D, depthMap);
 
         glDrawArrays(GL_TRIANGLES, 0, posBuffMap[modelPath].size() / 3);
 
