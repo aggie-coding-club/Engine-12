@@ -142,6 +142,7 @@ void RenderEngine::ShadersInit()
 
 void RenderEngine::MapShadows(GLuint depthMapFBO, GLuint const shadowWidth,  GLuint const shadowHeight)
 {
+    glCullFace(GL_FRONT);
     glUseProgram(shadow.GetPID());
     glViewport(0, 0, shadowWidth, shadowHeight);
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
@@ -149,9 +150,9 @@ void RenderEngine::MapShadows(GLuint depthMapFBO, GLuint const shadowWidth,  GLu
 
     glm::mat4 lightProjection, lightView;
     glm::mat4 lightSpaceMatrix;
-    float nearPlane = 0.1f, farPlane = 7.5f;
+    float nearPlane = 0.1f, farPlane = 50.f;
     lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, nearPlane, farPlane);
-    lightView = glm::lookAt(glm::vec3(-2.0f,4.f,-1.f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    lightView = glm::lookAt(glm::vec3(-10.0f,4.f,5.f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
     lightSpaceMatrix = lightProjection * lightView;
 
     shadow.Bind();
@@ -182,7 +183,9 @@ void RenderEngine::MapShadows(GLuint depthMapFBO, GLuint const shadowWidth,  GLu
 
         glm::mat4 modelInverseTranspose = glm::transpose(glm::inverse(modelMatrix));
 
-        program.SendUniformData(modelMatrix, "model");
+        shadow.SendAttributeData(posBuffMap[modelPath], "aPos");
+
+        shadow.SendUniformData(modelMatrix, "model");
 
         glDrawArrays(GL_TRIANGLES, 0, posBuffMap[modelPath].size() / 3);
 
@@ -190,6 +193,7 @@ void RenderEngine::MapShadows(GLuint depthMapFBO, GLuint const shadowWidth,  GLu
 
     shadow.Unbind();
 
+    glCullFace(GL_BACK);
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
@@ -217,6 +221,14 @@ void RenderEngine::Display(glm::vec4 viewportInfo, GLuint depthMap)
         glDrawArrays(GL_POINTS, 0, 0);
         return;
     }
+    glm::mat4 lightProjection, lightView;
+    glm::mat4 lightSpaceMatrix;
+    float nearPlane = 0.1f, farPlane = 50.f;
+    glm::vec3 lightPosition = glm::vec3(-10.0f,4.f,5.f);
+    lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, nearPlane, farPlane);
+    lightView = glm::lookAt(lightPosition, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+    lightSpaceMatrix = lightProjection * lightView;
+
 
     glm::mat4 projectionMatrix = camera->GetProjectionMatrix();
     glm::mat4 viewMatrix = camera->GetViewMatrix();
@@ -252,6 +264,12 @@ void RenderEngine::Display(glm::vec4 viewportInfo, GLuint depthMap)
         program.SendUniformData(viewMatrix, "view");
         program.SendUniformData(projectionMatrix, "projection");
         program.SendUniformData(modelInverseTranspose, "modelInverseTranspose");
+        program.SendUniformData(lightSpaceMatrix, "lightSpaceMatrix");
+        program.SendUniformData(lightPosition, "lightPosition");
+
+        program.SendUniformData(0, "shadowMap");
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, depthMap);
 
         // Handle materials
         if (objMaterial) {
@@ -272,8 +290,6 @@ void RenderEngine::Display(glm::vec4 viewportInfo, GLuint depthMap)
             program.SendUniformData(lightTransform->position, (name + ".position").c_str());
             program.SendUniformData(lightComponent->color, (name+".color").c_str());
         }
-
-        glBindTexture(GL_TEXTURE_2D, depthMap);
 
         glDrawArrays(GL_TRIANGLES, 0, posBuffMap[modelPath].size() / 3);
 
