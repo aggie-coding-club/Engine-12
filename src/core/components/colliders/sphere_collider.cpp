@@ -5,7 +5,7 @@
 bool 
 SphereCollider::HasCollidedWith(std::shared_ptr<Collider> that) 
 {
-
+    return false;
 }
 
 bool 
