@@ -9,7 +9,9 @@ public:
     glm::vec3 center;
     float radius;
 
-    bool HasCollidedWith(std::shared_ptr<Collider> that) override;
+    bool HasCollidedWith(std::shared_ptr<Collider> that,
+                         glm::vec3 currVelocity) override;
+
     bool IncomingRayIntersect(const ColliderRay& ray, 
                               const float tMax, 
                               ColliderRecord& record) override;

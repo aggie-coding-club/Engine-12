@@ -1,11 +1,14 @@
 #include "core/components/colliders/sphere_collider.h"
 #include <algorithm>
+#include <memory>
 
 
 bool 
-SphereCollider::HasCollidedWith(std::shared_ptr<Collider> that) 
+SphereCollider::HasCollidedWith(std::shared_ptr<Collider> that, 
+                                glm::vec3 currVelocity) 
 {
-    return false;
+    auto ray = ColliderRay(this->center, currVelocity);
+    return that->IncomingRayIntersect(ray, radius, this->record);
 }
 
 bool 
@@ -37,12 +40,13 @@ SphereCollider::IncomingRayIntersect(const ColliderRay& ray,
         return false;
     }
 
-    glm::vec3 normal = glm::normalize(ray.at(t) - center);
+    glm::vec3 normal = glm::normalize(ray.At(t) - center);
     bool frontFace = glm::dot(ray.direction, normal) < 0.0f;
     normal = frontFace ? normal : -normal;
 
     record.t = t;
     record.normal = normal;
+    record.collidedWith = std::dynamic_pointer_cast<Collider>(shared_from_this());
 
     return true;
 
