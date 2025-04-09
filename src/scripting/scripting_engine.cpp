@@ -10,6 +10,8 @@
 #include <iostream>
 #include <filesystem>
 
+#include "scripting/wrappers.h"
+
 // Function to collect all valid scripts into scriptPaths vector
 void ScriptingEngine::FindScripts(const std::string& folderPath) {
     namespace fs = std::filesystem;
@@ -36,17 +38,50 @@ void ScriptingEngine::init() {
     RegisterStdString(engine);
     RegisterScriptArray(engine, true);
 
+    registerClasses();
+
+    loadScripts();
+    runScripts();
+}
+
+void ScriptingEngine::registerClasses() {
+    //Register value objects
+    //vec3
+    int r = engine->RegisterObjectType("vec3", sizeof(glm::vec3), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS); assert(r >= 0);
+    r = engine->RegisterObjectBehaviour("vec3", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION(ConstructVec3), asCALL_CDECL_OBJLAST); assert(r >= 0);
+    r = engine->RegisterObjectBehaviour("vec3", asBEHAVE_CONSTRUCT, "void f(const vec3 &in)", asFUNCTION(CopyConstructVec3), asCALL_CDECL_OBJLAST); assert(r >= 0);
+    r = engine->RegisterObjectBehaviour("vec3", asBEHAVE_CONSTRUCT, "void f(float, float, float)", asFUNCTION(ConstructVec3Float3), asCALL_CDECL_OBJLAST); assert(r >= 0);
+
+    r = engine->RegisterObjectProperty("vec3", "float x", asOFFSET(glm::vec3, x)); assert(r >= 0);
+    r = engine->RegisterObjectProperty("vec3", "float y", asOFFSET(glm::vec3, y)); assert(r >= 0);
+    r = engine->RegisterObjectProperty("vec3", "float z", asOFFSET(glm::vec3, z)); assert(r >= 0);
+
+    // Register reference objects
+    //Transform
+    r = engine->RegisterObjectType("Transform", 0, asOBJ_REF | asOBJ_NOCOUNT); assert( r >= 0 );
+    r = engine->RegisterObjectProperty("Transform", "vec3 position", asOFFSET(Transform, position)); assert( r >= 0 );
+    r = engine->RegisterObjectProperty("Transform", "vec3 rotation", asOFFSET(Transform, rotation)); assert( r >= 0 );
+    r = engine->RegisterObjectProperty("Transform", "vec3 scale", asOFFSET(Transform, scale)); assert( r >= 0 );
+
+    // GameObject
+    r = engine->RegisterObjectType("GameObject", 0, asOBJ_REF | asOBJ_NOCOUNT); assert( r >= 0 );
+    r = engine->RegisterObjectProperty("GameObject", "string name", asOFFSET(GameObject, name)); assert( r >= 0 );
+    r = engine->RegisterObjectMethod("GameObject", "Transform@ get_transform() property", asMETHOD(GameObject, get_transform), asCALL_THISCALL); assert( r >= 0 );
+    r = engine->RegisterObjectMethod("GameObject", "bool hasTag(const string &in)", asMETHOD(GameObject, hasTag), asCALL_THISCALL); assert( r >= 0 );
+    r = engine->RegisterObjectMethod("GameObject", "bool addTag(const string &in)", asMETHOD(GameObject, addTag), asCALL_THISCALL); assert( r >= 0 );
+
+
     // Register the function that we want the scripts to call
     r = engine->RegisterGlobalFunction("void print(const string &in)", asFUNCTION(print), asCALL_CDECL); assert( r >= 0 );
+    r = engine->RegisterGlobalFunction("GameObject@ find(const string &in)", asFUNCTION(find), asCALL_CDECL); assert( r >= 0 );
+    r = engine->RegisterGlobalFunction("void destroy(GameObject& gameObject)", asFUNCTION(destroy), asCALL_CDECL); assert( r >= 0 );
 
     // Register the script interface
     r = engine->RegisterInterface("Behavior"); assert( r >= 0 );
     r = engine->RegisterInterfaceMethod("Behavior", "void start()"); assert( r >= 0 );
     r = engine->RegisterInterfaceMethod("Behavior", "void update()"); assert( r >= 0 );
-
-    loadScripts();
-    runScripts();
 }
+
 
 void ScriptingEngine::loadScripts() {
     CScriptBuilder builder;

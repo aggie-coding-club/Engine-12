@@ -17,6 +17,7 @@ class ScriptingEngine
 public:
     void FindScripts(const std::string& folderPath);
     void init();
+    void registerClasses();
     void cleanUp();
     void loadScripts();
     void runScripts();

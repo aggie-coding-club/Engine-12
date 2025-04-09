@@ -68,7 +68,6 @@ int main(int argc, char *argv[])
 {	
 
 	DeserializeProject(&gameEngine, "../user/project.yaml");
-
 	
 	// GLFWwindow* window is shared between gui and render,
 	// so let's declare it in main.
