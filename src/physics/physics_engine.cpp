@@ -28,9 +28,18 @@ void PhysicsEngine::Update()
         sumOfForces += ApplyGravity(objRigidBody);
 
         glm::vec3 acceleration = CalculateAcceleration(objRigidBody, sumOfForces);
-        
-        UpdatePosition(objRigidBody, objTransform, acceleration);
+
+        UpdateVelocityWithAcceleration(objRigidBody, objTransform, acceleration);
+        UpdatePositionWithVelocity(objRigidBody, objTransform);
     }
+}
+
+void PhysicsEngine::ProcessCollision(std::shared_ptr<RigidBody> kinematicRigidBody, 
+                          std::shared_ptr<Collider> kinematicCollider,
+                          std::shared_ptr<RigidBody> objRigidBody,
+                          std::shared_ptr<Collider> objCollider)
+{
+
 }
 
 glm::vec3 PhysicsEngine::ApplyGravity(std::shared_ptr<RigidBody> objRigidBody) 
@@ -44,13 +53,16 @@ glm::vec3 PhysicsEngine::ApplyGravity(std::shared_ptr<RigidBody> objRigidBody)
     return objRigidBody->mass * objRigidBody->gravity;
 }
 
-inline glm::vec3 PhysicsEngine::CalculateAcceleration(std::shared_ptr<RigidBody> objRigidBody, glm::vec3 sumOfForces) 
+inline glm::vec3 PhysicsEngine::CalculateAcceleration(std::shared_ptr<RigidBody> objRigidBody, 
+                                                        glm::vec3 sumOfForces) 
 {
     return (1.0f / objRigidBody->mass) * sumOfForces;
 }
 
-void PhysicsEngine::UpdatePosition(std::shared_ptr<RigidBody> objRigidBody, 
-        std::shared_ptr<Transform> objTransform, glm::vec3 acceleration) 
+void PhysicsEngine::UpdateVelocityWithAcceleration(
+        std::shared_ptr<RigidBody> objRigidBody,
+        std::shared_ptr<Transform> objTransform, 
+        glm::vec3 acceleration) 
 {
     glm::vec3& velocity = objRigidBody->velocity;
     float maxVelocity = objRigidBody->maxVelocity;
@@ -60,9 +72,10 @@ void PhysicsEngine::UpdatePosition(std::shared_ptr<RigidBody> objRigidBody,
     float velocityMagnitude = std::min(glm::length(velocity), maxVelocity);
 
     velocity = currVelocityMagnitude == 0.0f ? glm::vec3(0.0f, 0.0f, 0.0f) : glm::normalize(velocity) * velocityMagnitude;
-
-    objTransform->position += velocity * timeDelta->count();
 }
 
-
-void PhysicsEngine::Collide(std::shared_ptr<RigidBody> objRigidBody, )
+void PhysicsEngine::UpdatePositionWithVelocity(std::shared_ptr<RigidBody> objRigidBody, 
+        std::shared_ptr<Transform> objTransform) 
+{
+    objTransform->position += objRigidBody->velocity * timeDelta->count();
+}

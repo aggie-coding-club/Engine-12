@@ -1,15 +1,15 @@
 #pragma once
-#include vector
 
 #include "component.h"
+#include "rigidbody.h"
 #include <glm/glm.hpp>
+#include <memory>
 
 class Collider: public Component
 {
 
-    bool collided = false; //touch other obj, run collision
-    bool elastic = false; //determines if object should collide elastically 
-
+    std::shared_ptr<Collider> collidedWithCollider = nullptr;
+    std::shared_ptr<RigidBody> collidedWithRigidBody = nullptr;
 
     // class BTree
     // {
