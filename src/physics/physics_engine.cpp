@@ -1,6 +1,7 @@
 #include "physics/physics_engine.h"
 
-void PhysicsEngine::Update() 
+void 
+PhysicsEngine::Update() 
 {
     if (!isActive)
         return;
@@ -34,10 +35,16 @@ void PhysicsEngine::Update()
     }
 }
 
-void PhysicsEngine::ProcessCollision(std::shared_ptr<RigidBody> kinematicRigidBody, 
-                          std::shared_ptr<Collider> kinematicCollider,
-                          std::shared_ptr<RigidBody> objRigidBody,
-                          std::shared_ptr<Collider> objCollider)
+/*
+ * This function will find out if two bodies collide with each other. 
+ * If they do collide, the velocities of these bodies will also update here 
+ * as well. This function assumes that at least one of the bodies are kinematic.
+ */
+void 
+PhysicsEngine::ProcessCollision(std::shared_ptr<RigidBody> kinematicRigidBody, 
+                                std::shared_ptr<Collider> kinematicCollider,
+                                std::shared_ptr<RigidBody> objRigidBody,
+                                std::shared_ptr<Collider> objCollider)
 {
 
 }
@@ -53,13 +60,15 @@ glm::vec3 PhysicsEngine::ApplyGravity(std::shared_ptr<RigidBody> objRigidBody)
     return objRigidBody->mass * objRigidBody->gravity;
 }
 
-inline glm::vec3 PhysicsEngine::CalculateAcceleration(std::shared_ptr<RigidBody> objRigidBody, 
-                                                        glm::vec3 sumOfForces) 
+inline glm::vec3 
+PhysicsEngine::CalculateAcceleration(std::shared_ptr<RigidBody> objRigidBody, 
+                                     glm::vec3 sumOfForces) 
 {
     return (1.0f / objRigidBody->mass) * sumOfForces;
 }
 
-void PhysicsEngine::UpdateVelocityWithAcceleration(
+void 
+PhysicsEngine::UpdateVelocityWithAcceleration(
         std::shared_ptr<RigidBody> objRigidBody,
         std::shared_ptr<Transform> objTransform, 
         glm::vec3 acceleration) 
@@ -74,8 +83,9 @@ void PhysicsEngine::UpdateVelocityWithAcceleration(
     velocity = currVelocityMagnitude == 0.0f ? glm::vec3(0.0f, 0.0f, 0.0f) : glm::normalize(velocity) * velocityMagnitude;
 }
 
-void PhysicsEngine::UpdatePositionWithVelocity(std::shared_ptr<RigidBody> objRigidBody, 
-        std::shared_ptr<Transform> objTransform) 
+void 
+PhysicsEngine::UpdatePositionWithVelocity(std::shared_ptr<RigidBody> objRigidBody, 
+                                          std::shared_ptr<Transform> objTransform) 
 {
     objTransform->position += objRigidBody->velocity * timeDelta->count();
 }

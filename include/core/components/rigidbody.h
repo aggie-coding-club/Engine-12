@@ -29,11 +29,5 @@ public:
     // If false, no force, gravity, or collision will affect the body
     bool isKinematics = true;
     bool isJank = false; //timeDelta dependence on frame rate
-
-    /* Publics functions to be implemented later
-     * AddForce()
-     * MovePosition()
-     * MoveRotation()
-     */
 private:
 };
