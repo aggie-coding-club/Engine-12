@@ -27,13 +27,16 @@ class RenderEngine
 
 	std::string verts[NUM_SHADERS] = {
 		"phong_vert.glsl",
+		"shadow_vert.glsl"
 	};
 
 	std::string frags[NUM_SHADERS] = {
 		"phong_frag.glsl",
+		"shadow_frag.glsl"
 	};
 
 	Shader program;
+	Shader shadow;
 	std::unordered_map<std::string, std::vector<float>> posBuffMap;
 	std::unordered_map<std::string, std::vector<float>> texBuffMap;
 	std::unordered_map<std::string, std::vector<float>> norBuffMap;
@@ -50,6 +53,9 @@ class RenderEngine
 	int mat_idx = 0;
 	int shader_idx = 0;
 
+	GLuint shaderProgram;
+	GLuint shadowProgram;
+
 	std::shared_ptr<Camera> camera;
 	GameEngine* gameEngine;
 
@@ -65,10 +71,18 @@ public:
 		Init();
 	}
 
+	void SetProgram(GLuint _shaderProgram, GLuint _shadowProgram) {
+		shaderProgram = _shaderProgram;
+		shadowProgram = _shadowProgram;
+	};
+
 	void Init();
 
 	void ShadersInit();
-	void Display();
+
+	void MapShadows(GLuint depthMapFBO, GLuint shadowWidth = 1024,  GLuint shadowHeight = 1024);
+
+	void Display(glm::vec4 viewportInfo, GLuint depthMap);
 	void CharacterCallback(GLFWwindow* window, unsigned int key);
 	void FrameBufferSizeCallback(GLFWwindow* lWindow, int width, int height);
 

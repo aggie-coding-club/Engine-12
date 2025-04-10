@@ -94,14 +94,38 @@ int main(int argc, char *argv[])
 	renderEngine = std::make_unique<RenderEngine>(window, &gameEngine);
 	scriptingEngine = std::make_unique<ScriptingEngine>();
 	scriptingEngine->init();
-  physicsEngine = std::make_unique<PhysicsEngine>(&gameEngine, &timeDelta);
+	physicsEngine = std::make_unique<PhysicsEngine>(&gameEngine, &timeDelta);
 
-	unsigned int framebuffer;
+	// Generate Frame buffer for ShadowMapping
+	GLuint depthMapFBO;
+	glGenFramebuffers(1, &depthMapFBO);
+
+	const GLuint shadowWidth = 1024, shadowHeight = 1024;
+
+	GLuint depthMap;
+	glGenTextures(1, &depthMap);
+	glBindTexture(GL_TEXTURE_2D, depthMap);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, shadowWidth, shadowHeight, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+	float borderColor[] = { 1.0f, 1.0f, 1.0f, 1.0f };
+	glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, borderColor);
+
+	glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMap, 0);
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+	// Generate Framebuffer for actual rendering
+	GLuint framebuffer;
 	glGenFramebuffers(1, &framebuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 
 	// Create a texture to attach to the framebuffer
-	unsigned int textureColorbuffer;
+	GLuint textureColorbuffer;
 	glGenTextures(1, &textureColorbuffer);
 	glBindTexture(GL_TEXTURE_2D, textureColorbuffer);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, WINDOW_WIDTH, WINDOW_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
@@ -110,7 +134,7 @@ int main(int argc, char *argv[])
 	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureColorbuffer, 0);
 
 	// Create a renderbuffer for depth and stencil attachment (optional)
-	unsigned int rbo;
+	GLuint rbo;
 	glGenRenderbuffers(1, &rbo);
 	glBindRenderbuffer(GL_RENDERBUFFER, rbo);
 	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, WINDOW_WIDTH, WINDOW_HEIGHT);
@@ -121,26 +145,23 @@ int main(int argc, char *argv[])
 		std::cerr << "ERROR: Framebuffer is not complete!" << std::endl;
 	}
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	int width, height;
+	glfwGetWindowSize(window, &width, &height);
 
-	int width,height;
 	guiEngine->init(window, &gameEngine);
     physicsEngine->Activate();
 	while ( glfwWindowShouldClose(window) == 0 )
 	{
-		
-		int w, h;
-		glfwGetWindowSize(window, &w, &h);
-		unsigned int width = static_cast<unsigned int>(w);
-		unsigned int height = static_cast<unsigned int>(h);
 
 		glfwPollEvents();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         start = end;
         physicsEngine->Update();
 
-		guiEngine->run(width,height);
+		guiEngine->run();
 		if(guiEngine->showView) {
-			// renderEngine->Display();
+			renderEngine->MapShadows(depthMap, shadowWidth, shadowHeight);
+			renderEngine->Display(guiEngine->SendViewportInfo(), depthMap);
 		}
         end = std::chrono::steady_clock::now();
         timeDelta = end - start;

@@ -4,6 +4,7 @@
 #include <glm/glm.hpp>
 #include <glm/detail/type_quat.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
 
 #include "fmt/format.h"
 
@@ -27,7 +28,9 @@ public:
         Position(glm::vec3(0.0f, 0.0f, 4.0f)),
         Rotation(glm::quat(1.0f, 0.0f, 0.0f, 0.0f)),
         zNear(0.1f),
-        zFar(100.f){}
+        zFar(100.f) {
+        EularRotation = glm::eulerAngles(Rotation);
+    }
 
     Camera(): Camera(1920, 1080){}
 

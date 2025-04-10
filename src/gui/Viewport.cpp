@@ -1,8 +1,8 @@
 #include "gui/Viewport.h"
 
-void Viewport::ShowViewport(ImVec2 window_Size){
+void Viewport::ShowViewport(){
 
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar;
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
 
     ImVec2 DisplaySize = ImGui::GetIO().DisplaySize;
 
@@ -11,8 +11,6 @@ void Viewport::ShowViewport(ImVec2 window_Size){
 
     ImGui::SetNextWindowPos(ImVec2(0, 29+31));
 
-    ImVec2 currPos;
-    ImVec2 currSize;
 
     // Create an ImGui window
     ImGui::Begin("Viewport", nullptr, window_flags);
@@ -20,8 +18,10 @@ void Viewport::ShowViewport(ImVec2 window_Size){
 
     if (ImGui::BeginTabItem("Viewport")) {
         // Get the position and size of the ImGui window content area
-    currPos = ImGui::GetCursorScreenPos();
-    currSize = ImGui::GetContentRegionAvail();
+        x = ImGui::GetCursorScreenPos().x;
+        y = ImGui::GetCursorScreenPos().y;
+        width = ImGui::GetContentRegionAvail().x;
+        height = ImGui::GetContentRegionAvail().y;
         ImGui::EndTabItem();
     }
 
@@ -29,11 +29,4 @@ void Viewport::ShowViewport(ImVec2 window_Size){
 
     // End ImGui window but don't render yet
     ImGui::End();
-
-    // Set up OpenGL viewport and scissor area to match the ImGui window
-    glViewport((int)currPos.x,  window_Size.y - (int)currPos.y - currSize.y, (int)currSize.x, (int)currSize.y);
-    glEnable(GL_SCISSOR_TEST);
-    glScissor((int)currPos.x,  window_Size.y - (int)currPos.y - currSize.y, (int)currSize.x, (int)currSize.y);
-    // Disable scissor test after rendering OpenGL content
-    glDisable(GL_SCISSOR_TEST);
 }
