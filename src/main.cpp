@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
 	guiEngine = std::make_unique<GuiEngine>();
 	renderEngine = std::make_unique<RenderEngine>(window, &gameEngine);
 	scriptingEngine = std::make_unique<ScriptingEngine>();
-	scriptingEngine->init();
+	scriptingEngine->init(gameEngine.simulationManager.get());
 	physicsEngine = std::make_unique<PhysicsEngine>(&gameEngine, &timeDelta);
 
 	// Generate Frame buffer for ShadowMapping

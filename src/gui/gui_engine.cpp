@@ -121,7 +121,7 @@ void GuiEngine::run()
     menuBar.ShowMenuBar(gameEngine, showDetail, showView, showHierarchy, showLoadFile, showSaveAs);
 
     ImGui::PushFont(icons);
-    secondMenuBar.ShowSecondaryMenuBar();
+    secondMenuBar.ShowSecondaryMenuBar(gameEngine);
     ImGui::PopFont();
 
     if(showHierarchy) {

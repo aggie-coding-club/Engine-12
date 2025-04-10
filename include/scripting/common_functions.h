@@ -57,6 +57,11 @@ static void destroy(GameObject& gameObject)
     }
 }
 
+static GameObject* instantiate()
+{
+
+}
+
 static void instantiate(GameObject& gameObject)
 {
 

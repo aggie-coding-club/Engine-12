@@ -26,8 +26,9 @@ void ScriptingEngine::FindScripts(const std::string& folderPath) {
     }
 }
 
-void ScriptingEngine::init() {
+void ScriptingEngine::init(SimulationManager* sim) {
     engine = asCreateScriptEngine();
+    simulation = sim;
 
     // Collect valid Scripts
     FindScripts("Assets/");
@@ -156,6 +157,8 @@ void ScriptingEngine::runScripts() {
 }
 
 void ScriptingEngine::runScriptUpdate() {
+    if(!simulation->isRunning()) return;
+
     asIScriptModule *mod = engine->GetModule("ScriptModule"); assert(mod != nullptr);
 
     for (auto objectPair : scriptObjects) {

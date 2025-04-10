@@ -5,6 +5,7 @@
 #include "components/transform.h"
 #include "components/light.h"
 #include "scene.h"
+#include "simulation_manager.h"
 
 #define _USE_SCENE_
 
@@ -84,8 +85,10 @@ private:
 public:
     static std::vector<std::shared_ptr<Scene>>& GetScenes() { return scenes; }
     static std::shared_ptr<Scene>& GetCurrScene() { return scenes[currSceneIdx]; }
+    std::unique_ptr<SimulationManager> simulationManager;
     GameEngine()
     {
+        simulationManager = std::make_unique<SimulationManager>();
         //TestInit2();
     }
 
