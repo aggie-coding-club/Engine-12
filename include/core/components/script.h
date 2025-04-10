@@ -8,7 +8,7 @@
 
 
 
-class Script : public Component
+class Script
 {
 public:
     const std::string& typeName;

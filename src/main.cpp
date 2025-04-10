@@ -27,6 +27,7 @@
 #include <serial/lights.h>
 #include <serial/models.h>
 #include "core/scene.h"
+#include "scripting/common_functions.h"
 #include "scripting/scripting_engine.h"
 #include "serial/scenes.h"
 #include "serial/project.h"

@@ -10,6 +10,7 @@
 
 #include "components/component.h"
 #include "components/script.h"
+#include "components/script_container.h"
 #include "components/transform.h"
 
 class GameObject {
@@ -22,24 +23,12 @@ public:
     std::unordered_set<std::string> tags;
     std::string model_path;
 
-    GameObject(const std::string model_path = "../resources/models/bunny.obj") : model_path(model_path), id(generateUniqueId()), transform(nullptr) {}
+    GameObject(const std::string model_path = "../resources/models/bunny.obj") : model_path(model_path), id(generateUniqueId()) {}
     const int id;
 
     Transform* get_transform()
     {
-        if (transform != nullptr) return transform;
-
-        for(auto const& component : components)
-        {
-            if(!component) continue;
-
-            if(component->type == TRANSFORM)
-            {
-                transform = dynamic_cast<Transform*>(component.get());
-            }
-        }
-
-        return transform;
+        return dynamic_cast<Transform*>(components[TRANSFORM].get());
     }
 
     bool hasTag(const std::string& tag)
@@ -53,28 +42,26 @@ public:
     }
 
     Component* getComponent(COMPONENT_TYPE type){
-        for(auto const& component : components)
-        {
-            if(component->type == type)
-            {
-                return component.get();
-            }
-        }
-        return nullptr;
+        return components[type].get();
     }
 
-    /*void addScript(const std::string& name, ScriptingEngine* engine)
+    void addScript(const std::string& name, ScriptingEngine* engine)
     {
-        components.push_back(Script::create(name, engine->engine, engine, this));
-    }*/
+        std::cout << "Adding script " << name << std::endl;
+
+        if(components[SCRIPT] == nullptr)
+        {
+            components[SCRIPT] = std::make_shared<ScriptContainer>();
+        }
+
+        dynamic_cast<ScriptContainer*>(components[SCRIPT].get())->scripts.push_back(Script::create(name, engine->engine, engine, this));
+    }
 
     bool operator==(const GameObject& other) const
     {
         return id == other.id;
     }
 private:
-    Transform* transform;
-
     static int lastId;
 
     static int generateUniqueId() {

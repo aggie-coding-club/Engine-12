@@ -13,6 +13,8 @@
 
 #include "scripting/wrappers.h"
 
+ScriptingEngine* ScriptingEngine::instance;
+
 // Function to collect all valid scripts into scriptPaths vector
 void ScriptingEngine::FindScripts(const std::string& folderPath) {
     scriptPaths = {};
@@ -31,6 +33,7 @@ void ScriptingEngine::FindScripts(const std::string& folderPath) {
 void ScriptingEngine::init(SimulationManager* sim) {
     engine = asCreateScriptEngine();
     simulation = sim;
+    instance = this;
 
     // Collect valid Scripts
     FindScripts("Assets/");
@@ -172,11 +175,11 @@ void ScriptingEngine::loadScripts() {
 
     module = engine->GetModule("ScriptModule"); assert(module != nullptr);
     for (const auto& object: getCurrentScene()->GetModels()) {
-        for(const auto& component: object->components)
+        if(object->components[SCRIPT] != nullptr)
         {
-            if(component && component->type == SCRIPT)
+            for(const auto& script: dynamic_cast<ScriptContainer*>(object->components[SCRIPT].get())->scripts)
             {
-                dynamic_cast<Script*>(component.get())->start();
+                script->start();
             }
         }
     }

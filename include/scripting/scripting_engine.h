@@ -27,6 +27,7 @@ class ScriptingEngine
     void runFunction(const std::string& typeName, asIScriptObject* object, const std::string& declaration);
     void runFunction(const Script& script, const std::string& declaration);
 public:
+    static ScriptingEngine* instance;
     std::unordered_map<Script*, GameObject*> scriptObjects;
     asIScriptEngine* engine = nullptr;
 
