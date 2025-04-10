@@ -5,23 +5,32 @@
 #include <scriptbuilder/scriptbuilder.h>
 #include <vector>
 
-#include "core/game_object.h"
 #include "core/simulation_manager.h"
+
+class Script;
+class GameObject;
 
 class ScriptingEngine
 {
-    asIScriptEngine* engine = nullptr;
+    asIScriptModule* module = nullptr;
     asIScriptContext* ctx = nullptr;
     SimulationManager* simulation = nullptr;
+    bool engineRunning = false;
     std::vector<std::string> scriptPaths;
-    std::unordered_map<std::string, asIScriptObject*> scriptObjects;
 
-public:
     void FindScripts(const std::string& folderPath);
-    void init(SimulationManager* sim);
-    void registerClasses();
-    void cleanUp();
     void loadScripts();
-    void runScripts();
+    void runScriptStart();
     void runScriptUpdate();
+    void registerClasses();
+    void stopScripts();
+    void runFunction(const std::string& typeName, asIScriptObject* object, const std::string& declaration);
+    void runFunction(const Script& script, const std::string& declaration);
+public:
+    std::unordered_map<Script*, GameObject*> scriptObjects;
+    asIScriptEngine* engine = nullptr;
+
+    void init(SimulationManager* sim);
+    void cleanUp();
+    void run();
 };

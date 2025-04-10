@@ -5,8 +5,11 @@
 #include <array>
 #include <unordered_set>
 #include <memory>
+#include <angelscript.h>
+#include <vector>
 
 #include "components/component.h"
+#include "components/script.h"
 #include "components/transform.h"
 
 class GameObject {
@@ -49,19 +52,20 @@ public:
         return tags.insert(tag).second;
     }
 
-    /*T* getComponent()
-    {
+    Component* getComponent(COMPONENT_TYPE type){
         for(auto const& component : components)
         {
-            if(!component) continue;
-
-            if(dynamic_cast<T*>(component.get()) != nullptr)
+            if(component->type == type)
             {
                 return component.get();
             }
         }
-
         return nullptr;
+    }
+
+    /*void addScript(const std::string& name, ScriptingEngine* engine)
+    {
+        components.push_back(Script::create(name, engine->engine, engine, this));
     }*/
 
     bool operator==(const GameObject& other) const

@@ -7,6 +7,7 @@ enum COMPONENT_TYPE {
     MODEL,
     LIGHT,
     RIGID_BODY,
+    SCRIPT,
     NUM_ENUM
 };
 

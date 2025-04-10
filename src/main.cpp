@@ -166,7 +166,7 @@ int main(int argc, char *argv[])
         timeDelta = end - start;
         // std::cout << timeDelta.count() << std::endl;
 		glfwSwapBuffers(window);
-		scriptingEngine->runScriptUpdate();
+		scriptingEngine->run();
 	}
 	guiEngine->cleanup();
 
