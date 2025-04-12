@@ -2,6 +2,9 @@
 
 #include "component.h"
 #include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 
 class Transform: public Component {
 public:
@@ -17,7 +20,16 @@ public:
 
     Transform(const glm::vec3 pos):
         Transform(pos, {0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f}) {}
-
-    // Add function to process component
-
+    
+    glm::mat4 GetModelMatrix(glm::vec3 bias)
+    {
+        glm::mat4 modelMatrix(1.0f);
+        modelMatrix = glm::translate(glm::mat4(1.0f), position - bias)
+            * glm::rotate(glm::mat4(1.0f), glm::radians(rotation[0]), glm::vec3(1.0f, 0.0f, 0.0f))
+            * glm::rotate(glm::mat4(1.0f), glm::radians(rotation[1]), glm::vec3(0.0f, 1.0f, 0.0f))
+            * glm::rotate(glm::mat4(1.0f), glm::radians(rotation[2]), glm::vec3(0.0f, 0.0f, 1.0f))
+            * glm::scale(glm::mat4(1.0f), scale);
+        
+        return modelMatrix;
+    }
 };

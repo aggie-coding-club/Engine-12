@@ -9,6 +9,8 @@
 #include "core/components/model.h"
 #include "core/components/material.h"
 #include "core/components/rigidbody.h"
+#include "core/components/colliders/sphere_collider.h"
+#include "core/components/colliders/plane_collider.h"
 
 #include <vector>
 
@@ -88,7 +90,7 @@ public:
   	}
 
     void AddModel(){
-        glm::vec3 pos= {0.0f, 0.0f, 0.0f};
+        glm::vec3 pos = {0.0f, 0.0f, 0.0f};
 
         const auto bunnyObj = std::make_shared<GameObject>();
         const auto bunnyName = std::string("bunny" + std::to_string(randomId++));
@@ -96,18 +98,46 @@ public:
         const auto bunnyMaterial = std::make_shared<Material>();
   	    const auto bunnyModel = std::make_shared<Model>();
         const auto bunnyRigid = std::make_shared<RigidBody>();
+        const auto bunnyCollider = std::make_shared<SphereCollider>();
+
+        bunnyRigid->coeff_e = 0.9f;
+
+        bunnyCollider->point = bunnyTransform->position;
+        bunnyCollider->radius = 1.0f;
 
         bunnyObj->name = bunnyName;
         bunnyObj->components[TRANSFORM] = bunnyTransform;
         bunnyObj->components[MATERIAL] = bunnyMaterial;
   	    bunnyObj->components[MODEL] = bunnyModel;
   	    bunnyObj->components[RIGID_BODY] = bunnyRigid;
-        
+        bunnyObj->components[COLLIDER] = bunnyCollider;
 
   	    std::cout << std::dynamic_pointer_cast<Model>(bunnyObj->components[MODEL])->modelPath << std::endl;
 
         AddModel(bunnyObj);
     };
+
+    void AddPlaneCollider() {
+        glm::vec3 pos = {0.0f, -1.25f, 0.0f};
+        glm::vec3 normal = {0.0f, 1.0f, 0.0f};
+
+        const auto planeObj = std::make_shared<GameObject>();
+        const auto name = "plane";
+        const auto planeTransform = std::make_shared<Transform>(pos);
+        const auto planeRigid = std::make_shared<RigidBody>();
+        const auto planeCollider = std::make_shared<PlaneCollider>(pos, normal);
+
+        planeRigid->useGravity = false;
+        planeRigid->isKinematics = false;
+
+        planeObj->components[TRANSFORM] = planeTransform;
+        planeObj->components[RIGID_BODY] = planeRigid;
+        planeObj->components[COLLIDER] = planeCollider;
+        planeObj->name = name;
+
+        AddModel(planeObj);
+    }
+
 
     void SetLightsVector(const std::vector<std::shared_ptr<GameObject>> _lights) {
         lights = _lights;

@@ -31,7 +31,7 @@ Scenes:
               - 0.5
             shininess: 32
           Model:
-            model_path: ../resources/models/bunny.obj
+            model_path: ../resources/models/sphere.obj
         bunny1:
           Transform:
             position:
@@ -61,7 +61,7 @@ Scenes:
               - 0.5
             shininess: 32
           Model:
-            model_path: ../resources/models/bunny.obj
+            model_path: ../resources/models/sphere.obj
         bunny2:
           Transform:
             position:
@@ -91,7 +91,7 @@ Scenes:
               - 0.5
             shininess: 32
           Model:
-            model_path: ../resources/models/bunny.obj
+            model_path: ../resources/models/sphere.obj
       Lights:
         "":
           Transform:

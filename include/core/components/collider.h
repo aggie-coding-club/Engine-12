@@ -32,16 +32,28 @@ class ColliderRecord
 public:
     glm::vec3 normal;
     float t;
+    bool prevCollided = false;
     std::weak_ptr<Collider> collidedWith;
 
     ColliderRecord() 
     {
+        prevCollided = false;
         t = INFINITY;
         collidedWith.reset();
     }
 
     void Reset()
     {
+        if (prevCollided)
+        {
+            prevCollided = false;
+        }
+
+        if (t < INFINITY)
+        {
+            prevCollided = true;
+        }
+
         t = INFINITY;
         collidedWith.reset();
     }
@@ -67,4 +79,6 @@ public:
     {
         record.Reset();
     }
+
+    glm::vec3 point;
 };

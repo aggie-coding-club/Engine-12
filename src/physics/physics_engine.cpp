@@ -24,10 +24,16 @@ PhysicsEngine::Update()
                     second->components[COLLIDER]
             );
 
+            if (thisCollider == nullptr || thatCollider == nullptr)
+            {
+                continue;
+            }
 
-            thisCollider->HasCollidedWith(thatCollider);            
+            if (thisCollider->HasCollidedWith(thatCollider))
+            {
+                std::cout << first->name << " collided with " << second->name << std::endl;
+            }            
         }
-
     }
 
     // Updating velocities and positions through collision then forces
@@ -65,6 +71,7 @@ PhysicsEngine::Update()
 
         UpdateVelocityWithAcceleration(thisRigidBody, thisTransform, acceleration);
         UpdatePositionWithVelocity(thisRigidBody, thisTransform);
+        CopyPositionToCollider(thisTransform, thisCollider);
     }
 
     // Reset collision information for next iteration
@@ -86,18 +93,30 @@ PhysicsEngine::Update()
  * If they do collide, the velocities of these bodies will also update here 
  * as well. This function assumes that at least one of the bodies are kinematic.
  */
+void
+PhysicsEngine::CopyPositionToCollider(
+        std::shared_ptr<Transform> kinematicTransform,
+        std::shared_ptr<Collider> kinematicCollider)
+{
+    kinematicCollider->point = kinematicTransform->position;
+}
+
 void 
 PhysicsEngine::ProcessCollision(std::shared_ptr<RigidBody> kinematicRigidBody, 
                                 std::shared_ptr<Collider> kinematicCollider)
 {
-    const auto& t = kinematicCollider->record.t;
-    if (t == INFINITY)
+    const auto t = kinematicCollider->record.t;
+    const auto prevCollided = kinematicCollider->record.prevCollided;
+
+    if (prevCollided || t == INFINITY)
         return;
 
-    const auto& normal = kinematicCollider->record.normal;
+    auto& normal = kinematicCollider->record.normal;
 
     auto& velocity = kinematicRigidBody->velocity;
     const auto& coeff_e = kinematicRigidBody->coeff_e;
+    float dott = glm::dot(velocity, normal);
+
     velocity = coeff_e * glm::reflect(velocity, normal);
 }
 

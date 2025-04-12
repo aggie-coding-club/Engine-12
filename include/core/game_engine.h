@@ -31,9 +31,9 @@ private:
         scene->GetCameras().emplace_back(camera);
         constexpr size_t n = 3;
         constexpr glm::vec3 pos[n] = {
-            {0.0f, -1.0f, 0.0f},
-            {-2.0f, -1.0f, -3.0f},
-            {2.0f, -1.0f, -3.0f}
+            {0.0f, 1.0f, 0.0f},
+            {-2.0f, 1.0f, -3.0f},
+            {2.0f, 1.0f, -3.0f}
         };
         for (int i = 0; i < n; i++)
         {
@@ -41,7 +41,9 @@ private:
             const auto& obj = scene->GetModels().at(i);
 
             std::dynamic_pointer_cast<Transform>(obj->components[TRANSFORM])->position = pos[i];
+            std::dynamic_pointer_cast<SphereCollider>(obj->components[COLLIDER])->point = pos[i];
         }
+        scene->AddPlaneCollider();
 
 	    // // Lights
 	    // lights[0].position = {0.0f, 0.0f, 3.0f};

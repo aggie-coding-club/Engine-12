@@ -2,14 +2,11 @@
 #include <algorithm>
 #include <memory>
 
-SphereCollider::SphereCollider(glm::vec3 center, float radius):
-    center(center), radius(radius) {}
-
 bool 
 SphereCollider::HasCollidedWith(std::shared_ptr<Collider> that)
 {
     // Direction will be determined by "that"
-    ColliderRay ray(center, {0.0f, 0.0f, 0.0f});
+    ColliderRay ray(point, {0.0f, 0.0f, 0.0f});
     return that->IncomingRayIntersect(ray, radius, this->record);
 }
 
@@ -18,7 +15,7 @@ SphereCollider::IncomingRayIntersect(ColliderRay& ray,
                                      const float maxDistance,
                                      ColliderRecord& record) 
 {
-    auto oc = center - ray.center;
+    auto oc = point - ray.center;
     ray.direction = glm::normalize(oc);
 
     auto a = 1.0f;

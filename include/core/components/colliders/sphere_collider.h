@@ -7,7 +7,12 @@
 class SphereCollider: public Collider
 {
 public:
-    SphereCollider(glm::vec3 center, float radius);
+    SphereCollider(glm::vec3 point, float radius): radius(radius)
+    {
+        this->point = point;
+    }
+
+    SphereCollider(){}
 
 	~SphereCollider() = default;
 
@@ -17,6 +22,5 @@ public:
                               const float distance, 
                               ColliderRecord& record) override;
 
-    glm::vec3 center;
     float radius;
 };
