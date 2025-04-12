@@ -2,23 +2,26 @@
 #include <algorithm>
 #include <memory>
 
+SphereCollider::SphereCollider(glm::vec3 center, float radius):
+    center(center), radius(radius) {}
 
 bool 
-SphereCollider::HasCollidedWith(std::shared_ptr<Collider> that, 
-                                glm::vec3 currVelocity) 
+SphereCollider::HasCollidedWith(std::shared_ptr<Collider> that)
 {
-    auto ray = ColliderRay(this->center, currVelocity);
+    // Direction will be determined by "that"
+    ColliderRay ray(center, {0.0f, 0.0f, 0.0f});
     return that->IncomingRayIntersect(ray, radius, this->record);
 }
 
 bool 
-SphereCollider::IncomingRayIntersect(const ColliderRay& ray, 
-                                     const float tMax,
+SphereCollider::IncomingRayIntersect(ColliderRay& ray, 
+                                     const float maxDistance,
                                      ColliderRecord& record) 
 {
     auto oc = center - ray.center;
+    ray.direction = glm::normalize(oc);
 
-    auto a = glm::dot(ray.direction, ray.direction);
+    auto a = 1.0f;
     auto h = glm::dot(oc, ray.direction);
     auto c = glm::dot(oc, oc) - (radius * radius);
 
@@ -35,19 +38,14 @@ SphereCollider::IncomingRayIntersect(const ColliderRay& ray,
 
     float t = std::min({root1, root2, record.t});
 
-    if (t == record.t || t > tMax)
+    if (t == record.t || t > maxDistance)
     {
         return false;
     }
 
-    glm::vec3 normal = glm::normalize(ray.At(t) - center);
-    bool frontFace = glm::dot(ray.direction, normal) < 0.0f;
-    normal = frontFace ? normal : -normal;
-
     record.t = t;
-    record.normal = normal;
+    record.normal = -ray.direction;
     record.collidedWith = std::dynamic_pointer_cast<Collider>(shared_from_this());
 
     return true;
-
 }

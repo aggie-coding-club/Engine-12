@@ -12,9 +12,12 @@ public:
     glm::vec3 center;
     glm::vec3 direction;
 
+    ColliderRay();
+
     ColliderRay(glm::vec3 center, glm::vec3 direction) 
     {
         this->center = center;
+        // Force direction into a unit vector
         this->direction = glm::normalize(direction);
     }
 
@@ -36,6 +39,12 @@ public:
         t = INFINITY;
         collidedWith.reset();
     }
+
+    void Reset()
+    {
+        t = INFINITY;
+        collidedWith.reset();
+    }
 };
 
 class Collider: public Component, public std::enable_shared_from_this<Collider>
@@ -49,10 +58,13 @@ public:
     }
     virtual ~Collider() = default;
 
-    virtual bool HasCollidedWith(std::shared_ptr<Collider> that, 
-                                 glm::vec3 currVelocity) = 0;
+    virtual bool HasCollidedWith(std::shared_ptr<Collider> that) = 0;
 
-    virtual bool IncomingRayIntersect(const ColliderRay& ray, 
-                                      const float tMax,
+    virtual bool IncomingRayIntersect(ColliderRay& ray, 
+                                      const float distance,
                                       ColliderRecord& record) = 0;
+    virtual void Reset()
+    {
+        record.Reset();
+    }
 };
