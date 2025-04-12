@@ -148,17 +148,12 @@ void RenderEngine::MapShadows(GLuint depthMapFBO, GLuint const shadowWidth,  GLu
     glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
     glClear(GL_DEPTH_BUFFER_BIT);
 
-    glm::mat4 lightProjection, lightView;
-    glm::mat4 lightSpaceMatrix;
-    float nearPlane = 0.1f, farPlane = 50.f;
-    lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, nearPlane, farPlane);
-    lightView = glm::lookAt(glm::vec3(-10.0f,4.f,5.f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    lightSpaceMatrix = lightProjection * lightView;
-
     shadow.Bind();
-    shadow.SendUniformData(lightSpaceMatrix, "lightSpaceMatrix");
 
     const auto& scene = gameEngine->GetCurrScene();
+
+    glm::mat4 lightSpaceMatrix = scene->getLightSpaceMatrix();
+    shadow.SendUniformData(lightSpaceMatrix, "lightSpaceMatrix");
 
     for (const auto& model : scene->GetModels())
     {
@@ -284,7 +279,7 @@ void RenderEngine::Display(glm::vec4 viewportInfo, GLuint depthMap)
         for (size_t i = 0; i < lights.size(); i++) {
             const auto& light = lights[i];
             const auto lightTransform = std::dynamic_pointer_cast<Transform>(light->components[TRANSFORM]);
-            const auto lightComponent = std::dynamic_pointer_cast<Light>(light->components[LIGHT]);
+            const auto lightComponent = std::dynamic_pointer_cast<PointLight>(light->components[LIGHT]);
 
             std::string name = fmt::format("lights[{}]", i);
             program.SendUniformData(lightTransform->position, (name + ".position").c_str());

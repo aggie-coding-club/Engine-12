@@ -34,7 +34,7 @@ YAML::Node SerializeComponents(const std::array<std::shared_ptr<Component>, Comp
         }
         case LIGHT:
         {
-            const auto& light = std::dynamic_pointer_cast<Light>(component);
+            const auto& light = std::dynamic_pointer_cast<PointLight>(component);
             ComponentsNode["Light"] = SerializeLight(light);
             break;
         }

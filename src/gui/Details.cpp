@@ -1,8 +1,11 @@
 // Code for Details window
 
 #include "gui/Details.h"
+
+#include <imgui_internal.h>
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 void ShowTransform(std::shared_ptr<Transform> &object_transform){
     if (ImGui::TreeNode("Transform")){
@@ -45,7 +48,7 @@ void ShowMaterial(std::shared_ptr<Material> &object_material) {
     }
 }
 
-void ShowLight(std::shared_ptr<Light> &object_light) {
+void ShowLight(std::shared_ptr<PointLight> &object_light) {
     if (ImGui::TreeNode("Light")) {
         ImGui::Text("Color");
         ImGui::SameLine();
@@ -164,7 +167,7 @@ void Details::ShowDetails(const std::shared_ptr<Scene>& scene)
                 {
                     ShowMaterial(objMaterial);
                 }
-                if(auto objLight = std::dynamic_pointer_cast<Light>( objComponent )) {
+                if(auto objLight = std::dynamic_pointer_cast<PointLight>( objComponent )) {
                     ShowLight(objLight);
                 }
 
@@ -180,7 +183,20 @@ void Details::ShowDetails(const std::shared_ptr<Scene>& scene)
         ImGui::EndTabItem();
     }
     if(ImGui::BeginTabItem("World Details")) {
-        ImGui::Text("Balls");
+        glm::vec3 eye = scene->getlightEye();
+        ImGui::Text("Camera Eye");
+        ImGui::SameLine();
+        if(ImGui::DragFloat3("##Eye", glm::value_ptr(eye))) {
+            scene->setLightEye(eye);
+        }
+
+        glm::vec3 center = scene->getlightCenter();
+        ImGui::Text("Camera Center");
+        ImGui::SameLine();
+        if(ImGui::DragFloat3("##Center", glm::value_ptr(center))) {
+            scene->setLightCenter(center);
+        }
+
         ImGui::EndTabItem();
     }
     ImGui::EndTabBar();
