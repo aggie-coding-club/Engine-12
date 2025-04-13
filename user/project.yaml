@@ -122,6 +122,36 @@ Scenes:
               shininess: 30
             Model:
               model_path: texas.obj
+        - square0:
+            Transform:
+              position:
+                - 0
+                - -0.676
+                - 0
+              rotation:
+                - -90
+                - 0
+                - 0
+              scale:
+                - 100
+                - 100
+                - 1
+            Material:
+              ambient:
+                - 0.1
+                - 0.1
+                - 0.1
+              diffuse:
+                - 0.8
+                - 0.8
+                - 0.8
+              specular:
+                - 0.5
+                - 0.5
+                - 0.5
+              shininess: 32
+            Model:
+              model_path: square.obj
       Lights:
         - brightLight:
             Transform:
@@ -168,9 +198,9 @@ Scenes:
           fovy: 50
           aspect: 1.7777778
           center:
-            - 5.040536e-05
-            - 0.7421506
-            - 5.040565e-05
+            - 9.830413e-06
+            - 0.48465073
+            - 9.83061e-06
           eye:
             - -4.9
             - 1.8
@@ -179,9 +209,9 @@ Scenes:
           fovy: 50
           aspect: 1.7777778
           center:
-            - 0.012332247
-            - -0.019369561
-            - -0.00978643
+            - 0.006118333
+            - -0.009714498
+            - -0.004833157
           eye:
             - -7
             - 10
@@ -190,9 +220,9 @@ Scenes:
           fovy: 50
           aspect: 1.7777778
           center:
-            - 0.00140388
-            - 0.001700098
-            - 0.0014038798
+            - 0.0007013428
+            - 0.0008505413
+            - 0.00070134277
           eye:
             - -7
             - 9

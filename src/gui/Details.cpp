@@ -186,15 +186,29 @@ void Details::ShowDetails(const std::shared_ptr<Scene>& scene)
         glm::vec3 eye = scene->getlightEye();
         ImGui::Text("Camera Eye");
         ImGui::SameLine();
-        if(ImGui::DragFloat3("##Eye", glm::value_ptr(eye))) {
+        if(ImGui::DragFloat3("##lightEye", glm::value_ptr(eye))) {
             scene->setLightEye(eye);
         }
 
         glm::vec3 center = scene->getlightCenter();
         ImGui::Text("Camera Center");
         ImGui::SameLine();
-        if(ImGui::DragFloat3("##Center", glm::value_ptr(center))) {
+        if(ImGui::DragFloat3("##lightCenter", glm::value_ptr(center))) {
             scene->setLightCenter(center);
+        }
+
+        float nearPlane = scene->getLightNearPlane();
+        ImGui::Text("Camera Near Plane");
+        ImGui::SameLine();
+        if(ImGui::DragFloat("##lightNearPlane", &nearPlane)) {
+            scene->setLightNearPlane(nearPlane);
+        }
+
+        float farPlane = scene->getLightFarPlane();
+        ImGui::Text("Camera Far Plane");
+        ImGui::SameLine();
+        if(ImGui::DragFloat("##lightFarPlane", &farPlane)) {
+            scene->setLightFarPlane(farPlane);
         }
 
         ImGui::EndTabItem();

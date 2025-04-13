@@ -197,7 +197,7 @@ void RenderEngine::Display(glm::vec4 viewportInfo, GLuint depthMap)
     int width, height;
     glfwGetWindowSize(window, &width, &height);
     glUseProgram(program.GetPID());
-    glViewport(0, height-viewportInfo.w - viewportInfo.y, viewportInfo.z, viewportInfo.w);
+    glViewport(5, height-viewportInfo.w - viewportInfo.y, 5+viewportInfo.z, viewportInfo.w);
 
     glEnable(GL_DEPTH_TEST);
 
@@ -216,17 +216,15 @@ void RenderEngine::Display(glm::vec4 viewportInfo, GLuint depthMap)
         glDrawArrays(GL_POINTS, 0, 0);
         return;
     }
-    glm::mat4 lightProjection, lightView;
-    glm::mat4 lightSpaceMatrix;
-    float nearPlane = 0.1f, farPlane = 50.f;
-    glm::vec3 lightPosition = glm::vec3(-10.0f,4.f,5.f);
-    lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, nearPlane, farPlane);
-    lightView = glm::lookAt(lightPosition, glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-    lightSpaceMatrix = lightProjection * lightView;
+
+    camera->SetAspect(viewportInfo.z, viewportInfo.w);
 
 
     glm::mat4 projectionMatrix = camera->GetProjectionMatrix();
     glm::mat4 viewMatrix = camera->GetViewMatrix();
+
+    glm::vec3 lightPosition = scene->getlightEye();
+    glm::mat4 lightSpaceMatrix = scene->getLightSpaceMatrix();
 
     for (const auto& model : scene->GetModels())
     {

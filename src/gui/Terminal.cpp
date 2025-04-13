@@ -16,7 +16,7 @@ void Terminal::ShowTerminal(const std::shared_ptr<Scene>& scene)
     ImVec2 DisplaySize = io.DisplaySize;
     
     float TerminalWidth = DisplaySize.x * 0.75f; 
-    float TerminalHeight = DisplaySize.y * 0.809f; 
+    float TerminalHeight = DisplaySize.y / 3.f - 29 - 31;
 
     float rightPanelWidth = DisplaySize.x * 0.25f; 
 
@@ -24,7 +24,7 @@ void Terminal::ShowTerminal(const std::shared_ptr<Scene>& scene)
     float boxWidth = TerminalWidth / 3.0f;  // 1/3 of Terminal Width
 
     ImVec2 terminalSize(boxWidth, bottomPanelHeight); 
-    ImVec2 terminalPos(ImVec2(0, DisplaySize.y * 2.89/4));
+    ImVec2 terminalPos(ImVec2(0, DisplaySize.y/1.5 + 29 + 31));
 
     // Set Windows Width
     ImGui::SetNextWindowSize(terminalSize);
