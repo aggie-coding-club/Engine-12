@@ -1,20 +1,18 @@
 #pragma once
 
-#include "core/game_object.h"
 #include "core/components/collider.h"
 #include <glm/glm.hpp>
 
-class SphereCollider: public Collider
+class PlaneCollider: public Collider 
 {
 public:
-    SphereCollider(glm::vec3 point, float radius): radius(radius)
+	PlaneCollider(){}
+    PlaneCollider(glm::vec3 point, glm::vec3 normal): normal(normal)
     {
         this->point = point;
     }
 
-    SphereCollider(){}
-
-	~SphereCollider() = default;
+	~PlaneCollider() = default;
 
     bool HasCollidedWith(std::shared_ptr<Collider> that) override;
 
@@ -22,5 +20,5 @@ public:
                               const float distance, 
                               ColliderRecord& record) override;
 
-    float radius;
+    glm::vec3 normal;
 };

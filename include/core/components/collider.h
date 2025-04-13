@@ -12,9 +12,12 @@ public:
     glm::vec3 center;
     glm::vec3 direction;
 
+    ColliderRay();
+
     ColliderRay(glm::vec3 center, glm::vec3 direction) 
     {
         this->center = center;
+        // Force direction into a unit vector
         this->direction = glm::normalize(direction);
     }
 
@@ -29,10 +32,28 @@ class ColliderRecord
 public:
     glm::vec3 normal;
     float t;
+    bool prevCollided = false;
     std::weak_ptr<Collider> collidedWith;
 
     ColliderRecord() 
     {
+        prevCollided = false;
+        t = INFINITY;
+        collidedWith.reset();
+    }
+
+    void Reset()
+    {
+        if (prevCollided)
+        {
+            prevCollided = false;
+        }
+
+        if (t < INFINITY)
+        {
+            prevCollided = true;
+        }
+
         t = INFINITY;
         collidedWith.reset();
     }
@@ -49,10 +70,15 @@ public:
     }
     virtual ~Collider() = default;
 
-    virtual bool HasCollidedWith(std::shared_ptr<Collider> that, 
-                                 glm::vec3 currVelocity) = 0;
+    virtual bool HasCollidedWith(std::shared_ptr<Collider> that) = 0;
 
-    virtual bool IncomingRayIntersect(const ColliderRay& ray, 
-                                      const float tMax,
+    virtual bool IncomingRayIntersect(ColliderRay& ray, 
+                                      const float distance,
                                       ColliderRecord& record) = 0;
+    virtual void Reset()
+    {
+        record.Reset();
+    }
+
+    glm::vec3 point;
 };

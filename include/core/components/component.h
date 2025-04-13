@@ -7,7 +7,8 @@ enum COMPONENT_TYPE {
     MODEL,
     LIGHT,
     RIGID_BODY,
-    NUM_ENUM
+    COLLIDER,
+    NUM_COMPONENTS
 };
 
 class Component {
@@ -16,7 +17,7 @@ private:
 public:
     COMPONENT_TYPE type;
     virtual ~Component() = default;
-    Component(): type(NUM_ENUM) {}
+    Component(): type(NUM_COMPONENTS) {}
 
-    static constexpr size_t GetEnumSize() { return NUM_ENUM; };
+    static constexpr size_t GetEnumSize() { return NUM_COMPONENTS; };
 };

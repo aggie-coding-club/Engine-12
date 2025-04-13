@@ -14,8 +14,8 @@ public:
     glm::vec3 angularVelocity;
 
     float maxVelocity = 7.0f;
-    glm::vec3 maxAngularVelocity = {2.0f, 2.0f, 2.0f};
-    glm::vec3 gravity = {0.0f, -1.0f, 0.0f};
+    glm::vec3 maxAngularVelocity = {2.0f, 100.0f, 2.0f};
+    glm::vec3 gravity = {0.0f, -9.8f, 0.0f};
     float mass = 1.0f;
 
     // Coefficient of Restitution, which is basically the bounciness of the object

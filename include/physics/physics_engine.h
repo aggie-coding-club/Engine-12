@@ -36,8 +36,9 @@ private:
     void UpdatePositionWithVelocity(std::shared_ptr<RigidBody> objRigidBody, 
                                     std::shared_ptr<Transform> objTransform);
 
+    void CopyPositionToCollider(std::shared_ptr<Transform> kinematicTransform,
+                                std::shared_ptr<Collider> kinematicCollider);
+
     void ProcessCollision(std::shared_ptr<RigidBody> kinematicRigidBody, 
-                          std::shared_ptr<Collider> kinematicCollider,
-                          std::shared_ptr<RigidBody> objRigidBody,
-                          std::shared_ptr<Collider> objCollider);
+                          std::shared_ptr<Collider> kinematicCollider);
 };
