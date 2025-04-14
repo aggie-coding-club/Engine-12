@@ -5,6 +5,7 @@
 #include "components/transform.h"
 #include "components/light.h"
 #include "scene.h"
+#include "GLFW/glfw3.h"
 
 #define _USE_SCENE_
 
@@ -104,6 +105,26 @@ public:
 
     void setName(const std::string _name) {
         name = _name;
+    }
+
+    void CharacterCallback(GLFWwindow* window, unsigned int key)
+    {
+        if(key == 'w') {
+            std::shared_ptr<Camera> camera = scenes[currSceneIdx]->GetCurrCamera();
+            camera->SetPosition(camera->GetPosition() + camera->GetForward() * 5.f);
+        }
+        if(key == 's') {
+            std::shared_ptr<Camera> camera = scenes[currSceneIdx]->GetCurrCamera();
+            camera->SetPosition(camera->GetPosition() - camera->GetForward() * 5.f);
+        }
+        if(key == 'd') {
+            std::shared_ptr<Camera> camera = scenes[currSceneIdx]->GetCurrCamera();
+            camera->SetPosition(camera->GetPosition() + camera->GetRight() * 5.f);
+        }
+        if(key == 'a') {
+            std::shared_ptr<Camera> camera = scenes[currSceneIdx]->GetCurrCamera();
+            camera->SetPosition(camera->GetPosition() - camera->GetRight() * 5.f);
+        }
     }
 };
 

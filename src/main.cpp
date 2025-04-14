@@ -51,6 +51,7 @@ auto end   = std::chrono::steady_clock::now();
 void CharacterCallback(GLFWwindow* lWindow, unsigned int key)
 {
 	renderEngine->CharacterCallback(lWindow, key);
+	gameEngine.CharacterCallback(lWindow, key);
 }
 void FrameBufferSizeCallback(GLFWwindow* lWindow, int width, int height)
 {
@@ -163,6 +164,7 @@ int main(int argc, char *argv[])
 			renderEngine->MapShadows(depthMap, shadowWidth, shadowHeight);
 			renderEngine->Display(guiEngine->SendViewportInfo(), depthMap);
 		}
+
         end = std::chrono::steady_clock::now();
         timeDelta = end - start;
         // std::cout << timeDelta.count() << std::endl;
