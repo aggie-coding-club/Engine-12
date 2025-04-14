@@ -53,6 +53,11 @@ void CharacterCallback(GLFWwindow* lWindow, unsigned int key)
 	renderEngine->CharacterCallback(lWindow, key);
 	gameEngine.CharacterCallback(lWindow, key);
 }
+
+void MouseCallback(GLFWwindow* lWindow, int button, int action, int mods) {
+	gameEngine.MouseCallback(lWindow, button, action, mods);
+}
+
 void FrameBufferSizeCallback(GLFWwindow* lWindow, int width, int height)
 {
 	renderEngine->FrameBufferSizeCallback(lWindow, width, height);
@@ -84,6 +89,7 @@ int main(int argc, char *argv[])
 	glewInit();
 	glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
 	glfwSetCharCallback(window, CharacterCallback);
+	glfwSetMouseButtonCallback(window, MouseCallback);
 	glfwSetFramebufferSizeCallback(window, FrameBufferSizeCallback);
 
 	// Creates the assets folder if it doesn't already exist
@@ -170,6 +176,22 @@ int main(int argc, char *argv[])
         // std::cout << timeDelta.count() << std::endl;
 		glfwSwapBuffers(window);
 		scriptingEngine->runScriptUpdate();
+
+		if(gameEngine.mouseDragging) {
+			std::shared_ptr<Camera> camera = gameEngine.GetCurrScene()->GetCurrCamera();
+
+			double xPos, yPos;
+			glfwGetCursorPos(window, &xPos, &yPos);
+
+			double xOffset = xPos - gameEngine.lastMousePos.x;
+			double yOffset = yPos - gameEngine.lastMousePos.y;
+
+			glm::vec3 rotation = camera->GetEularRotation();
+
+			camera->SetRotation(rotation + glm::vec3(yOffset, -xOffset, 0.0f) * 0.1f);
+
+			glfwSetCursorPos(window, gameEngine.lastMousePos.x, gameEngine.lastMousePos.y);
+		}
 	}
 	guiEngine->cleanup();
 

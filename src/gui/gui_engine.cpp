@@ -48,6 +48,7 @@ bool GuiEngine::init(GLFWwindow *_window, GameEngine *_game_engine)
     io = &ImGui::GetIO(); (void)io;
     io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     io->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    io->ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;   // Disable Changing Mouse Settings
 
     inter_24 = io->Fonts->AddFontFromFileTTF("../include/Fonts/Inter-VariableFont_opsz,wght.ttf", 24);
 
