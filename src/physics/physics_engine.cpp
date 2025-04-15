@@ -57,9 +57,11 @@ PhysicsEngine::Update()
         if (! thisRigidBody->isKinematics)
             continue;
 
+
+        glm::vec3 collForce = {0.0f, 0.0f, 0.0f};
         if (thisRigidBody->detectCollisions && thisCollider != nullptr)
         {
-            ProcessCollision(thisRigidBody, thisCollider);
+            collForce = ProcessCollision(thisRigidBody, thisCollider);
         }
 
         glm::vec3 sumOfForces = {0.0f, 0.0f, 0.0f};
@@ -101,7 +103,7 @@ PhysicsEngine::CopyPositionToCollider(
     kinematicCollider->point = kinematicTransform->position;
 }
 
-void 
+glm::vec3
 PhysicsEngine::ProcessCollision(std::shared_ptr<RigidBody> kinematicRigidBody, 
                                 std::shared_ptr<Collider> kinematicCollider)
 {
@@ -118,6 +120,7 @@ PhysicsEngine::ProcessCollision(std::shared_ptr<RigidBody> kinematicRigidBody,
     float dott = glm::dot(velocity, normal);
 
     velocity = coeff_e * glm::reflect(velocity, normal);
+
 }
 
 glm::vec3 PhysicsEngine::ApplyGravity(std::shared_ptr<RigidBody> objRigidBody) 

@@ -6,7 +6,7 @@ Scenes:
           Transform:
             position:
               - 0
-              - -22.227324
+              - -550.8883
               - 0
             rotation:
               - 0
@@ -36,7 +36,7 @@ Scenes:
           Transform:
             position:
               - -2
-              - -22.227324
+              - -550.8883
               - -3
             rotation:
               - 0
@@ -66,7 +66,7 @@ Scenes:
           Transform:
             position:
               - 2
-              - -22.227324
+              - -550.8883
               - -3
             rotation:
               - 0
@@ -92,6 +92,20 @@ Scenes:
             shininess: 32
           Model:
             model_path: ../resources/models/sphere.obj
+        plane:
+          Transform:
+            position:
+              - 0
+              - -1.25
+              - 0
+            rotation:
+              - 0
+              - 0
+              - 0
+            scale:
+              - 1
+              - 1
+              - 1
       Lights:
         "":
           Transform:
