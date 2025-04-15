@@ -43,6 +43,21 @@ public:
         return count;
     }
 
+    // returns true if tag is present in the game object
+    bool CompareTag(const std::string& tag) const {
+        return tags.find(tag) != tags.end();
+    }
+
+    // adds a tag to the game object
+    void AddTag(const std::string& tag) {
+        tags.insert(tag);
+    }
+
+    // removes a tag from the game object
+    void RemoveTag(const std::string& tag) {
+        tags.erase(tag);
+    }
+
 private:
 
     static int lastId;
