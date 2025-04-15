@@ -19,6 +19,30 @@ public:
 
     GameObject(const std::string model_path = "../resources/models/bunny.obj") : model_path(model_path), id(generateUniqueId()) {}
     const int id;
+
+    // returns a reference to the component of the given type
+    std::shared_ptr<Component>& GetComponent(COMPONENT_TYPE type) {
+        return components[type];
+    }
+
+    // returns a reference to the component by the index
+    std::shared_ptr<Component>& GetComponent(size_t index) {
+        return components[index];
+    }
+
+    // returns the amount of components
+    int GetComponentCount() {
+        int count = 0;
+
+        for(std::shared_ptr<Component> component : components) {
+            if(component) {
+                count++;
+            }
+
+        }
+        return count;
+    }
+
 private:
 
     static int lastId;
