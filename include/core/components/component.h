@@ -1,5 +1,6 @@
 #pragma once
 #include <stddef.h>
+#include <memory>
 
 enum COMPONENT_TYPE {
     TRANSFORM,
@@ -19,4 +20,6 @@ public:
     Component(): type(NUM_ENUM) {}
 
     static constexpr size_t GetEnumSize() { return NUM_ENUM; };
+
+    virtual std::shared_ptr<Component> Clone() const = 0;
 };
