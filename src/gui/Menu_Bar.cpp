@@ -7,7 +7,7 @@
 #include <yaml-cpp/yaml.h>
 #include <fstream>
 
-void MenuBar::ShowMenuBar(GameEngine *engine, bool &ShowDetail, bool &ShowView, bool &ShowHierarchy, bool &ShowLoadFile, bool &ShowSaveAs) {
+void MenuBar::ShowMenuBar(GameEngine *engine, bool &ShowDetail, bool &ShowView, bool &ShowHierarchy, bool &ShowLoadFile, bool &ShowSaveAs, bool &showPreferences) {
     if (ImGui::BeginMainMenuBar()) {
         // ImGui::Text(engine->getName().c_str());
         // ImGui::SameLine();
@@ -72,6 +72,8 @@ void MenuBar::ShowMenuBar(GameEngine *engine, bool &ShowDetail, bool &ShowView, 
             ImGui::MenuItem("Show Details", nullptr, &ShowDetail);
 
             ImGui::MenuItem("Show File Hierarchy", nullptr, &ShowHierarchy);
+
+            ImGui::MenuItem("Show Preferences", nullptr, &showPreferences);
 
             ImGui::EndMenu();
         }

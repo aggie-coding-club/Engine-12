@@ -119,7 +119,7 @@ void GuiEngine::run()
     ImGui::NewFrame();
 
     // Game Engine
-    menuBar.ShowMenuBar(gameEngine, showDetail, showView, showHierarchy, showLoadFile, showSaveAs);
+    menuBar.ShowMenuBar(gameEngine, showDetail, showView, showHierarchy, showLoadFile, showSaveAs, showPreferences);
 
     ImGui::PushFont(icons);
     secondMenuBar.ShowSecondaryMenuBar();
@@ -147,7 +147,9 @@ void GuiEngine::run()
     }
 
     // Show terminal window
-    terminal.ShowTerminal(gameEngine->GetCurrScene()); 
+    terminal.ShowTerminal(gameEngine->GetCurrScene());
+
+    preferencesWindow.ShowPreferencesWindow(gameEngine->cameraSense, gameEngine->movementSense);
 
     // if(showLoadFile) {
     //     loadFileWindow.showLoadFileWindow(gameEngine, showLoadFile);

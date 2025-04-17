@@ -18,7 +18,6 @@ private:
 
     bool changedScene = true;
 
-
     void TestInit2()
     {
         const auto scene = std::make_shared<Scene>();
@@ -85,6 +84,9 @@ private:
 
 public:
 
+    float cameraSense = 0.8f;
+    float movementSense = 1.f;
+
     bool mouseDragging = false;
     glm::vec2 lastMousePos = glm::vec2(0.0f);
 
@@ -114,37 +116,39 @@ public:
 
     void CharacterCallback(GLFWwindow* window, unsigned int key)
     {
-        if(key == 'w') {
-            std::shared_ptr<Camera> camera = GetCurrScene()->GetCurrCamera();
-            camera->SetPosition(camera->GetPosition() + camera->GetForward() * 1.f);
-        }
-        if(key == 's') {
-            std::shared_ptr<Camera> camera = GetCurrScene()->GetCurrCamera();
-            camera->SetPosition(camera->GetPosition() - camera->GetForward() * 1.f);
-        }
-        if(key == 'd') {
-            std::shared_ptr<Camera> camera = GetCurrScene()->GetCurrCamera();
-            camera->SetPosition(camera->GetPosition() + camera->GetRight() * 1.f);
-        }
-        if(key == 'a') {
-            std::shared_ptr<Camera> camera = GetCurrScene()->GetCurrCamera();
-            camera->SetPosition(camera->GetPosition() - camera->GetRight() * 1.f);
+        std::shared_ptr<Camera> camera = GetCurrScene()->GetCurrCamera();
+        if(GetCurrScene()->GetCameras().at(0) == camera) {
+            if(key == 'w') {
+                camera->SetPosition(camera->GetPosition() + camera->GetForward() * movementSense);
+            }
+            if(key == 's') {
+                camera->SetPosition(camera->GetPosition() - camera->GetForward() * movementSense);
+            }
+            if(key == 'd') {
+                camera->SetPosition(camera->GetPosition() + camera->GetRight() * movementSense);
+            }
+            if(key == 'a') {
+                camera->SetPosition(camera->GetPosition() - camera->GetRight() * movementSense);
+            }
         }
     }
 
     void MouseCallback(GLFWwindow* window, int button, int action, int mods) {
-        if(button == GLFW_MOUSE_BUTTON_RIGHT) {
-            if(action == GLFW_PRESS) {
-                mouseDragging = true;
-                double xPos, yPos;
-                glfwGetCursorPos(window, &xPos, &yPos);
-                lastMousePos = glm::vec2(xPos, yPos);
+        std::shared_ptr<Camera> camera = GetCurrScene()->GetCurrCamera();
+        if(GetCurrScene()->GetCameras().at(0) == camera) {
+            if(button == GLFW_MOUSE_BUTTON_RIGHT) {
+                if(action == GLFW_PRESS) {
+                    mouseDragging = true;
+                    double xPos, yPos;
+                    glfwGetCursorPos(window, &xPos, &yPos);
+                    lastMousePos = glm::vec2(xPos, yPos);
 
-                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-            }
-            else if(action == GLFW_RELEASE) {
-                mouseDragging = false;
-                glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+                }
+                else if(action == GLFW_RELEASE) {
+                    mouseDragging = false;
+                    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                }
             }
         }
     }

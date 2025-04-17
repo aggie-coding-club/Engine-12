@@ -188,7 +188,7 @@ int main(int argc, char *argv[])
 
 			glm::vec3 rotation = camera->GetEularRotation();
 
-			camera->SetRotation(rotation + glm::vec3(yOffset, -xOffset, 0.0f) * 0.1f);
+			camera->SetRotation(rotation + glm::vec3(yOffset, -xOffset, 0.0f) * gameEngine.cameraSense);
 
 			glfwSetCursorPos(window, gameEngine.lastMousePos.x, gameEngine.lastMousePos.y);
 		}

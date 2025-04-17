@@ -2,7 +2,7 @@
 
 #include "imgui.h"
 #include <GLFW/glfw3.h>
-#include <glm\vec2.hpp>
+#include <glm/vec2.hpp>
 
 class Viewport{
     float width, height;
