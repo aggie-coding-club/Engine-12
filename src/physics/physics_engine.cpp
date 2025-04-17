@@ -76,11 +76,17 @@ PhysicsEngine::Update()
         }
 
         sumOfForces += collForce;
+        sumOfForces += thisRigidBody->scriptForce; //potentially add a boolean to turn off adding script force
         //std::cout<<"x= "<<sumOfForces.x<<" y= "<<sumOfForces.y<<" z= "<<sumOfForces.z<<std::endl;
 
-        if (sumOfForces.y != 0) UpdateVelocityWithAcceleration(thisRigidBody, thisTransform, acceleration);
+        if (sumOfForces.y != 0)
+        {
+            UpdateVelocityWithAcceleration(thisRigidBody, thisTransform, acceleration);
+        }
         UpdatePositionWithVelocity(thisRigidBody, thisTransform);
         CopyPositionToCollider(thisTransform, thisCollider);
+
+        thisRigidBody->ResetForce(); //reset script force so it doesn't infinitely compound and go lightspeed
     }
 
     // Reset collision information for next iteration
@@ -95,6 +101,8 @@ PhysicsEngine::Update()
             thisCollider->Reset();
         }
     }
+
+
 }
 
 /*
