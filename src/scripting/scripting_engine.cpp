@@ -106,9 +106,9 @@ void ScriptingEngine::registerClasses() {
     r = engine->RegisterObjectType("GameObject", 0, asOBJ_REF | asOBJ_NOCOUNT); assert( r >= 0 );
     r = engine->RegisterObjectProperty("GameObject", "string name", asOFFSET(GameObject, name)); assert( r >= 0 );
     r = engine->RegisterObjectMethod("GameObject", "Transform@ get_transform() property", asMETHOD(GameObject, get_transform), asCALL_THISCALL); assert( r >= 0 );
-    r = engine->RegisterObjectMethod("GameObject", "bool hasTag(const string &in)", asMETHOD(GameObject, hasTag), asCALL_THISCALL); assert( r >= 0 );
-    r = engine->RegisterObjectMethod("GameObject", "bool addTag(const string &in)", asMETHOD(GameObject, addTag), asCALL_THISCALL); assert( r >= 0 );
-    r = engine->RegisterObjectMethod("GameObject", "Component@ getComponent(COMPONENT_TYPE type)", asMETHOD(GameObject, getComponent), asCALL_THISCALL); assert( r >= 0 );
+    r = engine->RegisterObjectMethod("GameObject", "bool CompareTag(const string &in)", asMETHOD(GameObject, CompareTag), asCALL_THISCALL); assert( r >= 0 );
+    r = engine->RegisterObjectMethod("GameObject", "bool AddTag(const string &in)", asMETHOD(GameObject, AddTag), asCALL_THISCALL); assert( r >= 0 );
+    r = engine->RegisterObjectMethod("GameObject", "Component@ GetComponent(COMPONENT_TYPE type)", asMETHOD(GameObject, GetComponent), asCALL_THISCALL); assert( r >= 0 );
 
     // Register the function that we want the scripts to call
     r = engine->RegisterGlobalFunction("void print(const string &in)", asFUNCTION(print), asCALL_CDECL); assert( r >= 0 );

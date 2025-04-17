@@ -30,15 +30,20 @@ public:
     GameObject(const std::string model_path = "../resources/models/bunny.obj") : model_path(model_path), id(generateUniqueId()) {}
     const int id;
 
+    Transform* get_transform()
+    {
+        return dynamic_cast<Transform*>(components[TRANSFORM].get());
+    }
+
     // returns a reference to the component of the given type
     Component* GetComponent(COMPONENT_TYPE type) {
         return components[type].get();
     }
 
     // returns a reference to the component by the index
-    Component* GetComponent(size_t index) {
+    /*Component* GetComponent(size_t index) {
         return components[index].get();
-    }
+    }*/
 
     // returns the amount of components
     int GetComponentCount() {
@@ -110,12 +115,6 @@ public:
             COMPONENT_TYPE type = component->type;
             components[type] = component->Clone();
         }
-    }
-
-private:
-    Transform* get_transform()
-    {
-        return dynamic_cast<Transform*>(components[TRANSFORM].get());
     }
 
     void addScript(const std::string& name, ScriptingEngine* engine)
