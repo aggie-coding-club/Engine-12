@@ -22,8 +22,7 @@ public:
 	void SendUniformData(glm::mat4 &mat, const char* name);
 	void Bind();
 	void Unbind();
-	GLint GetPID() { return programID; };
-
+	GLint GetPID() { return programID; }
 
 private:
 	GLint programID;

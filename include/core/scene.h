@@ -21,6 +21,18 @@ private:
     std::vector<std::shared_ptr<GameObject>> 	lights;
     std::vector<std::shared_ptr<Camera>> 		cameras;
 
+	// Directional Light Info
+
+	float lightNearPlane = 0.1f, lightFarPlane = 50.f;
+	glm::vec3 lightEye = glm::vec3(-10.0f,4.f,5.f);
+	glm::vec3 lightCenter = glm::vec3(0.0f);
+	glm::vec3 lightUp = glm::vec3(0.0f, 1.0f, 0.0f);
+
+	// Directional Light Matrices
+	glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, lightNearPlane, lightFarPlane);
+	glm::mat4 lightView = glm::lookAt(lightEye, lightCenter, lightUp);
+	glm::mat4 lightSpaceMatrix = lightProjection * lightView;
+
     std::string name;
     int currCameraIdx = 0;
 
@@ -28,6 +40,46 @@ private:
 
     static int randomId;
 public:
+
+	inline float getLightNearPlane() const { return lightNearPlane; }
+	inline float getLightFarPlane() const { return lightFarPlane; }
+	inline glm::vec3 getlightEye() const { return lightEye; }
+	inline glm::vec3 getlightCenter() const { return lightCenter; }
+	inline glm::vec3 getlightUp() const { return lightUp; }
+
+	inline glm::mat4 getLightProjection() const { return lightProjection; }
+	inline glm::mat4 getLightView() const { return lightView; }
+	inline glm::mat4 getLightSpaceMatrix() const { return lightSpaceMatrix; }
+
+	void setLightNearPlane(const float &nearPlane) {
+		lightNearPlane = nearPlane;
+		lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, lightNearPlane, lightFarPlane);
+		lightSpaceMatrix = lightProjection * lightView;
+	}
+	void setLightFarPlane(const float &farPlane) {
+		lightFarPlane = farPlane;
+		lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, lightNearPlane, lightFarPlane);
+		lightSpaceMatrix = lightProjection * lightView;
+	}
+
+	void setLightEye(const glm::vec3 &eye) {
+		lightEye = eye;
+		lightView = glm::lookAt(lightEye, lightCenter, lightUp);
+		lightSpaceMatrix = lightProjection * lightView;
+	}
+
+	void setLightCenter(const glm::vec3 &center) {
+		lightCenter = center;
+		lightView = glm::lookAt(lightEye, lightCenter, lightUp);
+		lightSpaceMatrix = lightProjection * lightView;
+	}
+
+	void setLightUp(const glm::vec3 &up) {
+		lightUp = up;
+		lightView = glm::lookAt(lightEye, lightCenter, lightUp);
+		lightSpaceMatrix = lightProjection * lightView;
+	}
+
     std::shared_ptr<GameObject> selectedGameObj = nullptr;
     bool mOrL; // Model or Light object
 
@@ -131,5 +183,83 @@ public:
 	void ResetCurrCameraIdx(){ currCameraIdx = 0; };
 
 	void SetCurrCameraIdx(int i){ currCameraIdx = i; };
+
+
+	// returns a vector of game objects containing specific tag
+	std::vector<std::shared_ptr<GameObject>> SearchByTag(const std::string& tag) {
+		std::vector<std::shared_ptr<GameObject>> gameObjects;
+
+		for(std::shared_ptr<GameObject> model : models) {
+			if(model->CompareTag(tag)) {
+				gameObjects.push_back(model);
+			}
+		}
+
+		for(std::shared_ptr<GameObject> light : lights) {
+			if(light->CompareTag(tag)) {
+				gameObjects.push_back(light);
+			}
+		}
+
+		return gameObjects;
+	}
+
+	// returns a vector of game objects containing specific component
+	std::vector<std::shared_ptr<GameObject>> SearchByComponent(COMPONENT_TYPE type) {
+		std::vector<std::shared_ptr<GameObject>> gameObjects;
+
+		for(std::shared_ptr<GameObject> model : models) {
+			if(model->GetComponent(type)) {
+				gameObjects.push_back(model);
+			}
+		}
+
+		for(std::shared_ptr<GameObject> light : lights) {
+			if(light->GetComponent(type)) {
+				gameObjects.push_back(light);
+			}
+		}
+
+		return gameObjects;
+	}
+
+	// returns a vector of game objects with specific name
+	std::vector<std::shared_ptr<GameObject>> SearchByName(const std::string& name) {
+		std::vector<std::shared_ptr<GameObject>> gameObjects;
+
+		for(std::shared_ptr<GameObject> model : models) {
+			if(model->name == name) {
+				gameObjects.push_back(model);
+			}
+		}
+
+		for(std::shared_ptr<GameObject> light : lights) {
+			if(light->name == name) {
+				gameObjects.push_back(light);
+			}
+		}
+
+		return gameObjects;
+	}
+
+	// returns a vector of game objects with a name that contains a given sub-name
+	std::vector<std::shared_ptr<GameObject>> SearchByNameContains(const std::string& name) {
+		std::vector<std::shared_ptr<GameObject>> gameObjects;
+
+		for(std::shared_ptr<GameObject> model : models) {
+			if(model->name.find(name) != std::string::npos) {
+				gameObjects.push_back(model);
+			}
+		}
+
+		for(std::shared_ptr<GameObject> light : lights) {
+			if(light->name.find(name) != std::string::npos) {
+				gameObjects.push_back(light);
+			}
+		}
+
+		return gameObjects;
+	}
+
 };
 

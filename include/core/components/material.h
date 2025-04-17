@@ -19,4 +19,8 @@ class Material: public Component {
         {
             type = MATERIAL;
         }
+
+        std::shared_ptr<Component> Clone() const override {
+            return std::make_shared<Material>(*this);
+        }
 };

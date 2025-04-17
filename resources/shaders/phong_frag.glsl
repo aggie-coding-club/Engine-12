@@ -1,8 +1,8 @@
 #version 330 core
 
-uniform mat4 model;
-uniform mat4 view;
-uniform mat4 projection;
+uniform mat4 modelMatrix;
+uniform mat4 viewMatrix;
+uniform mat4 projectionMatrix;
 uniform mat4 modelInverseTranspose;
 uniform mat4 lightSpaceMatrix;
 uniform vec3 lightPosition;
@@ -51,6 +51,7 @@ float ShadowCalculation(vec4 fragPosLightSpace, vec3 normal)
     return shadow;
 }
 
+
 void main()
 {
     vec3 color = ka;
@@ -64,7 +65,7 @@ void main()
         vec3 reflectDir = reflect(-lightDir, normal);
 
         // Transform the fragment position to view space
-        vec4 viewPosition = view * vec4(fragPosition, 1.0);
+        vec4 viewPosition = vec4(viewMatrix * vec4(fragPosition, 1.0));
 
         // Calculate the view vector
         vec3 viewDir = normalize(-viewPosition.xyz); // From camera to fragment
@@ -77,3 +78,4 @@ void main()
 
     FragColor = vec4(color, 1.0);
 }
+

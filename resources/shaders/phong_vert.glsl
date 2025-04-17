@@ -4,6 +4,7 @@ layout (location = 0) in vec3 vPositionModel; // in object space
 layout (location = 1) in vec3 vNormalModel;   // in object space
 layout (location = 2) in vec2 vTexCoords;
 
+
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;

@@ -22,7 +22,6 @@
 #include "render/render_engine.h"
 #include "physics/physics_engine.h"
 
-
 #include <yaml-cpp/yaml.h> // for tests, remove later
 #include <serial/lights.h>
 #include <serial/models.h>
@@ -153,6 +152,7 @@ int main(int argc, char *argv[])
     physicsEngine->Activate();
 	while ( glfwWindowShouldClose(window) == 0 )
 	{
+
 		glfwPollEvents();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         start = end;
