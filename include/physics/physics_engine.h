@@ -39,6 +39,7 @@ private:
     void CopyPositionToCollider(std::shared_ptr<Transform> kinematicTransform,
                                 std::shared_ptr<Collider> kinematicCollider);
 
-    void ProcessCollision(std::shared_ptr<RigidBody> kinematicRigidBody, 
-                          std::shared_ptr<Collider> kinematicCollider);
+    glm::vec3 ProcessCollision(std::shared_ptr<RigidBody> kinematicRigidBody,
+                          std::shared_ptr<Collider> kinematicCollider,
+                          glm::vec3 acceleration);
 };

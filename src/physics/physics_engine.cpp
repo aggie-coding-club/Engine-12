@@ -1,5 +1,10 @@
 #include "physics/physics_engine.h"
 
+#include "gui/AddObjectWindow.h"
+#include "gui/AddObjectWindow.h"
+#include "gui/AddObjectWindow.h"
+#include "gui/AddObjectWindow.h"
+
 void 
 PhysicsEngine::Update() 
 {
@@ -59,19 +64,21 @@ PhysicsEngine::Update()
 
 
         glm::vec3 collForce = {0.0f, 0.0f, 0.0f};
-        if (thisRigidBody->detectCollisions && thisCollider != nullptr)
-        {
-            collForce = ProcessCollision(thisRigidBody, thisCollider);
-        }
-
         glm::vec3 sumOfForces = {0.0f, 0.0f, 0.0f};
-
-        // Find all the forces that apply to the rigid body
         sumOfForces += ApplyGravity(thisRigidBody);
 
-        glm::vec3 acceleration = CalculateAcceleration(thisRigidBody, sumOfForces);
+        // Find all the forces that apply to the rigid body
 
-        UpdateVelocityWithAcceleration(thisRigidBody, thisTransform, acceleration);
+        glm::vec3 acceleration = CalculateAcceleration(thisRigidBody, sumOfForces);
+        if (thisRigidBody->detectCollisions && thisCollider != nullptr)
+        {
+            collForce = ProcessCollision(thisRigidBody, thisCollider , acceleration); //force from collision
+        }
+
+        sumOfForces += collForce;
+        //std::cout<<"x= "<<sumOfForces.x<<" y= "<<sumOfForces.y<<" z= "<<sumOfForces.z<<std::endl;
+
+        if (sumOfForces.y != 0) UpdateVelocityWithAcceleration(thisRigidBody, thisTransform, acceleration);
         UpdatePositionWithVelocity(thisRigidBody, thisTransform);
         CopyPositionToCollider(thisTransform, thisCollider);
     }
@@ -104,14 +111,15 @@ PhysicsEngine::CopyPositionToCollider(
 }
 
 glm::vec3
-PhysicsEngine::ProcessCollision(std::shared_ptr<RigidBody> kinematicRigidBody, 
-                                std::shared_ptr<Collider> kinematicCollider)
+PhysicsEngine::ProcessCollision(std::shared_ptr<RigidBody> kinematicRigidBody,
+                                std::shared_ptr<Collider> kinematicCollider,
+                                glm::vec3 accel)
 {
     const auto t = kinematicCollider->record.t;
     const auto prevCollided = kinematicCollider->record.prevCollided;
 
     if (prevCollided || t == INFINITY)
-        return;
+        return {0.0f, 0.0f,0.0f};
 
     auto& normal = kinematicCollider->record.normal;
 
@@ -120,6 +128,7 @@ PhysicsEngine::ProcessCollision(std::shared_ptr<RigidBody> kinematicRigidBody,
     float dott = glm::dot(velocity, normal);
 
     velocity = coeff_e * glm::reflect(velocity, normal);
+    return -kinematicRigidBody->mass * accel; //force of collision on obj
 
 }
 
@@ -151,6 +160,7 @@ PhysicsEngine::UpdateVelocityWithAcceleration(
     float maxVelocity = objRigidBody->maxVelocity;
 
     velocity += acceleration * timeDelta->count();
+    std::cout<<"x= "<<velocity.x<<" y= "<<velocity.y<<" z= "<<velocity.z<<std::endl;
     float currVelocityMagnitude = velocity == glm::vec3(0.0f, 0.0f, 0.0f) ? 0.0f : glm::length(velocity);
     float velocityMagnitude = std::min(glm::length(velocity), maxVelocity);
 

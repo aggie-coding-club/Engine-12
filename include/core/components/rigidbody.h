@@ -19,7 +19,8 @@ public:
     float mass = 1.0f;
 
     // Coefficient of Restitution, which is basically the bounciness of the object
-    float coeff_e = 1.0f;
+    float coeff_e = 1.0f; //elast coeff
+    float coeff_f = 0.1f; //friction coeff
 
     // flags
     bool autoCenterOfMass = true;
@@ -29,5 +30,15 @@ public:
     // If false, no force, gravity, or collision will affect the body
     bool isKinematics = true;
     bool isJank = false; //timeDelta dependence on frame rate
+
+    glm::vec3 scriptForce = {0.0f, 0.0f, 0.0f};
+    void AddForce (glm::vec3 force)
+    {
+        scriptForce += force;
+    }
+    void ResetForce()
+    {
+        scriptForce = glm::vec3(0.0f, 0.0f, 0.0f);
+    }
 private:
 };

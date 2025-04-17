@@ -49,7 +49,7 @@ public:
             prevCollided = false;
         }
 
-        if (t < INFINITY)
+        else if (t < INFINITY)
         {
             prevCollided = true;
         }
