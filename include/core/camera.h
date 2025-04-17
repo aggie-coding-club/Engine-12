@@ -19,6 +19,9 @@ private:
     glm::vec3 EularRotation;
     float zNear;
     float zFar;
+    glm::vec3 up;
+    glm::vec3 right;
+    glm::vec3 front;
 
 public:
 
@@ -28,7 +31,11 @@ public:
         Position(glm::vec3(0.0f, 0.0f, 4.0f)),
         Rotation(glm::quat(1.0f, 0.0f, 0.0f, 0.0f)),
         zNear(0.1f),
-        zFar(100.f) {
+        zFar(100.f),
+        up(0.f),
+        right(0.f),
+        front(0.f)
+    {
         EularRotation = glm::eulerAngles(Rotation);
     }
 
@@ -78,14 +85,35 @@ public:
 
     inline glm::vec3 GetCenter() const
     {
-        glm::vec3 t = glm::cross(2.f *glm::vec3(Rotation.x,Rotation.y,Rotation.z), glm::vec3(0,0,focusDistance));
-        return Position + glm::vec3(0,0,focusDistance) + Rotation.w * t + cross(glm::vec3(Rotation.x,Rotation.y,Rotation.z), t);
+        return Position + front;
     }
 
-    inline glm::vec3 GetUpVec() const
+    inline glm::vec3 GetUpVec() const {
+        return up;
+    }
+
+    inline glm::vec3 GetRight() const {
+        return right;
+    }
+
+    inline glm::vec3 GetForward() const {
+        return front;
+    }
+
+    inline void SetUpVec()
     {
         glm::vec3 t = glm::cross(2.f *glm::vec3(Rotation.x,Rotation.y,Rotation.z), glm::vec3(0,1,0));
-        return glm::vec3(0,1,0) + Rotation.w * t + cross(glm::vec3(Rotation.x,Rotation.y,Rotation.z), t);
+        up = glm::vec3(0,1,0) + Rotation.w * t + cross(glm::vec3(Rotation.x,Rotation.y,Rotation.z), t);
+    }
+
+    inline void SetRightVec() {
+        glm::vec3 t = glm::cross(2.f *glm::vec3(Rotation.x,Rotation.y,Rotation.z), glm::vec3(-1,0,0));
+        right = glm::vec3(-1,0,0) + Rotation.w * t + cross(glm::vec3(Rotation.x,Rotation.y,Rotation.z), t);
+    }
+
+    inline void SetForwardVec() {
+        glm::vec3 t = glm::cross(2.f *glm::vec3(Rotation.x,Rotation.y,Rotation.z), glm::vec3(0,0,1));
+        front = glm::vec3(0,0,1) + Rotation.w * t + cross(glm::vec3(Rotation.x,Rotation.y,Rotation.z), t);
     }
 
     inline void SetAspect(const int width, const int height)
@@ -127,6 +155,10 @@ public:
 
         // Normalize to avoid floating point drift
         Rotation = glm::normalize(Rotation);
+
+        SetUpVec();
+        SetRightVec();
+        SetForwardVec();
     }
 
 };

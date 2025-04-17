@@ -6,7 +6,7 @@
 
 class MenuBar{
   public:
-    void ShowMenuBar(GameEngine *engine, bool &ShowDetail, bool &ShowView, bool &ShowHierarchy,  bool &ShowLoadFile, bool &ShowSaveAs);
+    void ShowMenuBar(GameEngine *engine, bool &ShowDetail, bool &ShowView, bool &ShowHierarchy,  bool &ShowLoadFile, bool &ShowSaveAs, bool &showPreferences);
   private:
     SimulationManager *simulationManager;
 };

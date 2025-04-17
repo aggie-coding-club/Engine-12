@@ -5,6 +5,7 @@
 #include "components/transform.h"
 #include "components/light.h"
 #include "scene.h"
+#include "GLFW/glfw3.h"
 
 #define _USE_SCENE_
 
@@ -82,6 +83,13 @@ private:
     }
 
 public:
+
+    float cameraSense = 0.8f;
+    float movementSense = 1.f;
+
+    bool mouseDragging = false;
+    glm::vec2 lastMousePos = glm::vec2(0.0f);
+
     std::vector<std::shared_ptr<Scene>>& GetScenes() { return scenes; }
     std::shared_ptr<Scene>& GetCurrScene() { return scenes[currSceneIdx]; }
     GameEngine()
@@ -104,6 +112,45 @@ public:
 
     void setName(const std::string _name) {
         name = _name;
+    }
+
+    void CharacterCallback(GLFWwindow* window, unsigned int key)
+    {
+        std::shared_ptr<Camera> camera = GetCurrScene()->GetCurrCamera();
+        if(GetCurrScene()->GetCameras().at(0) == camera) {
+            if(key == 'w') {
+                camera->SetPosition(camera->GetPosition() + camera->GetForward() * movementSense);
+            }
+            if(key == 's') {
+                camera->SetPosition(camera->GetPosition() - camera->GetForward() * movementSense);
+            }
+            if(key == 'd') {
+                camera->SetPosition(camera->GetPosition() + camera->GetRight() * movementSense);
+            }
+            if(key == 'a') {
+                camera->SetPosition(camera->GetPosition() - camera->GetRight() * movementSense);
+            }
+        }
+    }
+
+    void MouseCallback(GLFWwindow* window, int button, int action, int mods) {
+        std::shared_ptr<Camera> camera = GetCurrScene()->GetCurrCamera();
+        if(GetCurrScene()->GetCameras().at(0) == camera) {
+            if(button == GLFW_MOUSE_BUTTON_RIGHT) {
+                if(action == GLFW_PRESS) {
+                    mouseDragging = true;
+                    double xPos, yPos;
+                    glfwGetCursorPos(window, &xPos, &yPos);
+                    lastMousePos = glm::vec2(xPos, yPos);
+
+                    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+                }
+                else if(action == GLFW_RELEASE) {
+                    mouseDragging = false;
+                    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                }
+            }
+        }
     }
 };
 

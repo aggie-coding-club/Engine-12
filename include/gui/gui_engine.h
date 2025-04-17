@@ -22,6 +22,7 @@
 #include "LoadFileWindow.h"
 #include "SaveAsWindow.h"
 #include "Terminal.h"
+#include "PreferencesWindow.h"
 
 class GuiEngine
 {
@@ -38,6 +39,7 @@ private:
     bool showAddObject = false;
     bool showLoadFile = false;
     bool showSaveAs = false;
+    bool showPreferences = false;
 
     char objectLocation[128];
     char objectName[128];
@@ -52,6 +54,7 @@ private:
     LoadFileWindow loadFileWindow;
     SaveAsWindow saveAsWindow;
     Terminal terminal;
+    PreferencesWindow preferencesWindow;
   
 public:
     bool showView = true;

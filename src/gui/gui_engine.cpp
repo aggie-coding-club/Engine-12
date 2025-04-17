@@ -48,6 +48,7 @@ bool GuiEngine::init(GLFWwindow *_window, GameEngine *_game_engine)
     io = &ImGui::GetIO(); (void)io;
     io->ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
     io->ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+    io->ConfigFlags |= ImGuiConfigFlags_NoMouseCursorChange;   // Disable Changing Mouse Settings
 
     inter_24 = io->Fonts->AddFontFromFileTTF("../include/Fonts/Inter-VariableFont_opsz,wght.ttf", 24);
 
@@ -118,7 +119,7 @@ void GuiEngine::run()
     ImGui::NewFrame();
 
     // Game Engine
-    menuBar.ShowMenuBar(gameEngine, showDetail, showView, showHierarchy, showLoadFile, showSaveAs);
+    menuBar.ShowMenuBar(gameEngine, showDetail, showView, showHierarchy, showLoadFile, showSaveAs, showPreferences);
 
     ImGui::PushFont(icons);
     secondMenuBar.ShowSecondaryMenuBar();
@@ -146,7 +147,9 @@ void GuiEngine::run()
     }
 
     // Show terminal window
-    terminal.ShowTerminal(gameEngine->GetCurrScene()); 
+    terminal.ShowTerminal(gameEngine->GetCurrScene());
+
+    preferencesWindow.ShowPreferencesWindow(gameEngine->cameraSense, gameEngine->movementSense);
 
     // if(showLoadFile) {
     //     loadFileWindow.showLoadFileWindow(gameEngine, showLoadFile);
