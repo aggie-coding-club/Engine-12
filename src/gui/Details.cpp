@@ -83,6 +83,8 @@ void DeleteObject(const std::shared_ptr<Scene>& scene) {
 void ShowComponentControl(const std::shared_ptr<Scene> scene) {
     std::shared_ptr<GameObject> gameObject = scene->selectedGameObj;
     // ImGui::Text("Number of Components: %d", gameObject->GetComponentCount());
+
+    // Make it so that Light component cannot be taken off of lights
     if(gameObject->GetComponent(LIGHT)) {
         if(ImGui::Button("Remove Light")) {
             gameObject->RemoveComponent(LIGHT);
@@ -123,6 +125,9 @@ void ShowComponentControl(const std::shared_ptr<Scene> scene) {
     static std::vector<std::string> gameObjectNames = {"Select Object"};
     static std::shared_ptr<GameObject> copyObject;
 
+
+    // Dropdown for selecting the component to copy
+    // Creates a list of objects that have the component
     ImGui::Text("Component");
     ImGui::SameLine();
     if(ImGui::Combo("##Component", &currentComponent, items, IM_ARRAYSIZE(items))) {
@@ -155,7 +160,7 @@ void ShowComponentControl(const std::shared_ptr<Scene> scene) {
 
 
 
-
+    // Dropdown of the list of objects to copy from
     if (type != NUM_ENUM) {
         ImGui::Text("Copy from");
         ImGui::SameLine();
