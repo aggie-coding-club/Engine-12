@@ -16,7 +16,8 @@ message(STATUS "${HEADERS}")
 # Set the executable.
 message(STATUS "Including ${CMAKE_SOURCE_DIR}/include")
 include_directories(${CMAKE_SOURCE_DIR}/include)
-ADD_EXECUTABLE(${CMAKE_PROJECT_NAME} ${SOURCES} ${HEADERS} ${GLSL})
+ADD_EXECUTABLE(${CMAKE_PROJECT_NAME} ${SOURCES} ${HEADERS} ${GLSL}
+        include/core/components/script.h)
 
 # Use FetchContent to download and build GLM, GLFW, and AngelScript
 
@@ -144,6 +145,7 @@ set(IMGUI_SOURCES
         ${imgui_SOURCE_DIR}/imgui_demo.cpp
         ${imgui_SOURCE_DIR}/backends/imgui_impl_glfw.cpp
         ${imgui_SOURCE_DIR}/backends/imgui_impl_opengl3.cpp
+        include/core/components/script.h
 )
 
 

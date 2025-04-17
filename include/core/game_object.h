@@ -1,11 +1,16 @@
 #pragma once
 
+#include <iostream>
 #include <string>
 #include <array>
 #include <unordered_set>
 #include <memory>
+#include <angelscript.h>
+#include <vector>
 
 #include "components/component.h"
+#include "components/script.h"
+#include "components/script_container.h"
 #include "components/transform.h"
 #include "components/material.h"
 #include "components/model.h"
@@ -26,13 +31,13 @@ public:
     const int id;
 
     // returns a reference to the component of the given type
-    std::shared_ptr<Component>& GetComponent(COMPONENT_TYPE type) {
-        return components[type];
+    Component* GetComponent(COMPONENT_TYPE type) {
+        return components[type].get();
     }
 
     // returns a reference to the component by the index
-    std::shared_ptr<Component>& GetComponent(size_t index) {
-        return components[index];
+    Component* GetComponent(size_t index) {
+        return components[index].get();
     }
 
     // returns the amount of components
@@ -108,7 +113,28 @@ public:
     }
 
 private:
+    Transform* get_transform()
+    {
+        return dynamic_cast<Transform*>(components[TRANSFORM].get());
+    }
 
+    void addScript(const std::string& name, ScriptingEngine* engine)
+    {
+        std::cout << "Adding script " << name << std::endl;
+
+        if(components[SCRIPT] == nullptr)
+        {
+            components[SCRIPT] = std::make_shared<ScriptContainer>();
+        }
+
+        dynamic_cast<ScriptContainer*>(components[SCRIPT].get())->scripts.push_back(Script::create(name, engine->engine, engine, this));
+    }
+
+    bool operator==(const GameObject& other) const
+    {
+        return id == other.id;
+    }
+private:
     static int lastId;
 
     static int generateUniqueId() {

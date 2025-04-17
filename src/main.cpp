@@ -26,6 +26,7 @@
 #include <serial/lights.h>
 #include <serial/models.h>
 #include "core/scene.h"
+#include "scripting/common_functions.h"
 #include "scripting/scripting_engine.h"
 #include "serial/scenes.h"
 #include "serial/project.h"
@@ -67,7 +68,6 @@ int main(int argc, char *argv[])
 {	
 
 	DeserializeProject(&gameEngine, "../user/project.yaml");
-
 	
 	// GLFWwindow* window is shared between gui and render,
 	// so let's declare it in main.
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
 	guiEngine = std::make_unique<GuiEngine>();
 	renderEngine = std::make_unique<RenderEngine>(window, &gameEngine);
 	scriptingEngine = std::make_unique<ScriptingEngine>();
-	scriptingEngine->init();
+	scriptingEngine->init(gameEngine.simulationManager.get());
 	physicsEngine = std::make_unique<PhysicsEngine>(&gameEngine, &timeDelta);
 
 	// Generate Frame buffer for ShadowMapping
@@ -167,7 +167,7 @@ int main(int argc, char *argv[])
         timeDelta = end - start;
         // std::cout << timeDelta.count() << std::endl;
 		glfwSwapBuffers(window);
-		scriptingEngine->runScriptUpdate();
+		scriptingEngine->run();
 	}
 	guiEngine->cleanup();
 
