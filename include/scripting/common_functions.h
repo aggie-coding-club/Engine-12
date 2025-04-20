@@ -57,6 +57,16 @@ static void destroy(GameObject& gameObject)
     }
 }
 
+static bool GetKey(const unsigned int key)
+{
+    try {
+        return GameEngine::GetKeyPresses().at(key);
+    }
+    catch (const std::out_of_range& e) {
+        return false;
+    }
+}
+
 static GameObject* instantiate()
 {
 

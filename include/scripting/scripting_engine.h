@@ -23,6 +23,7 @@ class ScriptingEngine
     void runScriptStart();
     void runScriptUpdate();
     void registerClasses();
+    void registerKeys();
     void stopScripts();
     void runFunction(const std::string& typeName, asIScriptObject* object, const std::string& declaration);
     void runFunction(const Script& script, const std::string& declaration);

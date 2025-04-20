@@ -15,6 +15,7 @@ class GameEngine
 private:
     std::string name;
     static std::vector<std::shared_ptr<Scene>> scenes;
+    static std::unordered_map<unsigned int, bool> keyPresses;
     static int currSceneIdx;
 
     bool changedScene = true;
@@ -86,6 +87,7 @@ private:
 public:
     static std::vector<std::shared_ptr<Scene>>& GetScenes() { return scenes; }
     static std::shared_ptr<Scene>& GetCurrScene() { return scenes[currSceneIdx]; }
+    static std::unordered_map<unsigned int, bool>& GetKeyPresses() { return keyPresses; }
     std::unique_ptr<SimulationManager> simulationManager;
 
     float cameraSense = 0.8f;
@@ -117,7 +119,7 @@ public:
         name = _name;
     }
 
-    void CharacterCallback(GLFWwindow* window, unsigned int key)
+    void CharacterCallback(GLFWwindow* window, unsigned int key, int scancode, int action, int mods)
     {
         std::shared_ptr<Camera> camera = GetCurrScene()->GetCurrCamera();
         if(GetCurrScene()->GetCameras().at(0) == camera) {
@@ -133,6 +135,17 @@ public:
             if(key == 'a') {
                 camera->SetPosition(camera->GetPosition() - camera->GetRight() * movementSense);
             }
+        }
+
+        if(keyPresses.find(key) == keyPresses.end()) {
+            keyPresses.insert(std::pair<int, bool>(key, false));
+        }
+
+        if(action == GLFW_PRESS) {
+            keyPresses.insert_or_assign(key, true);
+        }
+        else if(action == GLFW_RELEASE) {
+            keyPresses.insert_or_assign(key, false);
         }
     }
 

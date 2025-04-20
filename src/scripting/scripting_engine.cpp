@@ -68,6 +68,9 @@ void ScriptingEngine::registerClasses() {
     r = engine->RegisterEnumValue("COMPONENT_TYPE", "RIGID_BODY", RIGID_BODY); assert(r >= 0);
     r = engine->RegisterEnumValue("COMPONENT_TYPE", "SCRIPT", SCRIPT); assert(r >= 0);
 
+    //Key Codes
+    registerKeys();
+
     // Register reference objects
     //Transform
     r = engine->RegisterObjectType("Transform", 0, asOBJ_REF | asOBJ_NOCOUNT); assert( r >= 0 );
@@ -114,6 +117,7 @@ void ScriptingEngine::registerClasses() {
     r = engine->RegisterGlobalFunction("void print(const string &in)", asFUNCTION(print), asCALL_CDECL); assert( r >= 0 );
     r = engine->RegisterGlobalFunction("GameObject@ find(const string &in)", asFUNCTION(find), asCALL_CDECL); assert( r >= 0 );
     r = engine->RegisterGlobalFunction("void destroy(GameObject& gameObject)", asFUNCTION(destroy), asCALL_CDECL); assert( r >= 0 );
+    r = engine->RegisterGlobalFunction("bool GetKey(const uint key)", asFUNCTION(GetKey), asCALL_CDECL); assert( r >= 0 );
 
     // Register the script interface
     r = engine->RegisterInterface("Behavior"); assert( r >= 0 );
@@ -121,6 +125,73 @@ void ScriptingEngine::registerClasses() {
     r = engine->RegisterInterfaceMethod("Behavior", "void update()"); assert( r >= 0 );
     r = engine->RegisterInterfaceMethod("Behavior", "void stop()"); assert( r >= 0 );
 }
+
+void ScriptingEngine::registerKeys() {
+    int r = engine->RegisterEnum("KEY"); assert(r >= 0);
+    // Alphabet keys
+    r = engine->RegisterEnumValue("KEY", "KEY_A", GLFW_KEY_A); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_B", GLFW_KEY_B); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_C", GLFW_KEY_C); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_D", GLFW_KEY_D); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_E", GLFW_KEY_E); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_F", GLFW_KEY_F); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_G", GLFW_KEY_G); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_H", GLFW_KEY_H); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_I", GLFW_KEY_I); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_J", GLFW_KEY_J); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_K", GLFW_KEY_K); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_L", GLFW_KEY_L); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_M", GLFW_KEY_M); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_N", GLFW_KEY_N); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_O", GLFW_KEY_O); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_P", GLFW_KEY_P); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_Q", GLFW_KEY_Q); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_R", GLFW_KEY_R); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_S", GLFW_KEY_S); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_T", GLFW_KEY_T); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_U", GLFW_KEY_U); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_V", GLFW_KEY_V); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_W", GLFW_KEY_W); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_X", GLFW_KEY_X); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_Y", GLFW_KEY_Y); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_Z", GLFW_KEY_Z); assert(r >= 0);
+
+    // Numeric keys
+    r = engine->RegisterEnumValue("KEY", "KEY_0", GLFW_KEY_0); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_1", GLFW_KEY_1); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_2", GLFW_KEY_2); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_3", GLFW_KEY_3); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_4", GLFW_KEY_4); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_5", GLFW_KEY_5); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_6", GLFW_KEY_6); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_7", GLFW_KEY_7); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_8", GLFW_KEY_8); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_9", GLFW_KEY_9); assert(r >= 0);
+
+    // Modifier keys
+    r = engine->RegisterEnumValue("KEY", "KEY_LEFT_SHIFT", GLFW_KEY_LEFT_SHIFT); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_RIGHT_SHIFT", GLFW_KEY_RIGHT_SHIFT); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_LEFT_CONTROL", GLFW_KEY_LEFT_CONTROL); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_RIGHT_CONTROL", GLFW_KEY_RIGHT_CONTROL); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_LEFT_ALT", GLFW_KEY_LEFT_ALT); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_RIGHT_ALT", GLFW_KEY_RIGHT_ALT); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_LEFT_SUPER", GLFW_KEY_LEFT_SUPER); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_RIGHT_SUPER", GLFW_KEY_RIGHT_SUPER); assert(r >= 0);
+
+    // Special keys
+    r = engine->RegisterEnumValue("KEY", "KEY_SPACE", GLFW_KEY_SPACE); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_ENTER", GLFW_KEY_ENTER); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_TAB", GLFW_KEY_TAB); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_BACKSPACE", GLFW_KEY_BACKSPACE); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_ESCAPE", GLFW_KEY_ESCAPE); assert(r >= 0);
+
+    // Arrow keys
+    r = engine->RegisterEnumValue("KEY", "KEY_LEFT", GLFW_KEY_LEFT); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_RIGHT", GLFW_KEY_RIGHT); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_UP", GLFW_KEY_UP); assert(r >= 0);
+    r = engine->RegisterEnumValue("KEY", "KEY_DOWN", GLFW_KEY_DOWN); assert(r >= 0);
+}
+
 
 void ScriptingEngine::run() {
     // Engine is just started.

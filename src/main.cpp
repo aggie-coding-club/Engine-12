@@ -49,10 +49,10 @@ auto start = std::chrono::steady_clock::now();
 auto end   = std::chrono::steady_clock::now();
 
 // Keyboard character callback function
-void CharacterCallback(GLFWwindow* lWindow, unsigned int key)
+void CharacterCallback(GLFWwindow* lWindow, int key, int scancode, int action,int mode)
 {
 	renderEngine->CharacterCallback(lWindow, key);
-	gameEngine.CharacterCallback(lWindow, key);
+	gameEngine.CharacterCallback(lWindow, key, scancode, action, mode);
 }
 
 void MouseCallback(GLFWwindow* lWindow, int button, int action, int mods) {
@@ -88,7 +88,7 @@ int main(int argc, char *argv[])
 	glewExperimental = GL_TRUE;
 	glewInit();
 	glViewport(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT);
-	glfwSetCharCallback(window, CharacterCallback);
+	glfwSetKeyCallback(window, CharacterCallback);
 	glfwSetMouseButtonCallback(window, MouseCallback);
 	glfwSetFramebufferSizeCallback(window, FrameBufferSizeCallback);
 
@@ -102,6 +102,8 @@ int main(int argc, char *argv[])
 	scriptingEngine = std::make_unique<ScriptingEngine>();
 	scriptingEngine->init(gameEngine.simulationManager.get());
 	physicsEngine = std::make_unique<PhysicsEngine>(&gameEngine, &timeDelta);
+
+	gameEngine.GetCurrScene()->GetModels()[0]->addScript("Object", scriptingEngine.get());
 
 	// Generate Frame buffer for ShadowMapping
 	GLuint depthMapFBO;
