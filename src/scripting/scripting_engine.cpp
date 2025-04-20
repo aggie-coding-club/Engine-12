@@ -98,6 +98,7 @@ void ScriptingEngine::registerClasses() {
     r = engine->RegisterObjectProperty("RigidBody", "bool detectCollisions", asOFFSET(RigidBody, detectCollisions)); assert( r >= 0 );
     r = engine->RegisterObjectProperty("RigidBody", "bool useGravity", asOFFSET(RigidBody, useGravity)); assert( r >= 0 );
     r = engine->RegisterObjectProperty("RigidBody", "bool isKinematics", asOFFSET(RigidBody, isKinematics)); assert( r >= 0 );
+    r = engine->RegisterObjectMethod("RigidBody", "void AddForce (vec3 force)", asMETHOD(RigidBody, AddForce), asCALL_THISCALL); assert( r >= 0 );
 
     //Component
     r = engine->RegisterObjectType("Component", 0, asOBJ_REF | asOBJ_NOCOUNT); assert( r >= 0 );
