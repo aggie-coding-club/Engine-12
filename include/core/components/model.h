@@ -12,7 +12,7 @@ public:
     std::string resourcesPath = std::string(RESOURCES_PATH);
 
     // TODO Remove hardcoded bunny
-    Model(const std::string& _modelPath = "bunny.obj")
+    Model(const std::string& _modelPath = "sphere.obj")
     {
         type = MODEL;
         modelPath = resourcesPath + _modelPath;

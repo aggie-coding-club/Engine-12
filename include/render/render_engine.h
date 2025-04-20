@@ -40,6 +40,7 @@ class RenderEngine
 	std::unordered_map<std::string, std::vector<float>> posBuffMap;
 	std::unordered_map<std::string, std::vector<float>> texBuffMap;
 	std::unordered_map<std::string, std::vector<float>> norBuffMap;
+    std::unordered_map<std::string, glm::vec3>          biasMap;
 
 	std::vector<float> posBuff;
 	std::vector<float> norBuff;
@@ -61,6 +62,8 @@ class RenderEngine
 
 	// Helper Function to generate normals when obj doesn't have normals saved in the file
 	glm::vec3 GenerateNormal(const std::vector<glm::vec3>& faceVertices);
+
+    glm::vec3 CalculateBias(const std::vector<glm::vec3>& verts);
 
 public:
 	RenderEngine(GLFWwindow* _window, GameEngine* _gameEngine)

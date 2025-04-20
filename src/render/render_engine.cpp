@@ -52,6 +52,8 @@ void RenderEngine::LoadModel(const std::string &name)
 
         // Temporary storage for normals if not present in the OBJ file
         std::vector<glm::vec3> generatedNormals;
+        float minX, minY, minZ = INFINITY;
+        float maxX, maxY, maxZ = -INFINITY;
 
         // Loop over shapes
         for (auto & shape : shapes) {
@@ -70,6 +72,10 @@ void RenderEngine::LoadModel(const std::string &name)
                     posBuff.push_back(vx);
                     posBuff.push_back(vy);
                     posBuff.push_back(vz);
+
+                    minX = std::min(minX, vx); maxX = std::max(maxX, vx);
+                    minY = std::min(minY, vy); maxY = std::max(maxY, vy);
+                    minZ = std::min(minZ, vz); maxZ = std::max(maxZ, vz);
 
                     // Store the vertex for normal calculation (if normals are absent)
                     faceVertices.push_back(glm::vec3(vx, vy, vz));
@@ -99,10 +105,21 @@ void RenderEngine::LoadModel(const std::string &name)
                     }
                 }
 
+
                 // per-face material (IGNORE)
                 shape.mesh.material_ids[f];
             }
         }
+
+        biasMap[meshName] = glm::vec3(
+            (minX + maxX) / 2,
+            (minY + maxY) / 2,
+            (minZ + maxZ) / 2
+        );
+
+        std::cout << "x: " << minX << " " << maxX << "\n";
+        std::cout << "y: " << minY << " " << maxY << "\n";
+        std::cout << "z: " << minZ << " " << maxZ << "\n";
     }
 }
 
@@ -128,7 +145,6 @@ glm::vec3 RenderEngine::GenerateNormal(const std::vector<glm::vec3>& faceVertice
 
     return normal;
 }
-
 
 void RenderEngine::ShadersInit()
 {
@@ -232,6 +248,11 @@ void RenderEngine::Display(glm::vec4 viewportInfo, GLuint depthMap)
         const auto& objMaterial = std::dynamic_pointer_cast<Material>( model->components[MATERIAL]);
         const auto& objModel = std::dynamic_pointer_cast<Model>(model->components[MODEL]);
 
+        if (objModel == nullptr)
+        {
+            continue;
+        }
+
         std::string& modelPath = objModel->modelPath;
 
         // Check if the position buffer is already loaded
@@ -240,13 +261,7 @@ void RenderEngine::Display(glm::vec4 viewportInfo, GLuint depthMap)
             LoadModel(modelPath);
         }
 
-        glm::mat4 modelMatrix(1.0f);
-        modelMatrix = glm::translate(glm::mat4(1.0f), objTransform->position)
-            * glm::rotate(glm::mat4(1.0f), glm::radians(objTransform->rotation[0]), glm::vec3(1.0f, 0.0f, 0.0f))
-            * glm::rotate(glm::mat4(1.0f), glm::radians(objTransform->rotation[1]), glm::vec3(0.0f, 1.0f, 0.0f))
-            * glm::rotate(glm::mat4(1.0f), glm::radians(objTransform->rotation[2]), glm::vec3(0.0f, 0.0f, 1.0f))
-            * glm::scale(glm::mat4(1.0f), objTransform->scale);
-
+        glm::mat4 modelMatrix = objTransform->GetModelMatrix(biasMap[modelPath]);
         glm::mat4 modelInverseTranspose = glm::transpose(glm::inverse(modelMatrix));
         program.Bind();
 
