@@ -30,5 +30,9 @@ public:
      * MovePosition()
      * MoveRotation()
      */
+
+    std::shared_ptr<Component> Clone() const override {
+        return std::make_shared<RigidBody>(*this);
+    }
 private:
 };

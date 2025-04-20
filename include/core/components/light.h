@@ -11,4 +11,8 @@ public:
     {
         type = LIGHT;
     }
+
+    std::shared_ptr<Component> Clone() const override {
+        return std::make_shared<PointLight>(*this);
+    }
 };

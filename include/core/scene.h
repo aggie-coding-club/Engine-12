@@ -183,5 +183,83 @@ public:
 	void ResetCurrCameraIdx(){ currCameraIdx = 0; };
 
 	void SetCurrCameraIdx(int i){ currCameraIdx = i; };
+
+
+	// returns a vector of game objects containing specific tag
+	std::vector<std::shared_ptr<GameObject>> SearchByTag(const std::string& tag) {
+		std::vector<std::shared_ptr<GameObject>> gameObjects;
+
+		for(std::shared_ptr<GameObject> model : models) {
+			if(model->CompareTag(tag)) {
+				gameObjects.push_back(model);
+			}
+		}
+
+		for(std::shared_ptr<GameObject> light : lights) {
+			if(light->CompareTag(tag)) {
+				gameObjects.push_back(light);
+			}
+		}
+
+		return gameObjects;
+	}
+
+	// returns a vector of game objects containing specific component
+	std::vector<std::shared_ptr<GameObject>> SearchByComponent(COMPONENT_TYPE type) {
+		std::vector<std::shared_ptr<GameObject>> gameObjects;
+
+		for(std::shared_ptr<GameObject> model : models) {
+			if(model->GetComponent(type)) {
+				gameObjects.push_back(model);
+			}
+		}
+
+		for(std::shared_ptr<GameObject> light : lights) {
+			if(light->GetComponent(type)) {
+				gameObjects.push_back(light);
+			}
+		}
+
+		return gameObjects;
+	}
+
+	// returns a vector of game objects with specific name
+	std::vector<std::shared_ptr<GameObject>> SearchByName(const std::string& name) {
+		std::vector<std::shared_ptr<GameObject>> gameObjects;
+
+		for(std::shared_ptr<GameObject> model : models) {
+			if(model->name == name) {
+				gameObjects.push_back(model);
+			}
+		}
+
+		for(std::shared_ptr<GameObject> light : lights) {
+			if(light->name == name) {
+				gameObjects.push_back(light);
+			}
+		}
+
+		return gameObjects;
+	}
+
+	// returns a vector of game objects with a name that contains a given sub-name
+	std::vector<std::shared_ptr<GameObject>> SearchByNameContains(const std::string& name) {
+		std::vector<std::shared_ptr<GameObject>> gameObjects;
+
+		for(std::shared_ptr<GameObject> model : models) {
+			if(model->name.find(name) != std::string::npos) {
+				gameObjects.push_back(model);
+			}
+		}
+
+		for(std::shared_ptr<GameObject> light : lights) {
+			if(light->name.find(name) != std::string::npos) {
+				gameObjects.push_back(light);
+			}
+		}
+
+		return gameObjects;
+	}
+
 };
 

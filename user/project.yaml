@@ -5,7 +5,7 @@ Scenes:
         - bunny0:
             Transform:
               position:
-                - 0.5
+                - 3
                 - -1
                 - -0.3
               rotation:

@@ -80,6 +80,119 @@ void DeleteObject(const std::shared_ptr<Scene>& scene) {
     }
 }
 
+void ShowComponentControl(const std::shared_ptr<Scene> scene) {
+    std::shared_ptr<GameObject> gameObject = scene->selectedGameObj;
+    // ImGui::Text("Number of Components: %d", gameObject->GetComponentCount());
+
+    // Make it so that Light component cannot be taken off of lights
+    if(gameObject->GetComponent(LIGHT)) {
+        if(ImGui::Button("Remove Light")) {
+            gameObject->RemoveComponent(LIGHT);
+        }
+    }
+    else {
+        if(ImGui::Button("Add Light")) {
+            gameObject->AddComponent(LIGHT);
+        }
+    }
+    
+    if(gameObject->GetComponent(MATERIAL)) {
+        if(ImGui::Button("Remove Material")) {
+            gameObject->RemoveComponent(MATERIAL);
+        }
+    }
+    else {
+        if(ImGui::Button("Add Material")) {
+            gameObject->AddComponent(MATERIAL);
+        }
+    }
+
+    if(gameObject->GetComponent(RIGID_BODY)) {
+        if(ImGui::Button("Remove Rigid Body")) {
+            gameObject->RemoveComponent(RIGID_BODY);
+        }
+    }
+    else {
+        if(ImGui::Button("Add Rigid Body")) {
+            gameObject->AddComponent(RIGID_BODY);
+        }
+    }
+
+    const char* items[] = { "Select Component", "Transform", "Material", "Light", "Rigid Body" };
+    static int currentComponent = 0;
+    static int currentObject = 0;
+    static COMPONENT_TYPE type = NUM_ENUM;
+    static std::vector<std::string> gameObjectNames = {"Select Object"};
+    static std::shared_ptr<GameObject> copyObject;
+
+
+    // Dropdown for selecting the component to copy
+    // Creates a list of objects that have the component
+    ImGui::Text("Component");
+    ImGui::SameLine();
+    if(ImGui::Combo("##Component", &currentComponent, items, IM_ARRAYSIZE(items))) {
+        // reset things when dropdown changes
+        gameObjectNames.clear();
+        gameObjectNames.push_back("Select Object");
+        currentObject = 0; 
+        copyObject = nullptr;
+
+        switch(currentComponent) {
+            case 0: type = NUM_ENUM; break;
+            case 1: type = TRANSFORM; break;
+            case 2: type = MATERIAL; break;
+            case 3: type = LIGHT; break;
+            case 4: type = RIGID_BODY; break;
+        }
+        if(type != NUM_ENUM) {
+            for(const auto& model : scene->GetModels()) {
+                if(model->GetComponent(type)) {
+                    gameObjectNames.push_back(model->name);
+                }
+            }
+            for(const auto& light : scene->GetLights()) {
+                if(light->GetComponent(type)) {
+                    gameObjectNames.push_back(light->name);
+                }
+            }
+        }
+    }
+
+
+
+    // Dropdown of the list of objects to copy from
+    if (type != NUM_ENUM) {
+        ImGui::Text("Copy from");
+        ImGui::SameLine();
+        if (ImGui::Combo("##CopyFrom", &currentObject, [](void* data, int idx, const char** out_text) {
+                    auto& vec = *static_cast<std::vector<std::string>*>(data);
+                    if (idx < 0 || idx >= static_cast<int>(vec.size())) return false;
+                    *out_text = vec[idx].c_str();
+                    return true;
+                }, static_cast<void*>(&gameObjectNames), gameObjectNames.size())) {
+                
+                    
+                // Change to search by id probably
+                auto results = scene->SearchByName(gameObjectNames[currentObject]);
+                if (!results.empty()) {
+                    copyObject = results.front();
+                }
+                if(currentObject == 0) {
+                    copyObject = nullptr;
+                }
+            }
+        }
+            if(copyObject && type != NUM_ENUM) {
+        if(ImGui::Button("Confirm")) {
+            gameObject->components[type] = copyObject->GetComponent(type)->Clone();
+        }
+    }
+    // ImGui::Text("Current Object Index: %d", currentObject);
+    // ImGui::Text("Current Component Index: %d", currentComponent);
+    // ImGui::Text("Current type: %d", type);
+    // ImGui::Text("gameObjectNames size: %d", gameObjectNames.size());
+}
+
 
 void Details::ShowDetails(const std::shared_ptr<Scene>& scene)
 {
@@ -172,6 +285,10 @@ void Details::ShowDetails(const std::shared_ptr<Scene>& scene)
                 }
 
 
+            }
+            if(ImGui::TreeNode("Component Control")) {
+                ShowComponentControl(scene);
+                ImGui::TreePop();
             }
             if(ImGui::Button("Delete")) {
                 DeleteObject(scene);

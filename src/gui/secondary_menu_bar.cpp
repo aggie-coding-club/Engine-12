@@ -6,9 +6,12 @@
 #include "gui/secondary_menu_bar.h"
 
 #include <iostream>
+#include <memory>
 #include <ostream>
 
-void SecondMenuBar::ShowSecondaryMenuBar(){
+#include "core/game_engine.h"
+
+void SecondMenuBar::ShowSecondaryMenuBar(GameEngine *gameEngine){
 
     ImGui::PushStyleVar(ImGuiStyleVar_WindowMinSize, ImVec2(0.0f, 0.0f));
     ImGuiViewport *v = (&*GImGui)->Viewports[0];
@@ -39,11 +42,20 @@ void SecondMenuBar::ShowSecondaryMenuBar(){
     }
 
     if(ImGui::MenuItem(ICON_FA_PAUSE, nullptr)) {
-        std::cout << ICON_FA_PAUSE << std::endl;
+        gameEngine->simulationManager->PauseSimulation();
     }
 
-    if(ImGui::MenuItem(ICON_FA_PLAY, nullptr)) {
-        std::cout << ICON_FA_PLAY << std::endl;
+    if(gameEngine->simulationManager->isPaused() || gameEngine->simulationManager->isStopped())
+    {
+        if(ImGui::MenuItem(ICON_FA_PLAY, nullptr)) {
+            gameEngine->simulationManager->StartSimulation();
+        }
+    }
+    else
+    {
+        if(ImGui::MenuItem(ICON_FA_SQUARE, nullptr)) {
+            gameEngine->simulationManager->StopSimulation();
+        }
     }
 
     if(ImGui::MenuItem(ICON_FA_FORWARD_STEP, nullptr)) {

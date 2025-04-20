@@ -5,6 +5,7 @@
 #include "components/transform.h"
 #include "components/light.h"
 #include "scene.h"
+#include "simulation_manager.h"
 #include "GLFW/glfw3.h"
 
 #define _USE_SCENE_
@@ -13,8 +14,8 @@ class GameEngine
 {
 private:
     std::string name;
-    std::vector<std::shared_ptr<Scene>> scenes;
-    int currSceneIdx = 0;
+    static std::vector<std::shared_ptr<Scene>> scenes;
+    static int currSceneIdx;
 
     bool changedScene = true;
 
@@ -83,17 +84,19 @@ private:
     }
 
 public:
+    static std::vector<std::shared_ptr<Scene>>& GetScenes() { return scenes; }
+    static std::shared_ptr<Scene>& GetCurrScene() { return scenes[currSceneIdx]; }
+    std::unique_ptr<SimulationManager> simulationManager;
 
     float cameraSense = 0.8f;
     float movementSense = 1.f;
 
     bool mouseDragging = false;
     glm::vec2 lastMousePos = glm::vec2(0.0f);
-
-    std::vector<std::shared_ptr<Scene>>& GetScenes() { return scenes; }
-    std::shared_ptr<Scene>& GetCurrScene() { return scenes[currSceneIdx]; }
+  
     GameEngine()
     {
+        simulationManager = std::make_unique<SimulationManager>();
         //TestInit2();
     }
 
