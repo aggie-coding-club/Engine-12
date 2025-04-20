@@ -2,111 +2,186 @@ Project Name: project
 Scenes:
   - Scene 1:
       Models:
-        bunny0:
-          Transform:
-            position:
-              - 0
-              - -15.184565
-              - 0
-            rotation:
-              - 0
-              - 0
-              - 0
-            scale:
-              - 1
-              - 1
-              - 1
-          Material:
-            ambient:
-              - 0.1
-              - 0.1
-              - 0.1
-            diffuse:
-              - 0.8
-              - 0.8
-              - 0.8
-            specular:
-              - 0.5
-              - 0.5
-              - 0.5
-            shininess: 32
-          Model:
-            model_path: ../resources/models/sphere.obj
-        bunny1:
-          Transform:
-            position:
-              - -2
-              - -15.184565
-              - -3
-            rotation:
-              - 0
-              - 0
-              - 0
-            scale:
-              - 1
-              - 1
-              - 1
-          Material:
-            ambient:
-              - 0.1
-              - 0.1
-              - 0.1
-            diffuse:
-              - 0.8
-              - 0.8
-              - 0.8
-            specular:
-              - 0.5
-              - 0.5
-              - 0.5
-            shininess: 32
-          Model:
-            model_path: ../resources/models/sphere.obj
-        bunny2:
-          Transform:
-            position:
-              - 2
-              - -15.184565
-              - -3
-            rotation:
-              - 0
-              - 0
-              - 0
-            scale:
-              - 1
-              - 1
-              - 1
-          Material:
-            ambient:
-              - 0.1
-              - 0.1
-              - 0.1
-            diffuse:
-              - 0.8
-              - 0.8
-              - 0.8
-            specular:
-              - 0.5
-              - 0.5
-              - 0.5
-            shininess: 32
-          Model:
-            model_path: ../resources/models/sphere.obj
-        plane:
-          Transform:
-            position:
-              - 0
-              - -1.25
-              - 0
-            rotation:
-              - 0
-              - 0
-              - 0
-            scale:
-              - 1
-              - 1
-              - 1
-
+        - bunny0:
+            Transform:
+              position:
+                - 3
+                - -1
+                - -0.3
+              rotation:
+                - 10
+                - 0
+                - 0
+              scale:
+                - 1.2
+                - 1.2
+                - 1.2
+            Material:
+              ambient:
+                - 0.2
+                - 0.2
+                - 0.2
+              diffuse:
+                - 0.7
+                - 0.7
+                - 0.7
+              specular:
+                - 0.6
+                - 0.6
+                - 0.6
+              shininess: 30
+            Model:
+              model_path: bunny.obj
+        - bunny2:
+            Transform:
+              position:
+                - 2.5
+                - -1.1
+                - -3.2
+              rotation:
+                - 0
+                - 15
+                - 0
+              scale:
+                - 1.3
+                - 1.3
+                - 1.3
+            Material:
+              ambient:
+                - 0.12
+                - 0.12
+                - 0.12
+              diffuse:
+                - 0.78
+                - 0.78
+                - 0.78
+              specular:
+                - 0.52
+                - 0.52
+                - 0.52
+              shininess: 35
+            Model:
+              model_path: bunny.obj
+        - teapot0:
+            Transform:
+              position:
+                - -0.05
+                - -0.7
+                - -1.7
+              rotation:
+                - 0
+                - 0
+                - 10
+              scale:
+                - 1.1
+                - 1.1
+                - 1.1
+            Material:
+              ambient:
+                - 0.2
+                - 0.2
+                - 0.2
+              diffuse:
+                - 0.7
+                - 0.7
+                - 0.7
+              specular:
+                - 0.6
+                - 0.6
+                - 0.6
+              shininess: 30
+            Model:
+              model_path: teapot.obj
+        - texas:
+            Transform:
+              position:
+                - 0.1
+                - 3.2
+                - 0.2
+              rotation:
+                - 0
+                - 0
+                - 0
+              scale:
+                - 1.2
+                - 1.2
+                - 1.2
+            Material:
+              ambient:
+                - 0.6313726
+                - 0
+                - 0.2
+              diffuse:
+                - 0.7
+                - 0.7
+                - 0.7
+              specular:
+                - 1
+                - 0.6
+                - 0.6
+              shininess: 30
+            Model:
+              model_path: texas.obj
+        - square0:
+            Transform:
+              position:
+                - 0
+                - -0.676
+                - 0
+              rotation:
+                - -90
+                - 0
+                - 0
+              scale:
+                - 100
+                - 100
+                - 1
+            Material:
+              ambient:
+                - 0.1
+                - 0.1
+                - 0.1
+              diffuse:
+                - 0.8
+                - 0.8
+                - 0.8
+              specular:
+                - 0.5
+                - 0.5
+                - 0.5
+              shininess: 32
+            Model:
+              model_path: square.obj
+        - sphere0:
+            Transform:
+              position:
+                - 0
+                - 0
+                - 0
+              rotation:
+                - 0
+                - 0
+                - 0
+              scale:
+                - 1
+                - 1
+                - 1
+            Material:
+              ambient:
+                - 0.1
+                - 0.1
+                - 0.1
+              diffuse:
+                - 0.8
+                - 0.8
+                - 0.8
+              specular:
+                - 0.5
+                - 0.5
+                - 0.5
+              shininess: 32
+            Model:
+              model_path: sphere.obj
       Lights:
         - brightLight:
             Transform:
@@ -153,9 +228,9 @@ Scenes:
           fovy: 50
           aspect: 2.1253731
           center:
-            - 7.3577985e-07
-            - 0.05981063
-            - 7.358151e-07
+            - 3.2504877e-07
+            - -0.9938887
+            - 3.2502933e-07
           eye:
             - -4.9
             - 1.8
@@ -164,9 +239,9 @@ Scenes:
           fovy: 50
           aspect: 1.7777778
           center:
-            - 0.0007596521
-            - -0.0012175122
-            - -0.00059763767
+            - 0.00037964407
+            - -0.0006088694
+            - -0.00029858755
           eye:
             - -7
             - 10
@@ -175,9 +250,9 @@ Scenes:
           fovy: 50
           aspect: 1.7777778
           center:
-            - 8.7602595e-05
-            - 0.00010637142
-            - 8.760259e-05
+            - 4.379897e-05
+            - 5.318763e-05
+            - 4.3798966e-05
           eye:
             - -7
             - 9

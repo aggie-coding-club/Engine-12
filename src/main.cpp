@@ -213,6 +213,5 @@ int main(int argc, char *argv[])
 	yamlFile.close();
 	scriptingEngine->cleanUp();
 
-
 	return 0;
 }

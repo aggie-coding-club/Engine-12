@@ -21,4 +21,8 @@ public:
                               ColliderRecord& record) override;
 
     glm::vec3 normal;
+
+    std::shared_ptr<Component> Clone() const override {
+        return std::make_shared<PlaneCollider>(*this);
+    }
 };

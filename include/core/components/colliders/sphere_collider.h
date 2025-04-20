@@ -23,4 +23,8 @@ public:
                               ColliderRecord& record) override;
 
     float radius;
+
+    std::shared_ptr<Component> Clone() const override {
+        return std::make_shared<SphereCollider>(*this);
+    }
 };

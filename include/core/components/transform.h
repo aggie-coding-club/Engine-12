@@ -19,9 +19,6 @@ public:
     {
         type = TRANSFORM;
     }
-
-    Transform(const glm::vec3 pos):
-        Transform(pos, {0.0f, 0.0f, 0.0f}, {1.0f, 1.0f, 1.0f}) {}
     
     glm::mat4 GetModelMatrix(glm::vec3 bias)
     {
