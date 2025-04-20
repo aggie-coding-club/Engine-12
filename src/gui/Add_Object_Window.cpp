@@ -68,7 +68,7 @@ void AddObjectWindow::showAddObjectWindow(GameEngine *engine, bool &ShowAddObjec
                     glm::vec3(0.0f, 0.0f, 0.0f),
                     glm::vec3(0.0f, 0.0f, 0.0f));
 
-                const auto lightComp1 = std::make_shared<Light>(
+                const auto lightComp1 = std::make_shared<PointLight>(
                     glm::vec3(0.5f, 0.5f, 0.5f),
                         1.0f);
 

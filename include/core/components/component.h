@@ -1,5 +1,6 @@
 #pragma once
 #include <stddef.h>
+#include <memory>
 
 enum COMPONENT_TYPE {
     TRANSFORM,
@@ -8,7 +9,8 @@ enum COMPONENT_TYPE {
     LIGHT,
     RIGID_BODY,
     COLLIDER,
-    NUM_COMPONENTS
+    SCRIPT,
+    NUM_ENUM
 };
 
 class Component {
@@ -19,5 +21,7 @@ public:
     virtual ~Component() = default;
     Component(): type(NUM_COMPONENTS) {}
 
-    static constexpr size_t GetEnumSize() { return NUM_COMPONENTS; };
+    static constexpr size_t GetEnumSize() { return NUM_ENUM; };
+
+    virtual std::shared_ptr<Component> Clone() const = 0;
 };

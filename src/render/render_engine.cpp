@@ -146,27 +146,84 @@ glm::vec3 RenderEngine::GenerateNormal(const std::vector<glm::vec3>& faceVertice
     return normal;
 }
 
-void RenderEngine::ShadersInit() {
+void RenderEngine::ShadersInit()
+{
 	program.SetShadersFileName(shadersPath + verts[0],
             shadersPath + frags[0]);
-
 	program.Init();
 
+    shadow.SetShadersFileName(shadersPath + verts[1],shadersPath + frags[1]);
+    shadow.Init();
 }
 
+void RenderEngine::MapShadows(GLuint depthMapFBO, GLuint const shadowWidth,  GLuint const shadowHeight)
+{
+    glCullFace(GL_FRONT);
+    glUseProgram(shadow.GetPID());
+    glViewport(0, 0, shadowWidth, shadowHeight);
+    glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+    glClear(GL_DEPTH_BUFFER_BIT);
 
-void RenderEngine::Display()
+    shadow.Bind();
+
+    const auto& scene = gameEngine->GetCurrScene();
+
+    glm::mat4 lightSpaceMatrix = scene->getLightSpaceMatrix();
+    shadow.SendUniformData(lightSpaceMatrix, "lightSpaceMatrix");
+
+    for (const auto& model : scene->GetModels())
+    {
+        const auto& objTransform = std::dynamic_pointer_cast<Transform>( model->components[TRANSFORM]);
+        const auto& objMaterial = std::dynamic_pointer_cast<Material>( model->components[MATERIAL]);
+        const auto& objModel = std::dynamic_pointer_cast<Model>(model->components[MODEL]);
+
+        std::string& modelPath = objModel->modelPath;
+
+        // Check if the position buffer is already loaded
+        if (posBuffMap.find(modelPath) == posBuffMap.end()) {
+            // Load model buffers if they are not already loaded
+            LoadModel(modelPath);
+        }
+
+        glm::mat4 modelMatrix(1.0f);
+        modelMatrix = glm::translate(glm::mat4(1.0f), objTransform->position)
+            * glm::rotate(glm::mat4(1.0f), glm::radians(objTransform->rotation[0]), glm::vec3(1.0f, 0.0f, 0.0f))
+            * glm::rotate(glm::mat4(1.0f), glm::radians(objTransform->rotation[1]), glm::vec3(0.0f, 1.0f, 0.0f))
+            * glm::rotate(glm::mat4(1.0f), glm::radians(objTransform->rotation[2]), glm::vec3(0.0f, 0.0f, 1.0f))
+            * glm::scale(glm::mat4(1.0f), objTransform->scale);
+
+        glm::mat4 modelInverseTranspose = glm::transpose(glm::inverse(modelMatrix));
+
+        shadow.SendAttributeData(posBuffMap[modelPath], "aPos");
+
+        shadow.SendUniformData(modelMatrix, "model");
+
+        glDrawArrays(GL_TRIANGLES, 0, posBuffMap[modelPath].size() / 3);
+
+    }
+
+    shadow.Unbind();
+
+    glCullFace(GL_BACK);
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+
+void RenderEngine::Display(glm::vec4 viewportInfo, GLuint depthMap)
 {
     int width, height;
-    glfwGetFramebufferSize(window, &width, &height);
+    glfwGetWindowSize(window, &width, &height);
+    glUseProgram(program.GetPID());
+    glViewport(5, height-viewportInfo.w - viewportInfo.y, 5+viewportInfo.z, viewportInfo.w);
+
+    glEnable(GL_DEPTH_TEST);
 
     // Other initialization...
 
     if (gameEngine->HasChangedScene())
     {
-        // TODO reinitialize shadow maps
         gameEngine->ChangedSceneAcknowledged();
     }
+
     const auto& scene = gameEngine->GetCurrScene();
     camera = scene->GetCurrCamera();
     if (!camera) // Better check for null camera
@@ -176,17 +233,20 @@ void RenderEngine::Display()
         return;
     }
 
+    camera->SetAspect(viewportInfo.z, viewportInfo.w);
+
+
     glm::mat4 projectionMatrix = camera->GetProjectionMatrix();
     glm::mat4 viewMatrix = camera->GetViewMatrix();
 
+    glm::vec3 lightPosition = scene->getlightEye();
+    glm::mat4 lightSpaceMatrix = scene->getLightSpaceMatrix();
+
     for (const auto& model : scene->GetModels())
     {
-        const auto& objTransform = std::dynamic_pointer_cast<Transform>( 
-                model->components[TRANSFORM] );
-        const auto& objMaterial = std::dynamic_pointer_cast<Material>( 
-                model->components[MATERIAL] );
-        const auto& objModel = std::dynamic_pointer_cast<Model>(
-                model->components[MODEL] );
+        const auto& objTransform = std::dynamic_pointer_cast<Transform>( model->components[TRANSFORM]);
+        const auto& objMaterial = std::dynamic_pointer_cast<Material>( model->components[MATERIAL]);
+        const auto& objModel = std::dynamic_pointer_cast<Model>(model->components[MODEL]);
 
         if (objModel == nullptr)
         {
@@ -212,6 +272,12 @@ void RenderEngine::Display()
         program.SendUniformData(viewMatrix, "view");
         program.SendUniformData(projectionMatrix, "projection");
         program.SendUniformData(modelInverseTranspose, "modelInverseTranspose");
+        program.SendUniformData(lightSpaceMatrix, "lightSpaceMatrix");
+        program.SendUniformData(lightPosition, "lightPosition");
+
+        program.SendUniformData(0, "shadowMap");
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_2D, depthMap);
 
         // Handle materials
         if (objMaterial) {
@@ -226,7 +292,7 @@ void RenderEngine::Display()
         for (size_t i = 0; i < lights.size(); i++) {
             const auto& light = lights[i];
             const auto lightTransform = std::dynamic_pointer_cast<Transform>(light->components[TRANSFORM]);
-            const auto lightComponent = std::dynamic_pointer_cast<Light>(light->components[LIGHT]);
+            const auto lightComponent = std::dynamic_pointer_cast<PointLight>(light->components[LIGHT]);
 
             std::string name = fmt::format("lights[{}]", i);
             program.SendUniformData(lightTransform->position, (name + ".position").c_str());

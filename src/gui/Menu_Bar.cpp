@@ -1,10 +1,19 @@
 // Code for menu bar
 
-#include "gui/MenuBar.h"
+#include <imgui_internal.h>
 
-void MenuBar::ShowMenuBar(bool &ShowDetail, bool &ShowView, bool &ShowHierarchy, bool &ShowCameraDebug){
-    if (ImGui::BeginMainMenuBar())
-    {
+#include "gui/MenuBar.h"
+#include "serial/project.h"
+#include <yaml-cpp/yaml.h>
+#include <fstream>
+
+void MenuBar::ShowMenuBar(GameEngine *engine, bool &ShowDetail, bool &ShowView, bool &ShowHierarchy, bool &ShowLoadFile, bool &ShowSaveAs, bool &showPreferences) {
+    if (ImGui::BeginMainMenuBar()) {
+        // ImGui::Text(engine->getName().c_str());
+        // ImGui::SameLine();
+        // ImGui::Dummy(ImVec2(2.5f, 0.0f));
+        // ImGui::SameLine();
+
         // File menu
         if (ImGui::BeginMenu("File"))
         {
@@ -13,9 +22,19 @@ void MenuBar::ShowMenuBar(bool &ShowDetail, bool &ShowView, bool &ShowHierarchy,
             }
             if (ImGui::MenuItem("Open", "Ctrl+O")) {
                 // Action for Open
+                ShowLoadFile = true;
             }
             if (ImGui::MenuItem("Save", "Ctrl+S")) {
                 // Action for Save
+                YAML::Node project = SerializeProject(engine);
+                std::string filename = "../user/" + engine->getName() + ".yaml";
+                std::ofstream fout(filename);
+                fout << project;
+                fout.close();
+            }
+            if (ImGui::MenuItem("Save as", "Ctrl+Shift+S")) {
+                // Action for Save
+                ShowSaveAs = true;
             }
             if (ImGui::MenuItem("Exit", "Alt+F4")) {
                 // Action for Exit
@@ -54,7 +73,7 @@ void MenuBar::ShowMenuBar(bool &ShowDetail, bool &ShowView, bool &ShowHierarchy,
 
             ImGui::MenuItem("Show File Hierarchy", nullptr, &ShowHierarchy);
 
-            ImGui::MenuItem("Show Camera Debug", nullptr, &ShowCameraDebug);
+            ImGui::MenuItem("Show Preferences", nullptr, &showPreferences);
 
             ImGui::EndMenu();
         }
@@ -71,7 +90,6 @@ void MenuBar::ShowMenuBar(bool &ShowDetail, bool &ShowView, bool &ShowHierarchy,
             ImGui::MenuItem("FAQ", nullptr);
             ImGui::EndMenu();
         }
-
-        ImGui::EndMainMenuBar();
     }
+    ImGui::EndMainMenuBar();
 }

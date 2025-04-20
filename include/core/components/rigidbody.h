@@ -40,5 +40,8 @@ public:
     {
         scriptForce = glm::vec3(0.0f, 0.0f, 0.0f);
     }
+    std::shared_ptr<Component> Clone() const override {
+        return std::make_shared<RigidBody>(*this);
+    }
 private:
 };

@@ -14,24 +14,32 @@
 
 // Window classes
 #include "AddObjectWindow.h"
-#include "CameraDebugWindow.h"
 #include "Details.h"
 #include "Viewport.h"
 #include "FileHierarchy.h"
 #include "MenuBar.h"
+#include "secondary_menu_bar.h"
+#include "LoadFileWindow.h"
+#include "SaveAsWindow.h"
+#include "Terminal.h"
+#include "PreferencesWindow.h"
 
 class GuiEngine
 {
 private:
-     ImGuiIO* io;
-     ImVec4 clearColor = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
-     GLFWwindow* window;
-     GameEngine* gameEngine;
-     ImFont* inter_24;
-     bool showDetail = true;
-     bool showHierarchy = true;
-     bool showCameraWindow = false;
-     bool showAddObject = false;
+    ImGuiIO* io;
+    ImVec4 clearColor = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);
+    GLFWwindow* window;
+    GameEngine* gameEngine;
+    ImFont* inter_24;
+    ImFont* icons;
+    bool showDetail = true;
+    bool showHierarchy = true;
+    bool showCameraWindow = false;
+    bool showAddObject = false;
+    bool showLoadFile = false;
+    bool showSaveAs = false;
+    bool showPreferences = false;
 
     char objectLocation[128];
     char objectName[128];
@@ -41,14 +49,21 @@ private:
     FileHierarchy fileHierarchy;
     Details details;
     MenuBar menuBar;
-    CameraDebugWindow cameraDebugWindow;
     AddObjectWindow addObjectWindow;
-
+    SecondMenuBar secondMenuBar;
+    LoadFileWindow loadFileWindow;
+    SaveAsWindow saveAsWindow;
+    Terminal terminal;
+    PreferencesWindow preferencesWindow;
+  
 public:
-     bool showView = true;
-     GuiEngine() = default;
-     ~GuiEngine() = default;
-     bool init(GLFWwindow *window , GameEngine *_game_engine);
-     void run(int width, int height);
-     void cleanup();
+    bool showView = true;
+    GuiEngine() = default;
+    ~GuiEngine() = default;
+    bool init(GLFWwindow *window , GameEngine *_game_engine);
+    void run();
+    glm::vec4 SendViewportInfo() {
+        return {viewport.SendCursorPos(),viewport.SendSize()};
+    }
+    void cleanup();
 };

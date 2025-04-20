@@ -20,6 +20,10 @@ public:
         std::cout << modelPath << std::endl;
     }
 
+    std::shared_ptr<Component> Clone() const override {
+        return std::make_shared<Model>(*this);
+    }
+
     // Add function to process component
 
 };
