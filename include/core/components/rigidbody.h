@@ -2,7 +2,7 @@
 
 #include "component.h"
 #include <glm/glm.hpp>
-
+#include <iostream>
 
 class RigidBody: public Component 
 {
@@ -34,7 +34,12 @@ public:
 
     void AddForce (glm::vec3 force)
     {
+        std::cout << "Adding force" << force.x << " " << force.y << " " << force.z << std::endl;
         scriptForce += force;
+    }
+    void AddForceFloat (float x, float y, float z)
+    {
+        AddForce(glm::vec3(x, y, z));
     }
     void ResetForce()
     {
