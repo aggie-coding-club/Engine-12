@@ -57,6 +57,71 @@ void ShowLight(std::shared_ptr<PointLight> &object_light) {
     }
 }
 
+void ShowSphereCollider(std::shared_ptr<SphereCollider> &object_sphere) {
+    if (ImGui::TreeNode("Sphere Collider")) {
+        ImGui::Text("Radius");
+        ImGui::SameLine();
+        ImGui::DragFloat("##Radius", &object_sphere->radius, 0.001f, 0.0f, 0.0f, "%.3f");
+
+        ImGui::Text("Collider Position");
+        ImGui::SameLine();
+        ImGui::DragFloat3("##Collider_Position", &object_sphere->point[0], 0.001f, 0.0f, 0.0f, "%.3f");
+
+        ImGui::TreePop();
+    }
+}
+
+void ShowPlaneCollider(std::shared_ptr<PlaneCollider> &object_plane) {
+    if (ImGui::TreeNode("Plane Collider")) {
+        ImGui::Text("Normal");
+        ImGui::SameLine();
+        ImGui::DragFloat3("##Collider_Normal", &object_plane->normal[0], 0.01f, 0.0f, 0.0f, "%.3f");
+
+        ImGui::Text("Collider Position");
+        ImGui::SameLine();
+        ImGui::DragFloat3("##Collider_Position", &object_plane->point[0], 0.001f, 0.0f, 0.0f, "%.3f");
+
+        ImGui::TreePop();
+    }
+}
+
+void ShowRigidBody(std::shared_ptr<RigidBody>& rigid_body) {
+    if (ImGui::TreeNode("Rigid Body")) {
+        ImGui::Text("Center of Mass");
+        ImGui::SameLine();
+        ImGui::DragFloat3("##CenterOfMass", &rigid_body->centerOfMass[0], 0.01f);
+
+        ImGui::Text("Velocity");
+        ImGui::SameLine();
+        ImGui::DragFloat3("##Velocity", &rigid_body->velocity[0], 0.01f);
+
+        ImGui::Text("Angular Velocity");
+        ImGui::SameLine();
+        ImGui::DragFloat3("##AngularVelocity", &rigid_body->angularVelocity[0], 0.01f);
+
+        ImGui::DragFloat("Max Velocity", &rigid_body->maxVelocity, 0.1f);
+        ImGui::DragFloat3("Max Angular Velocity", &rigid_body->maxAngularVelocity[0], 0.1f);
+
+        ImGui::Text("Gravity");
+        ImGui::SameLine();
+        ImGui::DragFloat3("##Gravity", &rigid_body->gravity[0], 0.01f);
+
+        ImGui::DragFloat("Mass", &rigid_body->mass, 0.01f);
+
+        ImGui::DragFloat("Coefficient of Restitution", &rigid_body->coeff_e, 0.01f, 0.0f, 1.0f);
+        ImGui::DragFloat("Friction Coefficient", &rigid_body->coeff_f, 0.01f, 0.0f, 1.0f);
+
+        ImGui::Checkbox("Auto Center of Mass", &rigid_body->autoCenterOfMass);
+        ImGui::Checkbox("Detect Collisions", &rigid_body->detectCollisions);
+        ImGui::Checkbox("Use Gravity", &rigid_body->useGravity);
+        ImGui::Checkbox("Is Kinematic", &rigid_body->isKinematics);
+        ImGui::Checkbox("Is Jank", &rigid_body->isJank);
+
+        ImGui::TreePop();
+    }
+}
+
+
 void DeleteObject(const std::shared_ptr<Scene>& scene) {
     if (scene->selectedGameObj) {
         auto& Objects = scene->mOrL ? scene->GetModels() : scene->GetLights();
@@ -314,7 +379,17 @@ void Details::ShowDetails(const std::shared_ptr<Scene>& scene)
                     ShowLight(objLight);
                 }
 
+                if(auto objectSphere = std::dynamic_pointer_cast<SphereCollider>(objComponent)) {
+                    ShowSphereCollider(objectSphere);
+                }
 
+                if(auto objectPlane = std::dynamic_pointer_cast<PlaneCollider>(objComponent)) {
+                    ShowPlaneCollider(objectPlane);
+                }
+
+                if(auto objectRigid = std::dynamic_pointer_cast<RigidBody>( objComponent )) {
+                    ShowRigidBody(objectRigid);
+                }
             }
             if(ImGui::TreeNode("Component Control")) {
                 ShowComponentControl(scene);

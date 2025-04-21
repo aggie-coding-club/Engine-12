@@ -75,7 +75,7 @@ PhysicsEngine::Update()
         sumOfForces += collForce;
         //std::cout<<"x= "<<sumOfForces.x<<" y= "<<sumOfForces.y<<" z= "<<sumOfForces.z<<std::endl;
 
-        if (sumOfForces.y != 0) UpdateVelocityWithAcceleration(thisRigidBody, thisTransform, acceleration);
+        if (glm::length(sumOfForces) != 0) UpdateVelocityWithAcceleration(thisRigidBody, thisTransform, acceleration);
         UpdatePositionWithVelocity(thisRigidBody, thisTransform);
         CopyPositionToCollider(thisTransform, thisCollider);
     }
