@@ -108,12 +108,12 @@ public:
                     components[COLLIDER] = collider;
                 }
                 break;
-            // case SPHERE_COLLIDER:
-            //     if(!components[COLLIDER]) {
-            //         const auto collider = std::make_shared<SphereCollider>();
-            //         components[COLLIDER] = collider;
-            //     }
-            //     break;
+            case SPHERE_COLLIDER:
+                if(!components[COLLIDER]) {
+                    const auto collider = std::make_shared<SphereCollider>(get_transform()->position, 3);
+                    components[COLLIDER] = collider;
+                }
+                break;
         }
     }
 
