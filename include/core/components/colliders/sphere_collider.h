@@ -1,6 +1,5 @@
 #pragma once
 
-#include "core/game_object.h"
 #include "core/components/collider.h"
 #include <glm/glm.hpp>
 
