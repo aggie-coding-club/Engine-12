@@ -136,7 +136,13 @@ void ShowComponentControl(const std::shared_ptr<Scene> scene) {
     }
     ImGui::EndDisabled();
 
-    const char* items[] = { "Select Component", "Transform", "Material", "Light", "Rigid Body" };
+    // const char* items[] = { "Select Component", "Transform", "Material", "Light", "Rigid Body", "Collider" };
+    std::vector<std::string> componentNames = { "Select Component", "Transform", "Material", "Light" };
+    if(gameObject->GetComponent(COLLIDER)) {
+        componentNames.push_back("Rigid Body");
+    }
+    componentNames.push_back("Collider");
+
     static int currentComponent = 0;
     static int currentObject = 0;
     static COMPONENT_TYPE type = NUM_ENUM;
@@ -148,7 +154,12 @@ void ShowComponentControl(const std::shared_ptr<Scene> scene) {
     // Creates a list of objects that have the component
     ImGui::Text("Component");
     ImGui::SameLine();
-    if(ImGui::Combo("##Component", &currentComponent, items, IM_ARRAYSIZE(items))) {
+    if (ImGui::Combo("##Component", &currentComponent, [](void* data, int idx, const char** out_text) {
+        auto& vec = *static_cast<std::vector<std::string>*>(data);
+        if (idx < 0 || idx >= static_cast<int>(vec.size())) return false;
+        *out_text = vec[idx].c_str();
+        return true;
+    }, static_cast<void*>(&componentNames), componentNames.size())) {
         // reset things when dropdown changes
         gameObjectNames.clear();
         gameObjectNames.push_back("Select Object");
@@ -165,12 +176,12 @@ void ShowComponentControl(const std::shared_ptr<Scene> scene) {
         }
         if(type != NUM_ENUM) {
             for(const auto& model : scene->GetModels()) {
-                if(model->GetComponent(type)) {
+                if(model->GetComponent(type) && model != gameObject) {
                     gameObjectNames.push_back(model->name);
                 }
             }
             for(const auto& light : scene->GetLights()) {
-                if(light->GetComponent(type)) {
+                if(light->GetComponent(type) && light != gameObject) {
                     gameObjectNames.push_back(light->name);
                 }
             }
@@ -201,7 +212,7 @@ void ShowComponentControl(const std::shared_ptr<Scene> scene) {
                 }
             }
         }
-            if(copyObject && type != NUM_ENUM) {
+    if(copyObject && type != NUM_ENUM) {
         if(ImGui::Button("Confirm")) {
             gameObject->components[type] = copyObject->GetComponent(type)->Clone();
         }
