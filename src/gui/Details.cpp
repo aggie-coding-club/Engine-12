@@ -107,17 +107,7 @@ void ShowComponentControl(const std::shared_ptr<Scene> scene) {
         }
     }
 
-    if(gameObject->GetComponent(RIGID_BODY)) {
-        if(ImGui::Button("Remove Rigid Body")) {
-            gameObject->RemoveComponent(RIGID_BODY);
-        }
-    }
-    else {
-        if(ImGui::Button("Add Rigid Body")) {
-            gameObject->AddComponent(RIGID_BODY);
-        }
-    }
-
+    ImGui::BeginDisabled(gameObject->GetComponent(RIGID_BODY));
     if(gameObject->GetComponent(COLLIDER)) {
         if(ImGui::Button("Remove Collider")) {
             gameObject->RemoveComponent(COLLIDER);
@@ -131,6 +121,20 @@ void ShowComponentControl(const std::shared_ptr<Scene> scene) {
             gameObject->AddComponent(SPHERE_COLLIDER);
         }
     }
+    ImGui::EndDisabled();
+
+    ImGui::BeginDisabled(!gameObject->GetComponent(COLLIDER));
+    if(gameObject->GetComponent(RIGID_BODY)) {
+        if(ImGui::Button("Remove Rigid Body")) {
+            gameObject->RemoveComponent(RIGID_BODY);
+        }
+    }
+    else {
+        if(ImGui::Button("Add Rigid Body")) {
+            gameObject->AddComponent(RIGID_BODY);
+        }
+    }
+    ImGui::EndDisabled();
 
     const char* items[] = { "Select Component", "Transform", "Material", "Light", "Rigid Body" };
     static int currentComponent = 0;
