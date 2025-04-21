@@ -73,11 +73,13 @@ PhysicsEngine::Update()
         }
 
         sumOfForces += collForce;
+        sumOfForces += thisRigidBody->scriptForce;
         //std::cout<<"x= "<<sumOfForces.x<<" y= "<<sumOfForces.y<<" z= "<<sumOfForces.z<<std::endl;
 
         if (glm::length(sumOfForces) != 0) UpdateVelocityWithAcceleration(thisRigidBody, thisTransform, acceleration);
         UpdatePositionWithVelocity(thisRigidBody, thisTransform);
         CopyPositionToCollider(thisTransform, thisCollider);
+        thisRigidBody->ResetForce();
     }
 
     // Reset collision information for next iteration
