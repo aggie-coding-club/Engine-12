@@ -11,7 +11,7 @@
 class Script
 {
 public:
-    const std::string& typeName;
+    const std::string typeName;
     asIScriptObject* object;
     bool hasRun = false;
 

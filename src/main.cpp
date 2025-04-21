@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
 	scriptingEngine->init(gameEngine.simulationManager.get());
 	physicsEngine = std::make_unique<PhysicsEngine>(&gameEngine, &timeDelta);
 
-	// gameEngine.GetCurrScene()->GetModels()[0]->addScript("Object", scriptingEngine.get());
+	gameEngine.GetCurrScene()->GetModels()[0]->addScript("Object", scriptingEngine.get());
 
 	std::cout << gameEngine.GetCurrScene()->GetModels()[0]->name;
 
