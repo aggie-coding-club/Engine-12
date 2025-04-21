@@ -15,6 +15,8 @@
 #include "components/material.h"
 #include "components/model.h"
 #include "components/rigidbody.h"
+#include "components/colliders/sphere_collider.h"
+#include "components/colliders/plane_collider.h"
 #include "components/light.h"
 
 class GameObject {
@@ -100,6 +102,18 @@ public:
                     components[RIGID_BODY] = std::make_shared<RigidBody>();
                 }
                 break;
+            case PLANE_COLLIDER:
+                if(!components[COLLIDER]) {
+                    const auto collider = std::make_shared<PlaneCollider>(get_transform()->position, glm::vec3(0.0f, 1.0f, 0.0f));
+                    components[COLLIDER] = collider;
+                }
+                break;
+            // case SPHERE_COLLIDER:
+            //     if(!components[COLLIDER]) {
+            //         const auto collider = std::make_shared<SphereCollider>();
+            //         components[COLLIDER] = collider;
+            //     }
+            //     break;
         }
     }
 

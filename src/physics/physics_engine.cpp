@@ -1,9 +1,6 @@
 #include "physics/physics_engine.h"
 
 #include "gui/AddObjectWindow.h"
-#include "gui/AddObjectWindow.h"
-#include "gui/AddObjectWindow.h"
-#include "gui/AddObjectWindow.h"
 
 void 
 PhysicsEngine::Update() 

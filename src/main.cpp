@@ -105,8 +105,6 @@ int main(int argc, char *argv[])
 
 	gameEngine.GetCurrScene()->GetModels()[0]->addScript("Object", scriptingEngine.get());
 
-	std::cout << gameEngine.GetCurrScene()->GetModels()[0]->name;
-
 	// Generate Frame buffer for ShadowMapping
 	GLuint depthMapFBO;
 	glGenFramebuffers(1, &depthMapFBO);

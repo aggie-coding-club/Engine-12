@@ -118,6 +118,20 @@ void ShowComponentControl(const std::shared_ptr<Scene> scene) {
         }
     }
 
+    if(gameObject->GetComponent(COLLIDER)) {
+        if(ImGui::Button("Remove Collider")) {
+            gameObject->RemoveComponent(COLLIDER);
+        }
+    }
+    else {
+        if(ImGui::Button("Add Plane Collider")) {
+            gameObject->AddComponent(PLANE_COLLIDER);
+        }
+        if(ImGui::Button("Add Sphere Collider")) {
+            gameObject->AddComponent(SPHERE_COLLIDER);
+        }
+    }
+
     const char* items[] = { "Select Component", "Transform", "Material", "Light", "Rigid Body" };
     static int currentComponent = 0;
     static int currentObject = 0;
@@ -143,6 +157,7 @@ void ShowComponentControl(const std::shared_ptr<Scene> scene) {
             case 2: type = MATERIAL; break;
             case 3: type = LIGHT; break;
             case 4: type = RIGID_BODY; break;
+            case 5: type = COLLIDER; break;
         }
         if(type != NUM_ENUM) {
             for(const auto& model : scene->GetModels()) {
