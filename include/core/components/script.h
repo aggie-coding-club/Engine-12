@@ -31,7 +31,8 @@ public:
 
     void start()
     {
-        asIScriptModule* module = engine->GetModule("ScriptModule"); assert(module != nullptr);
+        asIScriptModule* module = engine->GetModule("ScriptModule");
+        assert(module != nullptr);
         object = static_cast<asIScriptObject *>(engine->CreateScriptObject(module->GetTypeInfoByName(typeName.c_str())));
         assert(object != nullptr);
 

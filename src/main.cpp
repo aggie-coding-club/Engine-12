@@ -8,7 +8,7 @@
 #include <fstream>
 #include <chrono>
 
-#include "gui/gui_engine.h"
+#include "gui/GuiEngine.h"
 #define TINYOBJLOADER_IMPLEMENTATION
 #define GL_SILENCE_DEPRECATION
 #if defined(IMGUI_IMPL_OPENGL_ES2)
@@ -103,7 +103,9 @@ int main(int argc, char *argv[])
 	scriptingEngine->init(gameEngine.simulationManager.get());
 	physicsEngine = std::make_unique<PhysicsEngine>(&gameEngine, &timeDelta);
 
-	gameEngine.GetCurrScene()->GetModels()[0]->addScript("Object", scriptingEngine.get());
+	// gameEngine.GetCurrScene()->GetModels()[0]->addScript("Object", scriptingEngine.get());
+
+	std::cout << gameEngine.GetCurrScene()->GetModels()[0]->name;
 
 	// Generate Frame buffer for ShadowMapping
 	GLuint depthMapFBO;

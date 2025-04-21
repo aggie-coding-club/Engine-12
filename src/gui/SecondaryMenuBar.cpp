@@ -3,7 +3,7 @@
 #include <imgui_internal.h>
 #include "Fonts/Icons/icons_font_awesome_6.h"
 
-#include "gui/secondary_menu_bar.h"
+#include "gui/SecondaryMenuBar.h"
 
 #include <iostream>
 #include <memory>

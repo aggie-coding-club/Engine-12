@@ -34,14 +34,14 @@ void PreferencesWindow::ShowPreferencesWindow(float &mousePreferences, float &mo
         float mouseSense = mousePreferences * 100;
         ImGui::Text("Mouse Sensitivity");
         ImGui::SameLine();
-        if(ImGui::DragFloat("##MouseSense", &mouseSense, 0.01f, 0.0f, 100.0f, "%.2f")) {
+        if(ImGui::DragFloat("##MouseSense", &mouseSense, 0.01f, 0.00001f, 0.0f, "%.2f")) {
             mousePreferences = mouseSense / 100;
         }
 
         float movementSense = movementPreferences * 100;
         ImGui::Text("Movement Sensitivity");
         ImGui::SameLine();
-        if(ImGui::DragFloat("##MovementSense", &movementSense, 0.01f, 0.0f, 100.0f, "%.2f")) {
+        if(ImGui::DragFloat("##MovementSense", &movementSense, 0.01f, 0.00001f, 0.0f, "%.2f")) {
             movementPreferences = movementSense / 100;
         }
 

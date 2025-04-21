@@ -18,7 +18,7 @@
 #include "Viewport.h"
 #include "FileHierarchy.h"
 #include "MenuBar.h"
-#include "secondary_menu_bar.h"
+#include "SecondaryMenuBar.h"
 #include "LoadFileWindow.h"
 #include "SaveAsWindow.h"
 #include "Terminal.h"

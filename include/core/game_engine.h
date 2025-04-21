@@ -125,16 +125,16 @@ public:
     {
         std::shared_ptr<Camera> camera = GetCurrScene()->GetCurrCamera();
         if(GetCurrScene()->GetCameras().at(0) == camera) {
-            if(key == 'w') {
+            if(key == GLFW_KEY_W) {
                 camera->SetPosition(camera->GetPosition() + camera->GetForward() * movementSense);
             }
-            if(key == 's') {
+            if(key == GLFW_KEY_S) {
                 camera->SetPosition(camera->GetPosition() - camera->GetForward() * movementSense);
             }
-            if(key == 'd') {
+            if(key == GLFW_KEY_D) {
                 camera->SetPosition(camera->GetPosition() + camera->GetRight() * movementSense);
             }
-            if(key == 'a') {
+            if(key == GLFW_KEY_A) {
                 camera->SetPosition(camera->GetPosition() - camera->GetRight() * movementSense);
             }
         }

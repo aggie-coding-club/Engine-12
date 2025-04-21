@@ -285,7 +285,8 @@ void ScriptingEngine::stopScripts() {
 }
 
 void ScriptingEngine::runFunction(const std::string& typeName, asIScriptObject* object, const std::string& declaration) {
-    asITypeInfo* type = module->GetTypeInfoByName(typeName.c_str()); assert(type != nullptr);
+    asITypeInfo* type = module->GetTypeInfoByName(typeName.c_str());
+    assert(type != nullptr);
 
     asIScriptFunction *func = type->GetMethodByDecl(declaration.c_str());
     if(func == nullptr)

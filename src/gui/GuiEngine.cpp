@@ -1,4 +1,4 @@
-#include "gui/gui_engine.h"
+#include "gui/GuiEngine.h"
 #include "core/game_engine.h"
 #include "fmt/os.h"
 #include "Fonts/Icons/icons_font_awesome_6.h"
