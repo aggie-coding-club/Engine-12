@@ -119,6 +119,7 @@ void ScriptingEngine::registerClasses() {
     r = engine->RegisterGlobalFunction("GameObject@ find(const string &in)", asFUNCTION(find), asCALL_CDECL); assert( r >= 0 );
     r = engine->RegisterGlobalFunction("void destroy(GameObject& gameObject)", asFUNCTION(destroy), asCALL_CDECL); assert( r >= 0 );
     r = engine->RegisterGlobalFunction("bool GetKey(const uint key)", asFUNCTION(GetKey), asCALL_CDECL); assert( r >= 0 );
+    r = engine->RegisterGlobalFunction("float DeltaTime()", asFUNCTION(DeltaTime), asCALL_CDECL); assert( r >= 0 );
 
     // Register the script interface
     r = engine->RegisterInterface("Behavior"); assert( r >= 0 );
