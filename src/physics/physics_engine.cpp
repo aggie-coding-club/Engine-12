@@ -79,7 +79,7 @@ PhysicsEngine::Update()
         sumOfForces += thisRigidBody->scriptForce; //potentially add a boolean to turn off adding script force
         //std::cout<<"x= "<<sumOfForces.x<<" y= "<<sumOfForces.y<<" z= "<<sumOfForces.z<<std::endl;
 
-        if (sumOfForces.y != 0)
+        if (glm::length(sumOfForces) != 0)
         {
             UpdateVelocityWithAcceleration(thisRigidBody, thisTransform, acceleration);
         }
@@ -133,10 +133,15 @@ PhysicsEngine::ProcessCollision(std::shared_ptr<RigidBody> kinematicRigidBody,
 
     auto& velocity = kinematicRigidBody->velocity;
     const auto& coeff_e = kinematicRigidBody->coeff_e;
+    const auto& coeff_f = kinematicRigidBody->coeff_f;
     float dott = glm::dot(velocity, normal);
 
     velocity = coeff_e * glm::reflect(velocity, normal);
-    return -kinematicRigidBody->mass * accel; //force of collision on obj
+    //friction
+    glm::vec3 friction = coeff_f * glm::normalize(velocity) * glm::length(kinematicRigidBody->mass * normal * glm::length(accel)); //coefficient of friction * magnitude of normal * normal of velocity to get dir
+
+
+    return friction -kinematicRigidBody->mass * normal * glm::length(accel); //force of collision on obj
 
 }
 
