@@ -103,7 +103,7 @@ int main(int argc, char *argv[])
 	scriptingEngine->init(gameEngine.simulationManager.get());
 	physicsEngine = std::make_unique<PhysicsEngine>(&gameEngine, &timeDelta);
 
-	gameEngine.GetCurrScene()->GetModels()[0]->addScript("Object", scriptingEngine.get());
+	gameEngine.GetCurrScene()->GetModels()[0]->addScript("Object2", scriptingEngine.get());
 
 	std::cout << gameEngine.GetCurrScene()->GetModels()[0]->name;
 
@@ -177,6 +177,7 @@ int main(int argc, char *argv[])
 
         end = std::chrono::steady_clock::now();
         timeDelta = end - start;
+		Holder::deltaTime = timeDelta.count();
         // std::cout << timeDelta.count() << std::endl;
 		glfwSwapBuffers(window);
 

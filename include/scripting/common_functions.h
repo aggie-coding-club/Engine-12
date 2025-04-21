@@ -6,6 +6,11 @@
 #include "core/game_object.h"
 #include "core/components/transform.h"
 
+class Holder {
+public:
+    static float deltaTime;
+};
+
 static std::shared_ptr<GameObject> gameObject;
 
 static void message_callback(const asSMessageInfo *msg, void *param)
@@ -65,6 +70,11 @@ static bool GetKey(const unsigned int key)
     catch (const std::out_of_range& e) {
         return false;
     }
+}
+
+static float DeltaTime()
+{
+    return Holder::deltaTime;
 }
 
 static GameObject* instantiate()
