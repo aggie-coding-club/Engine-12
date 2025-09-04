@@ -9,8 +9,8 @@ uniform mat4 projection;
 
 struct lightStruct
 {
-	vec3 position;
-	vec3 color;
+    vec3 position;
+    vec3 color;
 };
 
 #define NUM_LIGHTS 2
@@ -26,6 +26,6 @@ varying vec3 color;
 
 void main()
 {
-	gl_Position = projection * view * model * vec4(vPositionModel, 1.0);
-	color = vec3(1.0f, 0.0f, 0.0f);
+    gl_Position = projection * view * model * vec4(vPositionModel, 1.0);
+    color = vec3(1.0f, 0.0f, 0.0f);
 }

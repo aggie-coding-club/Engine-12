@@ -4,12 +4,25 @@
 YAML::Node SerializeLights(const std::vector<std::shared_ptr<GameObject>>& lights) {
     auto LightsNode = YAML::Node();
 
-    for(const std::shared_ptr<GameObject>& light : lights) {
-        auto CurrLightNode = YAML::Node();
-        CurrLightNode = SerializeComponent(light->components);
-        
-        LightsNode[light->name] = CurrLightNode;
+    for(const auto& light : lights) {
+        YAML::Node CurrLightNode;
+        CurrLightNode[light->name] = SerializeComponents(light->components);
+        LightsNode.push_back(CurrLightNode);
     }
 
     return LightsNode;
+}
+
+void DeserializeLights(std::vector<std::shared_ptr<GameObject>>& lights, const YAML::Node& lightsNode) {
+    for(const auto& currLightNode : lightsNode) {
+        const auto light = std::make_shared<GameObject>();
+
+        for(const auto& lightPair : currLightNode) {
+            light->name = lightPair.first.as<std::string>();
+            const YAML::Node componentsNode = lightPair.second;
+            DeserializeComponents(light->components, componentsNode);
+        }
+        
+        lights.push_back(light);
+    }
 }

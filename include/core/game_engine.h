@@ -1,14 +1,12 @@
 #pragma once
 
-#include <vector>
-#include <memory>
-#include <unordered_map>
-
 #include "game_object.h"
 #include "components/material.h"
 #include "components/transform.h"
 #include "components/light.h"
 #include "scene.h"
+#include "simulation_manager.h"
+#include "GLFW/glfw3.h"
 
 #define _USE_SCENE_
 
@@ -16,8 +14,9 @@ class GameEngine
 {
 private:
     std::string name;
-    std::vector<std::shared_ptr<Scene>> scenes;
-    int currSceneIdx = 0;
+    static std::vector<std::shared_ptr<Scene>> scenes;
+    static std::unordered_map<unsigned int, bool> keyPresses;
+    static int currSceneIdx;
 
     bool changedScene = true;
 
@@ -31,9 +30,9 @@ private:
         scene->GetCameras().emplace_back(camera);
         constexpr size_t n = 3;
         constexpr glm::vec3 pos[n] = {
-            {0.0f, -1.0f, 0.0f},
-            {-2.0f, -1.0f, -3.0f},
-            {2.0f, -1.0f, -3.0f}
+            {0.0f, 1.0f, 0.0f},
+            {-2.0f, 1.0f, -3.0f},
+            {2.0f, 1.0f, -3.0f}
         };
         for (int i = 0; i < n; i++)
         {
@@ -41,7 +40,9 @@ private:
             const auto& obj = scene->GetModels().at(i);
 
             std::dynamic_pointer_cast<Transform>(obj->components[TRANSFORM])->position = pos[i];
+            std::dynamic_pointer_cast<SphereCollider>(obj->components[COLLIDER])->point = pos[i];
         }
+        scene->AddPlaneCollider();
 
 	    // // Lights
 	    // lights[0].position = {0.0f, 0.0f, 3.0f};
@@ -55,7 +56,7 @@ private:
             glm::vec3(0.0f, 0.0f, 0.0f),
             glm::vec3(0.0f, 0.0f, 0.0f));
 
-        const auto lightComp1 = std::make_shared<Light>(
+        const auto lightComp1 = std::make_shared<PointLight>(
             glm::vec3(0.5f, 0.5f, 0.5f),
                 1.0f);
 
@@ -70,7 +71,7 @@ private:
             glm::vec3(0.0f, 0.0f, 0.0f),
             glm::vec3(0.0f, 0.0f, 0.0f));
 
-        const auto lightComp2 = std::make_shared<Light>(
+        const auto lightComp2 = std::make_shared<PointLight>(
             glm::vec3(0.2f, 0.2f, 0.2f),
                 1.0f);
 
@@ -86,17 +87,89 @@ private:
     }
 
 public:
-    std::vector<std::shared_ptr<Scene>>& GetScenes() { return scenes; }
-    std::shared_ptr<Scene>& GetCurrScene() { return scenes[currSceneIdx]; }
+    static std::vector<std::shared_ptr<Scene>>& GetScenes() { return scenes; }
+    static std::shared_ptr<Scene>& GetCurrScene() { return scenes[currSceneIdx]; }
+    static std::unordered_map<unsigned int, bool>& GetKeyPresses() { return keyPresses; }
+    std::unique_ptr<SimulationManager> simulationManager;
+
+    float cameraSense = 0.8f;
+    float movementSense = 1.f;
+
+    bool mouseDragging = false;
+    glm::vec2 lastMousePos = glm::vec2(0.0f);
+  
     GameEngine()
     {
-        TestInit2();
+        simulationManager = std::make_unique<SimulationManager>();
+        //TestInit2();
     }
 
     bool HasChangedScene() const { return changedScene; }
     void ChangedSceneAcknowledged() { changedScene = false; }
     void ChangeScene(const int idx) { currSceneIdx = idx; changedScene = true; }
     void CycleScene() { currSceneIdx = (currSceneIdx+1) % scenes.size(); changedScene = true; }
+
+    std::string& getName() {
+        return name;
+    }
+
+    void SetScenes(std::vector<std::shared_ptr<Scene>> _scenes) {
+        scenes = _scenes;
+    }
+
+    void setName(const std::string _name) {
+        name = _name;
+    }
+
+    void CharacterCallback(GLFWwindow* window, unsigned int key, int scancode, int action, int mods)
+    {
+        std::shared_ptr<Camera> camera = GetCurrScene()->GetCurrCamera();
+        if(GetCurrScene()->GetCameras().at(0) == camera) {
+            if(key == GLFW_KEY_W) {
+                camera->SetPosition(camera->GetPosition() + camera->GetForward() * movementSense);
+            }
+            if(key == GLFW_KEY_S) {
+                camera->SetPosition(camera->GetPosition() - camera->GetForward() * movementSense);
+            }
+            if(key == GLFW_KEY_D) {
+                camera->SetPosition(camera->GetPosition() + camera->GetRight() * movementSense);
+            }
+            if(key == GLFW_KEY_A) {
+                camera->SetPosition(camera->GetPosition() - camera->GetRight() * movementSense);
+            }
+        }
+
+        if(keyPresses.find(key) == keyPresses.end()) {
+            keyPresses.insert(std::pair<int, bool>(key, false));
+        }
+
+        if(action == GLFW_PRESS) {
+            keyPresses.insert_or_assign(key, true);
+        }
+        else if(action == GLFW_RELEASE) {
+            keyPresses.insert_or_assign(key, false);
+        }
+    }
+
+    void MouseCallback(GLFWwindow* window, int button, int action, int mods) {
+        std::shared_ptr<Camera> camera = GetCurrScene()->GetCurrCamera();
+        if(GetCurrScene()->GetCameras().at(0) == camera) {
+            if(button == GLFW_MOUSE_BUTTON_RIGHT) {
+                if(action == GLFW_PRESS) {
+                    mouseDragging = true;
+                    double xPos, yPos;
+                    glfwGetCursorPos(window, &xPos, &yPos);
+                    lastMousePos = glm::vec2(xPos, yPos);
+
+                    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+                }
+                else if(action == GLFW_RELEASE) {
+                    mouseDragging = false;
+                    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+                }
+            }
+        }
+    }
 };
 
 #ifndef _USE_SCENE_

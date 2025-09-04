@@ -2,6 +2,11 @@
 
 #include "gui/Details.h"
 
+#include <imgui_internal.h>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 void ShowTransform(std::shared_ptr<Transform> &object_transform){
     if (ImGui::TreeNode("Transform")){
         ImGui::Text("Position");
@@ -43,7 +48,7 @@ void ShowMaterial(std::shared_ptr<Material> &object_material) {
     }
 }
 
-void ShowLight(std::shared_ptr<Light> &object_light) {
+void ShowLight(std::shared_ptr<PointLight> &object_light) {
     if (ImGui::TreeNode("Light")) {
         ImGui::Text("Color");
         ImGui::SameLine();
@@ -51,6 +56,71 @@ void ShowLight(std::shared_ptr<Light> &object_light) {
         ImGui::TreePop();
     }
 }
+
+void ShowSphereCollider(std::shared_ptr<SphereCollider> &object_sphere) {
+    if (ImGui::TreeNode("Sphere Collider")) {
+        ImGui::Text("Radius");
+        ImGui::SameLine();
+        ImGui::DragFloat("##Radius", &object_sphere->radius, 0.001f, 0.0f, 0.0f, "%.3f");
+
+        ImGui::Text("Collider Position");
+        ImGui::SameLine();
+        ImGui::DragFloat3("##Collider_Position", &object_sphere->point[0], 0.001f, 0.0f, 0.0f, "%.3f");
+
+        ImGui::TreePop();
+    }
+}
+
+void ShowPlaneCollider(std::shared_ptr<PlaneCollider> &object_plane) {
+    if (ImGui::TreeNode("Plane Collider")) {
+        ImGui::Text("Normal");
+        ImGui::SameLine();
+        ImGui::DragFloat3("##Collider_Normal", &object_plane->normal[0], 0.01f, 0.0f, 0.0f, "%.3f");
+
+        ImGui::Text("Collider Position");
+        ImGui::SameLine();
+        ImGui::DragFloat3("##Collider_Position", &object_plane->point[0], 0.001f, 0.0f, 0.0f, "%.3f");
+
+        ImGui::TreePop();
+    }
+}
+
+void ShowRigidBody(std::shared_ptr<RigidBody>& rigid_body) {
+    if (ImGui::TreeNode("Rigid Body")) {
+        ImGui::Text("Center of Mass");
+        ImGui::SameLine();
+        ImGui::DragFloat3("##CenterOfMass", &rigid_body->centerOfMass[0], 0.01f);
+
+        ImGui::Text("Velocity");
+        ImGui::SameLine();
+        ImGui::DragFloat3("##Velocity", &rigid_body->velocity[0], 0.01f);
+
+        ImGui::Text("Angular Velocity");
+        ImGui::SameLine();
+        ImGui::DragFloat3("##AngularVelocity", &rigid_body->angularVelocity[0], 0.01f);
+
+        ImGui::DragFloat("Max Velocity", &rigid_body->maxVelocity, 0.1f);
+        ImGui::DragFloat3("Max Angular Velocity", &rigid_body->maxAngularVelocity[0], 0.1f);
+
+        ImGui::Text("Gravity");
+        ImGui::SameLine();
+        ImGui::DragFloat3("##Gravity", &rigid_body->gravity[0], 0.01f);
+
+        ImGui::DragFloat("Mass", &rigid_body->mass, 0.01f);
+
+        ImGui::DragFloat("Coefficient of Restitution", &rigid_body->coeff_e, 0.01f, 0.0f, 1.0f);
+        ImGui::DragFloat("Friction Coefficient", &rigid_body->coeff_f, 0.01f, 0.0f, 1.0f);
+
+        ImGui::Checkbox("Auto Center of Mass", &rigid_body->autoCenterOfMass);
+        ImGui::Checkbox("Detect Collisions", &rigid_body->detectCollisions);
+        ImGui::Checkbox("Use Gravity", &rigid_body->useGravity);
+        ImGui::Checkbox("Is Kinematic", &rigid_body->isKinematics);
+        ImGui::Checkbox("Is Jank", &rigid_body->isJank);
+
+        ImGui::TreePop();
+    }
+}
+
 
 void DeleteObject(const std::shared_ptr<Scene>& scene) {
     if (scene->selectedGameObj) {
@@ -75,15 +145,158 @@ void DeleteObject(const std::shared_ptr<Scene>& scene) {
     }
 }
 
+void ShowComponentControl(const std::shared_ptr<Scene> scene) {
+    std::shared_ptr<GameObject> gameObject = scene->selectedGameObj;
+    // ImGui::Text("Number of Components: %d", gameObject->GetComponentCount());
+
+    // Make it so that Light component cannot be taken off of lights
+    if(gameObject->GetComponent(LIGHT)) {
+        if(ImGui::Button("Remove Light")) {
+            gameObject->RemoveComponent(LIGHT);
+        }
+    }
+    else {
+        if(ImGui::Button("Add Light")) {
+            gameObject->AddComponent(LIGHT);
+        }
+    }
+    
+    if(gameObject->GetComponent(MATERIAL)) {
+        if(ImGui::Button("Remove Material")) {
+            gameObject->RemoveComponent(MATERIAL);
+        }
+    }
+    else {
+        if(ImGui::Button("Add Material")) {
+            gameObject->AddComponent(MATERIAL);
+        }
+    }
+
+    ImGui::BeginDisabled(gameObject->GetComponent(RIGID_BODY));
+    if(gameObject->GetComponent(COLLIDER)) {
+        if(ImGui::Button("Remove Collider")) {
+            gameObject->RemoveComponent(COLLIDER);
+        }
+    }
+    else {
+        if(ImGui::Button("Add Plane Collider")) {
+            gameObject->AddComponent(PLANE_COLLIDER);
+        }
+        if(ImGui::Button("Add Sphere Collider")) {
+            gameObject->AddComponent(SPHERE_COLLIDER);
+        }
+    }
+    ImGui::EndDisabled();
+
+    ImGui::BeginDisabled(!gameObject->GetComponent(COLLIDER));
+    if(gameObject->GetComponent(RIGID_BODY)) {
+        if(ImGui::Button("Remove Rigid Body")) {
+            gameObject->RemoveComponent(RIGID_BODY);
+        }
+    }
+    else {
+        if(ImGui::Button("Add Rigid Body")) {
+            gameObject->AddComponent(RIGID_BODY);
+        }
+    }
+    ImGui::EndDisabled();
+
+    // const char* items[] = { "Select Component", "Transform", "Material", "Light", "Rigid Body", "Collider" };
+    std::vector<std::string> componentNames = { "Select Component", "Transform", "Material", "Light" };
+    if(gameObject->GetComponent(COLLIDER)) {
+        componentNames.push_back("Rigid Body");
+    }
+    componentNames.push_back("Collider");
+
+    static int currentComponent = 0;
+    static int currentObject = 0;
+    static COMPONENT_TYPE type = NUM_ENUM;
+    static std::vector<std::string> gameObjectNames = {"Select Object"};
+    static std::shared_ptr<GameObject> copyObject;
+
+
+    // Dropdown for selecting the component to copy
+    // Creates a list of objects that have the component
+    ImGui::Text("Component");
+    ImGui::SameLine();
+    if (ImGui::Combo("##Component", &currentComponent, [](void* data, int idx, const char** out_text) {
+        auto& vec = *static_cast<std::vector<std::string>*>(data);
+        if (idx < 0 || idx >= static_cast<int>(vec.size())) return false;
+        *out_text = vec[idx].c_str();
+        return true;
+    }, static_cast<void*>(&componentNames), componentNames.size())) {
+        // reset things when dropdown changes
+        gameObjectNames.clear();
+        gameObjectNames.push_back("Select Object");
+        currentObject = 0; 
+        copyObject = nullptr;
+
+        switch(currentComponent) {
+            case 0: type = NUM_ENUM; break;
+            case 1: type = TRANSFORM; break;
+            case 2: type = MATERIAL; break;
+            case 3: type = LIGHT; break;
+            case 4: type = RIGID_BODY; break;
+            case 5: type = COLLIDER; break;
+        }
+        if(type != NUM_ENUM) {
+            for(const auto& model : scene->GetModels()) {
+                if(model->GetComponent(type) && model != gameObject) {
+                    gameObjectNames.push_back(model->name);
+                }
+            }
+            for(const auto& light : scene->GetLights()) {
+                if(light->GetComponent(type) && light != gameObject) {
+                    gameObjectNames.push_back(light->name);
+                }
+            }
+        }
+    }
+
+
+
+    // Dropdown of the list of objects to copy from
+    if (type != NUM_ENUM) {
+        ImGui::Text("Copy from");
+        ImGui::SameLine();
+        if (ImGui::Combo("##CopyFrom", &currentObject, [](void* data, int idx, const char** out_text) {
+                    auto& vec = *static_cast<std::vector<std::string>*>(data);
+                    if (idx < 0 || idx >= static_cast<int>(vec.size())) return false;
+                    *out_text = vec[idx].c_str();
+                    return true;
+                }, static_cast<void*>(&gameObjectNames), gameObjectNames.size())) {
+                
+                    
+                // Change to search by id probably
+                auto results = scene->SearchByName(gameObjectNames[currentObject]);
+                if (!results.empty()) {
+                    copyObject = results.front();
+                }
+                if(currentObject == 0) {
+                    copyObject = nullptr;
+                }
+            }
+        }
+    if(copyObject && type != NUM_ENUM) {
+        if(ImGui::Button("Confirm")) {
+            gameObject->components[type] = copyObject->GetComponent(type)->Clone();
+        }
+    }
+    // ImGui::Text("Current Object Index: %d", currentObject);
+    // ImGui::Text("Current Component Index: %d", currentComponent);
+    // ImGui::Text("Current type: %d", type);
+    // ImGui::Text("gameObjectNames size: %d", gameObjectNames.size());
+}
+
 
 void Details::ShowDetails(const std::shared_ptr<Scene>& scene)
 {
     // Remove Decorations for the window
-    ImGuiWindowFlags window_flags = ImGuiWindowFlags_AlwaysVerticalScrollbar | ImGuiWindowFlags_NoResize;
+    ImGuiWindowFlags window_flags = ImGuiWindowFlags_AlwaysVerticalScrollbar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoTitleBar;
 
     ImVec2 DisplaySize = ImGui::GetIO().DisplaySize;
 
-    size = ImVec2(DisplaySize.x / 4, DisplaySize.y / 2);
+    size = ImVec2(DisplaySize.x / 4, DisplaySize.y / 2 - 29);
     pos = ImVec2(DisplaySize.x - (DisplaySize.x / 4),29 + DisplaySize.y / 2);
 
     // Set Window width
@@ -92,81 +305,136 @@ void Details::ShowDetails(const std::shared_ptr<Scene>& scene)
     ImGui::SetNextWindowPos(pos);
 
     ImGui::Begin("Details",nullptr,window_flags);
-    if (scene->selectedCamera) {
-        std::shared_ptr<Camera> camera = scene->GetCurrCamera();
-        glm::vec3 camEye = camera->GetEye();
+    ImGui::BeginTabBar("Details");
+    if(ImGui::BeginTabItem("Object Details"))
+    {
+        if (scene->selectedCamera) {
+            std::shared_ptr<Camera> camera = scene->GetCurrCamera();
 
+            glm::vec3 position = camera->GetPosition();
+
+            ImGui::Text("Position");
+            ImGui::SameLine();
+            if(ImGui::DragFloat3("##Position", &position[0], 0.001f,0,0, "%.3f")) {
+                camera->SetPosition(position);
+            }
+
+            glm::vec3 rotation = camera->GetEularRotation();
+
+            ImGui::Text("Rotation");
+            ImGui::SameLine();
+            if(ImGui::DragFloat3("##Rotation", &rotation[0], 0.5f, 0, 0, "%.3f")) {
+                camera->SetRotation(rotation);
+            }
+
+
+            float focusDist = camera->GetFocusDist();
+
+            ImGui::Text("Focus Distance");
+            ImGui::SameLine();
+            if(ImGui::DragFloat("##FocusDst", &focusDist, 0.001f, 0, 0, "%.3f")) {
+                camera->SetFocusDist(focusDist);
+            }
+
+            glm::vec2 clippingPlane = camera->GetClippingPlanes();
+
+            ImGui::Text("Clipping Planes");
+            ImGui::SameLine();
+            if(ImGui::DragFloat2("##ClippingPlanes", &clippingPlane[0], 0.001f, 0, 0, "%.3f")) {
+                camera->SetClippingPlanes(clippingPlane);
+            }
+
+            if(ImGui::Button("Delete")) {
+                DeleteObject(scene);
+            }
+        }
+        else if(scene->selectedGameObj)
+        {
+            std::shared_ptr<GameObject> object = scene->selectedGameObj;
+            if(auto objectName = &object->name)
+            {
+                char nameBuffer[128];
+                strncpy(nameBuffer, objectName->c_str(), sizeof(nameBuffer));
+                nameBuffer[127] = '\0';
+                ImGui::Text("Name");
+                ImGui::SameLine();
+                if(ImGui::InputText("##Name", nameBuffer, sizeof(nameBuffer))) {
+                    object->name = nameBuffer;
+                }
+            }
+
+            for(const auto& objComponent : object->components) {
+
+                // Try to cast component to a transform
+                if(auto objTransform = std::dynamic_pointer_cast<Transform>( objComponent ))
+                {
+                    ShowTransform(objTransform);
+                }
+                // Try to cast component to a Material
+                if(auto objMaterial = std::dynamic_pointer_cast<Material>( objComponent ))
+                {
+                    ShowMaterial(objMaterial);
+                }
+                if(auto objLight = std::dynamic_pointer_cast<PointLight>( objComponent )) {
+                    ShowLight(objLight);
+                }
+
+                if(auto objectSphere = std::dynamic_pointer_cast<SphereCollider>(objComponent)) {
+                    ShowSphereCollider(objectSphere);
+                }
+
+                if(auto objectPlane = std::dynamic_pointer_cast<PlaneCollider>(objComponent)) {
+                    ShowPlaneCollider(objectPlane);
+                }
+
+                if(auto objectRigid = std::dynamic_pointer_cast<RigidBody>( objComponent )) {
+                    ShowRigidBody(objectRigid);
+                }
+            }
+            if(ImGui::TreeNode("Component Control")) {
+                ShowComponentControl(scene);
+                ImGui::TreePop();
+            }
+            if(ImGui::Button("Delete")) {
+                DeleteObject(scene);
+            }
+        }
+        else {
+            ImGui::Text("No Object Selected");
+        }
+        ImGui::EndTabItem();
+    }
+    if(ImGui::BeginTabItem("World Details")) {
+        glm::vec3 eye = scene->getlightEye();
         ImGui::Text("Camera Eye");
         ImGui::SameLine();
-        ImGui::DragFloat3("##CamEye", &camEye[0], 0.1f, -100.0f, 100.0f, "%.3f");
+        if(ImGui::DragFloat3("##lightEye", glm::value_ptr(eye))) {
+            scene->setLightEye(eye);
+        }
 
-        camera->SetEye(camEye);
-
-        glm::vec3 camCenter = camera->GetCenter();
-
+        glm::vec3 center = scene->getlightCenter();
         ImGui::Text("Camera Center");
         ImGui::SameLine();
-        ImGui::DragFloat3("##CamCenter", &camCenter[0], 0.1f, -100.0f, 100.0f, "%.3f");
+        if(ImGui::DragFloat3("##lightCenter", glm::value_ptr(center))) {
+            scene->setLightCenter(center);
+        }
 
-        camera->SetCenter(camCenter);
-
-        glm::vec3 camUp = camera->GetUpVec();
-
-        ImGui::Text("Camera Up Vector");
+        float nearPlane = scene->getLightNearPlane();
+        ImGui::Text("Camera Near Plane");
         ImGui::SameLine();
-        ImGui::DragFloat3("##CamUpVect", &camUp[0], 0.001f, -100.0f, 100.0f, "%.3f");
-
-        if(glm::length(camUp) != 0) {
-            camUp = glm::normalize(camUp);
-
-            camera->SetUpVec(camUp);
+        if(ImGui::DragFloat("##lightNearPlane", &nearPlane)) {
+            scene->setLightNearPlane(nearPlane);
         }
-        
 
-        if(ImGui::Button("Delete")) {
-            DeleteObject(scene);
+        float farPlane = scene->getLightFarPlane();
+        ImGui::Text("Camera Far Plane");
+        ImGui::SameLine();
+        if(ImGui::DragFloat("##lightFarPlane", &farPlane)) {
+            scene->setLightFarPlane(farPlane);
         }
+
+        ImGui::EndTabItem();
     }
-    else if(scene->selectedGameObj)
-    {
-        std::shared_ptr<GameObject> object = scene->selectedGameObj;
-        if(auto objectName = &object->name)
-        {
-            char nameBuffer[128];
-            strncpy(nameBuffer, objectName->c_str(), sizeof(nameBuffer));
-            nameBuffer[127] = '\0';
-            ImGui::Text("Name");
-            ImGui::SameLine();
-            if(ImGui::InputText("##Name", nameBuffer, sizeof(nameBuffer))) {
-                object->name = nameBuffer;
-            }
-        }
-
-        for(const auto& objComponent : object->components) {
-
-            // Try to cast component to a transform
-            if(auto objTransform = std::dynamic_pointer_cast<Transform>( objComponent ))
-            {
-                ShowTransform(objTransform);
-            }
-            // Try to cast component to a Material
-            if(auto objMaterial = std::dynamic_pointer_cast<Material>( objComponent ))
-            {
-                ShowMaterial(objMaterial);
-            }
-            if(auto objLight = std::dynamic_pointer_cast<Light>( objComponent )) {
-                ShowLight(objLight);
-            }
-
-
-        }
-        if(ImGui::Button("Delete")) {
-            DeleteObject(scene);
-        }
-    }
-    else {
-        ImGui::Text("No Object Selected");
-    }
-
+    ImGui::EndTabBar();
     ImGui::End();
 }

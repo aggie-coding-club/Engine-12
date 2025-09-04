@@ -9,3 +9,12 @@ YAML::Node SerializeTransform(const std::shared_ptr<Transform>& transform) {
 
     return TransformNode;
 }
+
+std::shared_ptr<Transform> DeserializeTransform(const YAML::Node& transformNode) {
+    const auto _transform = std::make_shared<Transform>(
+        glm::vec3(transformNode["position"][0].as<float>(), transformNode["position"][1].as<float>(), transformNode["position"][2].as<float>()),
+        glm::vec3(transformNode["rotation"][0].as<float>(), transformNode["rotation"][1].as<float>(), transformNode["rotation"][2].as<float>()),
+        glm::vec3(transformNode["scale"][0].as<float>(), transformNode["scale"][1].as<float>(), transformNode["scale"][2].as<float>()));
+    
+    return _transform;
+}
